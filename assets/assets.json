@@ -1,0 +1,20 @@
+{
+  "car_icon": {
+    "description": "top-down minimal car icon, flat design, bright color, suitable for map marker"
+  },
+  "checkpoint_marker": {
+    "description": "glowing circular checkpoint ring, futuristic racing style"
+  },
+  "finish_line": {
+    "description": "checkered finish stripe, minimal top-down view"
+  },
+  "player_marker_self": {
+    "description": "highlighted car icon with glow, distinct from others"
+  },
+  "hazard_zone": {
+    "description": "warning zone marker, orange/red overlay pattern"
+  },
+  "start_line": {
+    "description": "start line marker, green stripe pattern"
+  }
+}

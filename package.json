@@ -1,0 +1,17 @@
+{
+  "name": "race-wars",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm --workspace server run dev",
+    "dev:client": "npm --workspace client run dev",
+    "build": "npm run -w shared build && npm run -w server build && npm run -w client build",
+    "build:shared": "npm run -w shared build",
+    "build:server": "npm run -w server build",
+    "build:client": "npm run -w client build"
+  }
+}
