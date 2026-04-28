@@ -11,8 +11,10 @@ import ConnectionManager from "./ConnectionManager"
 import RaceSelector from "./RaceSelector"
 import RaceCreator from "./RaceCreator"
 import AdminConsole from "./AdminConsole"
+import AuthScreen from "./AuthScreen"
+import { authService, User } from "../network/authService"
 
-type ViewState = 'connection' | 'race-selection' | 'race-creation' | 'racing' | 'spectating' | 'admin'
+type ViewState = 'connection' | 'race-selection' | 'race-creation' | 'racing' | 'spectating' | 'admin' | 'auth'
 
 export default function EnhancedApp() {
   const [viewState, setViewState] = useState<ViewState>('connection')
@@ -20,7 +22,26 @@ export default function EnhancedApp() {
   const [mapInitialized, setMapInitialized] = useState(false)
   const [currentRace, setCurrentRace] = useState<string | null>(null)
   const [serverUrl, setServerUrl] = useState<string>('')
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isSpectator, setIsSpectator] = useState(false)
   const mapRef = useRef<HTMLDivElement>(null)
+
+  // Check authentication state on mount
+  useEffect(() => {
+    const checkAuth = () => {
+      const user = authService.getCurrentUser()
+      if (user) {
+        setCurrentUser(user)
+        // User is authenticated, proceed to connection
+        setViewState('connection')
+      } else {
+        // User not authenticated, show auth screen
+        setViewState('auth')
+      }
+    }
+
+    checkAuth()
+  }, [])
 
   // Check URL parameters for server connection
   useEffect(() => {
@@ -28,7 +49,6 @@ export default function EnhancedApp() {
     const serverParam = urlParams.get('server')
     if (serverParam) {
       setServerUrl(serverParam)
-      setViewState('connection')
     }
   }, [])
 
@@ -98,9 +118,31 @@ export default function EnhancedApp() {
 
   const handleRaceCreated = (raceData: any) => {
     console.log('Race created:', raceData)
-    // Send race creation to server
-    // For now, just go back to selection
     setViewState('race-selection')
+  }
+
+  const handleBackToConnection = () => {
+    setViewState('connection')
+    setCurrentRace(null)
+  }
+
+  const handleAuthSuccess = (user: User) => {
+    setCurrentUser(user)
+    setIsSpectator(false)
+    setViewState('connection')
+  }
+
+  const handleSpectatorMode = () => {
+    setCurrentUser(null)
+    setIsSpectator(true)
+    setViewState('connection')
+  }
+
+  const handleLogout = async () => {
+    await authService.logout()
+    setCurrentUser(null)
+    setIsSpectator(false)
+    setViewState('auth')
   }
 
   const handleDisconnect = () => {
@@ -112,6 +154,16 @@ export default function EnhancedApp() {
   const handleBackToSelection = () => {
     setViewState('race-selection')
     setCurrentRace(null)
+  }
+
+  // Authentication Screen
+  if (viewState === 'auth') {
+    return (
+      <AuthScreen 
+        onAuthSuccess={handleAuthSuccess}
+        onSpectatorMode={handleSpectatorMode}
+      />
+    )
   }
 
   // Connection Screen
@@ -130,6 +182,9 @@ export default function EnhancedApp() {
           onConnected={handleConnected}
           onRaceJoined={handleRaceJoined}
           onAdminAccess={() => setViewState('admin')}
+          currentUser={currentUser}
+          isSpectator={isSpectator}
+          onLogout={handleLogout}
         />
       </div>
     )

@@ -18,9 +18,12 @@ interface ConnectionManagerProps {
   onConnected: () => void
   onRaceJoined: (raceId: string) => void
   onAdminAccess?: () => void
+  currentUser?: any
+  isSpectator?: boolean
+  onLogout?: () => Promise<void>
 }
 
-export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAccess }: ConnectionManagerProps) {
+export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAccess, currentUser, isSpectator, onLogout }: ConnectionManagerProps) {
   const [connectionState, setConnectionState] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected')
   const [servers, setServers] = useState<ServerInfo[]>([])
   const [selectedServer, setSelectedServer] = useState<ServerInfo | null>(null)
@@ -153,6 +156,37 @@ export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAc
           </div>
         )}
         
+        {/* User Information */}
+        {currentUser && (
+          <div style={{ 
+            background: 'rgba(255, 255, 255, 0.1)', 
+            padding: '8px', 
+            borderRadius: '6px', 
+            marginBottom: '12px',
+            fontSize: '0.8rem'
+          }}>
+            <div style={{ color: '#667eea', fontWeight: 'bold', marginBottom: '4px' }}>
+              👤 {currentUser.displayName}
+            </div>
+            <div style={{ color: '#888' }}>
+              {currentUser.role === 'admin' ? '🛠️ Admin' : '🏁 Racer'} • {currentUser.isVerified ? '✅ Verified' : '⏳ Pending'}
+            </div>
+          </div>
+        )}
+        
+        {isSpectator && (
+          <div style={{ 
+            background: 'rgba(255, 255, 255, 0.1)', 
+            padding: '8px', 
+            borderRadius: '6px', 
+            marginBottom: '12px',
+            fontSize: '0.8rem',
+            color: '#87ceeb'
+          }}>
+            👁️ Spectating Mode
+          </div>
+        )}
+        
         <div style={{ color: '#888', fontSize: '0.8rem', marginBottom: '12px' }}>
           {selectedServer.participants}/{selectedServer.maxParticipants} participants
         </div>
@@ -174,7 +208,7 @@ export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAc
           Disconnect
         </button>
         
-        {onAdminAccess && (
+        {onAdminAccess && currentUser?.role === 'admin' && (
           <button
             onClick={handleAdminAccess}
             style={{
@@ -185,10 +219,30 @@ export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAc
               borderRadius: '6px',
               color: '#fff',
               cursor: 'pointer',
-              fontSize: '0.9rem'
+              fontSize: '0.9rem',
+              marginBottom: '8px'
             }}
           >
             🛠️ Admin Console
+          </button>
+        )}
+        
+        {currentUser && onLogout && (
+          <button
+            onClick={onLogout}
+            style={{
+              width: '100%',
+              padding: '8px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '6px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              marginBottom: '8px'
+            }}
+          >
+            🚪 Logout
           </button>
         )}
       </div>

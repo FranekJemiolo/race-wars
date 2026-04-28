@@ -97,23 +97,23 @@ class RaceService {
    */
   async createRace(raceData: CreateRaceRequest): Promise<Race> {
     try {
+      const token = localStorage.getItem('race_wars_token')
       const response = await fetch(`${this.baseUrl}/api/races`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
         },
-        body: JSON.stringify(raceData),
+        body: JSON.stringify(raceData)
       })
-
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
       }
-
+      
       const race = await response.json()
-      return {
-        ...race,
-        startTime: race.startTime ? new Date(race.startTime) : undefined
-      }
+      return race
     } catch (error) {
       console.error('Failed to create race:', error)
       throw error

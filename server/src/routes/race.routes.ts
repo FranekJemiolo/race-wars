@@ -5,6 +5,7 @@
 
 import { Router } from 'express'
 import { raceController } from '../controllers/race.controller'
+import { authenticateToken, requireVerifiedUser, allowSpectators, requireAdmin } from '../middleware/auth.middleware'
 
 const router = Router()
 
@@ -27,28 +28,28 @@ router.get('/:raceId', raceController.getRace.bind(raceController))
  * @desc    Create a new race
  * @access  Private (requires authentication)
  */
-router.post('/', raceController.createRace.bind(raceController))
+router.post('/', authenticateToken, requireVerifiedUser, raceController.createRace.bind(raceController))
 
 /**
  * @route   POST /api/races/:raceId/join
  * @desc    Join a race
  * @access  Private (requires authentication)
  */
-router.post('/:raceId/join', raceController.joinRace.bind(raceController))
+router.post('/:raceId/join', authenticateToken, requireVerifiedUser, raceController.joinRace.bind(raceController))
 
 /**
  * @route   POST /api/races/:raceId/leave
  * @desc    Leave a race
  * @access  Private (requires authentication)
  */
-router.post('/:raceId/leave', raceController.leaveRace.bind(raceController))
+router.post('/:raceId/leave', authenticateToken, raceController.leaveRace.bind(raceController))
 
 /**
  * @route   POST /api/races/:raceId/spectate
  * @desc    Spectate a race
- * @access  Private (requires authentication)
+ * @access  Public (spectators allowed)
  */
-router.post('/:raceId/spectate', raceController.spectateRace.bind(raceController))
+router.post('/:raceId/spectate', allowSpectators, raceController.spectateRace.bind(raceController))
 
 /**
  * @route   GET /api/tracks
@@ -69,6 +70,6 @@ router.get('/tracks/details', raceController.getTrackDetails.bind(raceController
  * @desc    Update race status
  * @access  Private (requires admin privileges)
  */
-router.patch('/:raceId/status', raceController.updateRaceStatus.bind(raceController))
+router.patch('/:raceId/status', authenticateToken, requireAdmin, raceController.updateRaceStatus.bind(raceController))
 
 export default router

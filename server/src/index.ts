@@ -5,6 +5,7 @@ import { startTick } from "./engine/tick"
 import { initializeDatabase } from './database/connection.simple'
 import { log } from "./utils/logger"
 import raceRoutes from './routes/race.routes'
+import authRoutes from './routes/auth.routes'
 import { raceController } from './controllers/race.controller'
 
 const app = express()
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 })
 
 // Routes
+app.use('/api/auth', authRoutes)
 app.use('/api/races', raceRoutes)
 
 // Health check
