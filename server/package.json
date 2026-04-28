@@ -8,7 +8,9 @@
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
     "type-check": "tsc --noEmit",
-    "simulation": "ts-node --transpile-only src/simulation/runSimulation.ts"
+    "simulation": "ts-node --transpile-only src/simulation/runSimulation.ts",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.7.0",
@@ -36,6 +38,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.0",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.0.0",
     "@types/nodemailer": "^6.4.14",
@@ -43,6 +46,8 @@
     "@types/uuid": "^9.0.7",
     "@types/ws": "^8.5.0",
     "eslint": "^8.57.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.0",
     "typescript": "^5.0.0"
   }
