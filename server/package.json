@@ -11,6 +11,12 @@
   },
   "dependencies": {
     "@race-wars/shared": "*",
+    "@opentelemetry/api": "^1.7.0",
+    "@opentelemetry/exporter-jaeger": "^1.17.0",
+    "@opentelemetry/resources": "^1.17.0",
+    "@opentelemetry/sdk-trace-base": "^1.17.0",
+    "@opentelemetry/sdk-trace-node": "^1.17.0",
+    "@opentelemetry/semantic-conventions": "^1.17.0",
     "@turf/turf": "^6.5.0",
     "bcrypt": "^5.1.1",
     "express": "^4.18.2",
