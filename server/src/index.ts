@@ -12,6 +12,7 @@ import notificationRoutes from './routes/notification.routes'
 import enforcementRoutes from './routes/enforcement.routes'
 import sectorFlagRoutes from './routes/sectorFlag.routes'
 import proximityRoutes from './routes/proximity.routes'
+import incidentRoutes from './routes/incident.routes'
 import { raceController } from './controllers/race.controller'
 
 const app = express()
@@ -39,6 +40,7 @@ app.use('/api/notifications', notificationRoutes)
 app.use('/api/enforcement', enforcementRoutes)
 app.use('/api/sector-flags', sectorFlagRoutes)
 app.use('/api/proximity', proximityRoutes)
+app.use('/api/incidents', incidentRoutes)
 
 // Health check
 app.get('/health', (req, res) => {
