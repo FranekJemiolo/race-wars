@@ -10,9 +10,13 @@ export { UserRepository, userRepository } from './user.repository'
 export { EventRepository, eventRepository } from './event.repository'
 export { TrackRepository, trackRepository } from './track.repository'
 export { SessionRepository, sessionRepository } from './session.repository'
+export { ParticipantRepository, participantRepository } from './participant.repository'
+export { SessionParticipantRepository, sessionParticipantRepository } from './sessionParticipant.repository'
 
 // Re-export commonly used types
 export type { User, CreateUserInput, UpdateUserInput } from './user.repository'
 export type { Event, CreateEventInput, UpdateEventInput } from './event.repository'
 export type { Track, CreateTrackInput, UpdateTrackInput } from './track.repository'
 export type { Session, CreateSessionInput, UpdateSessionInput } from './session.repository'
+export type { Participant, CreateParticipantInput, UpdateParticipantInput } from './participant.repository'
+export type { SessionParticipant, CreateSessionParticipantInput, UpdateSessionParticipantInput } from './sessionParticipant.repository'
