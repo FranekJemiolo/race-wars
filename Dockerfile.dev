@@ -1,0 +1,26 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY server/package*.json ./server/
+COPY shared/package*.json ./shared/
+COPY client/package*.json ./client/
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY server/ ./server/
+COPY shared/ ./shared/
+COPY client/ ./client/
+
+# Build shared package
+RUN npm run build:shared
+
+# Expose ports
+EXPOSE 8080 8081
+
+# Start command
+CMD ["npm", "run", "dev:server"]

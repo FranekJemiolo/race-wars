@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: race-wars-postgres
+    environment:
+      POSTGRES_DB: race_wars
+      POSTGRES_USER: race_wars
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - race-wars-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U race_wars -d race_wars"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: race-wars-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - race-wars-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: race-wars-server
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://race_wars:password@postgres:5432/race_wars
+      - REDIS_URL=redis://redis:6379
+      - JWT_ACCESS_SECRET=dev-access-secret-key
+      - JWT_REFRESH_SECRET=dev-refresh-secret-key
+      - PORT=8080
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ./server:/app/server
+      - ./shared:/app/shared
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - race-wars-network
+    command: npm run dev:server
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client.dev
+    container_name: race-wars-client
+    environment:
+      - VITE_API_URL=http://localhost:8080
+      - VITE_WS_URL=ws://localhost:8081
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app/client
+      - ./shared:/app/shared
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - race-wars-network
+    command: npm run dev:client
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  race-wars-network:
+    driver: bridge

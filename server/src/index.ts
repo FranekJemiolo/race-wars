@@ -1,6 +1,6 @@
 import { startWebSocket } from "./network/websocket"
 import { startTick } from "./engine/tick"
-import { initializeDatabase } from "./database/connection"
+import { initializeDatabase } from './database/connection.simple'
 import { log } from "./utils/logger"
 
 async function startServer() {
