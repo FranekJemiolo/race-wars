@@ -13,6 +13,9 @@ export { SessionRepository, sessionRepository } from './session.repository'
 export { ParticipantRepository, participantRepository } from './participant.repository'
 export { SessionParticipantRepository, sessionParticipantRepository } from './sessionParticipant.repository'
 export { FlagRepository, flagRepository } from './flag.repository'
+export { CustomRouteRepository, customRouteRepository } from './customRoute.repository'
+export { CheckpointRepository, checkpointRepository } from './checkpoint.repository'
+export { EnforcementZoneRepository, enforcementZoneRepository } from './enforcementZone.repository'
 
 // Re-export commonly used types
 export type { User, CreateUserInput, UpdateUserInput } from './user.repository'
