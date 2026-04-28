@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { raceService, CreateRaceRequest } from '../network/raceService'
 
 interface RaceFormData {
   name: string
@@ -17,7 +18,7 @@ interface RaceFormData {
 }
 
 interface RaceCreatorProps {
-  onRaceCreated: (raceData: RaceFormData) => void
+  onRaceCreated: (raceData: any) => void
   onCancel: () => void
 }
 
@@ -87,11 +88,33 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (validateForm()) {
-      onRaceCreated(formData)
+      try {
+        const createRaceRequest: CreateRaceRequest = {
+          name: formData.name,
+          type: formData.type,
+          trackName: formData.trackName,
+          maxParticipants: formData.maxParticipants,
+          duration: formData.duration,
+          startTime: formData.startTime,
+          description: formData.description,
+          requirements: formData.requirements,
+          entryFee: formData.entryFee,
+          prizePool: formData.prizePool,
+          difficulty: formData.difficulty,
+          enforcementLevel: formData.enforcementLevel,
+          isPublic: formData.isPublic
+        }
+        
+        const createdRace = await raceService.createRace(createRaceRequest)
+        onRaceCreated(createdRace)
+      } catch (error) {
+        console.error('Failed to create race:', error)
+        // Show error message to user
+      }
     }
   }
 

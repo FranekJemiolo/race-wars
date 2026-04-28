@@ -209,6 +209,7 @@ export default function EnhancedApp() {
           onRaceJoined={handleRaceJoined}
           onSpectate={handleSpectate}
           onCreateRace={handleCreateRace}
+          onBackToConnection={() => setViewState('connection')}
         />
       </div>
     )

@@ -1,113 +1,50 @@
 import { useState, useEffect } from 'react'
-
-interface Race {
-  id: string
-  name: string
-  type: 'circuit' | 'custom' | 'duel'
-  status: 'waiting' | 'starting' | 'in-progress' | 'finished'
-  trackName: string
-  trackImage?: string
-  participants: number
-  maxParticipants: number
-  duration?: number
-  startTime?: Date
-  description?: string
-  rules?: string[]
-  requirements?: string[]
-  prizePool?: number
-  entryFee?: number
-  createdBy?: string
-  difficulty?: 'easy' | 'medium' | 'hard' | 'expert'
-  enforcementLevel?: 'none' | 'light' | 'medium' | 'hard'
-}
+import { QRCodeSVG } from 'qrcode.react'
+import { raceService, Race } from '../network/raceService'
 
 interface RaceSelectorProps {
   onRaceJoined: (raceId: string) => void
   onSpectate: (raceId: string) => void
   onCreateRace: () => void
+  onBackToConnection: () => void
 }
 
-export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace }: RaceSelectorProps) {
+export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, onBackToConnection }: RaceSelectorProps) {
   const [races, setRaces] = useState<Race[]>([])
   const [filter, setFilter] = useState<'all' | 'circuit' | 'custom' | 'duel'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'starting-soon' | 'most-popular' | 'newest' | 'difficulty'>('starting-soon')
 
-  // Mock race data
+  // Fetch real race data from server
   useEffect(() => {
-    const mockRaces: Race[] = [
-      {
-        id: 'practice-1',
-        name: 'Morning Practice Session',
-        type: 'circuit',
-        status: 'waiting',
-        trackName: 'Test Circuit',
-        trackImage: '/tracks/test-circuit.jpg',
-        participants: 8,
-        maxParticipants: 20,
-        duration: 1800, // 30 minutes
-        startTime: new Date(Date.now() + 5 * 60000), // 5 minutes from now
-        description: 'Open practice session for all skill levels',
-        requirements: ['Valid driver license', 'Helmet required'],
-        difficulty: 'easy',
-        enforcementLevel: 'light'
-      },
-      {
-        id: 'duel-championship',
-        name: 'Duel Championship Round 1',
-        type: 'duel',
-        status: 'starting',
-        trackName: 'Speedway Arena',
-        participants: 9,
-        maxParticipants: 10,
-        duration: 900, // 15 minutes
-        startTime: new Date(Date.now() + 2 * 60000), // 2 minutes from now
-        description: 'Head-to-head racing tournament',
-        requirements: ['Previous race experience', 'Vehicle inspection'],
-        prizePool: 1000,
-        entryFee: 50,
-        difficulty: 'medium',
-        enforcementLevel: 'medium'
-      },
-      {
-        id: 'custom-mountain',
-        name: 'Mountain Pass Challenge',
-        type: 'custom',
-        status: 'in-progress',
-        trackName: 'Mountain Pass',
-        trackImage: '/tracks/mountain-pass.jpg',
-        participants: 12,
-        maxParticipants: 16,
-        duration: 2400, // 40 minutes
-        startTime: new Date(Date.now() - 10 * 60000), // Started 10 minutes ago
-        description: 'Challenging custom route through mountain terrain',
-        requirements: ['Advanced driving skills', 'Off-road experience'],
-        prizePool: 2000,
-        entryFee: 100,
-        difficulty: 'hard',
-        enforcementLevel: 'hard',
-        createdBy: 'Admin'
-      },
-      {
-        id: 'circuit-championship',
-        name: 'Circuit Championship Qualifier',
-        type: 'circuit',
-        status: 'waiting',
-        trackName: 'Grand Prix Circuit',
-        trackImage: '/tracks/grand-prix.jpg',
-        participants: 15,
-        maxParticipants: 24,
-        duration: 2700, // 45 minutes
-        startTime: new Date(Date.now() + 15 * 60000), // 15 minutes from now
-        description: 'Official championship qualifying session',
-        requirements: ['Racing license', 'Vehicle compliance check'],
-        prizePool: 5000,
-        entryFee: 200,
-        difficulty: 'expert',
-        enforcementLevel: 'medium'
+    const fetchRaces = async () => {
+      try {
+        const racesData = await raceService.getRaces()
+        setRaces(racesData)
+      } catch (error) {
+        console.error('Failed to fetch races:', error)
+        setRaces([])
       }
-    ]
-    setRaces(mockRaces)
+    }
+
+    fetchRaces()
+
+    // Setup WebSocket for real-time updates
+    raceService.setupWebSocket(
+      (updatedRace) => {
+        setRaces(prevRaces => 
+          prevRaces.map(race => race.id === updatedRace.id ? updatedRace : race)
+        )
+      },
+      (updatedRaces) => {
+        setRaces(updatedRaces)
+      }
+    )
+
+    // Cleanup WebSocket on unmount
+    return () => {
+      raceService.closeWebSocket()
+    }
   }, [])
 
   const filteredRaces = races.filter(race => {
@@ -208,7 +145,23 @@ export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace }:
         zIndex: 10
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h1 style={{ color: '#fff', fontSize: '2rem', margin: 0 }}>Race Selection</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button
+              onClick={onBackToConnection}
+              style={{
+                padding: '8px 16px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              ← Back
+            </button>
+            <h1 style={{ color: '#fff', fontSize: '2rem', margin: 0 }}>Race Selection</h1>
+          </div>
           <button
             onClick={onCreateRace}
             style={{
