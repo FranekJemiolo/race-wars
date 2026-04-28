@@ -1,4 +1,4 @@
-import { pool } from '../connection';
+import { pool } from '../index';
 
 export interface Notification {
   id: string;
@@ -23,7 +23,7 @@ export interface NotificationPreferences {
   penaltyNotifications: boolean;
 }
 
-class NotificationRepository {
+export class NotificationRepository {
   async create(notification: Omit<Notification, 'id'>): Promise<Notification> {
     const result = await pool.query(
       `INSERT INTO notifications (id, user_id, type, title, message, data, priority, read, created_at, expires_at)

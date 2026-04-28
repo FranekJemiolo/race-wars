@@ -9,8 +9,8 @@ interface Race {
   status: 'waiting' | 'starting' | 'in-progress' | 'finished'
   trackName: string
   trackImage?: string
-  participants: number
-  maxParticipants: number
+  participants?: number
+  maxParticipants?: number
   duration?: number
   startTime?: Date
   description?: string
@@ -44,7 +44,7 @@ class RaceService {
   private ws: WebSocket | null = null
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8082'
+    this.baseUrl = (import.meta as any).env.VITE_API_URL || 'http://localhost:8082'
     console.log('RaceService initialized with baseUrl:', this.baseUrl)
   }
 
@@ -204,7 +204,7 @@ class RaceService {
    * Setup WebSocket connection for real-time race updates
    */
   setupWebSocket(onRaceUpdate: (race: Race) => void, onRaceListUpdate: (races: Race[]) => void): void {
-    const wsUrl = (import.meta.env.VITE_WS_URL || 'ws://localhost:8081').replace('http', 'ws')
+    const wsUrl = ((import.meta as any).env.VITE_WS_URL || 'ws://localhost:8081').replace('http', 'ws')
     
     try {
       this.ws = new WebSocket(wsUrl)

@@ -59,7 +59,7 @@ export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, o
       case 'starting-soon':
         return (a.startTime?.getTime() || 0) - (b.startTime?.getTime() || 0)
       case 'most-popular':
-        return b.participants - a.participants
+        return (b.participants ?? 0) - (a.participants ?? 0)
       case 'newest':
         return (b.id.localeCompare(a.id))
       case 'difficulty':
@@ -375,22 +375,22 @@ export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, o
                     {race.status === 'waiting' || race.status === 'starting' ? (
                       <button
                         onClick={() => onRaceJoined(race.id)}
-                        disabled={(race.participants || 0) >= (race.maxParticipants || 0)}
+                        disabled={(race.participants ?? 0) >= (race.maxParticipants ?? 0)}
                         style={{
                           flex: 1,
                           padding: '12px',
-                          background: (race.participants || 0) >= (race.maxParticipants || 0) 
+                          background: (race.participants ?? 0) >= (race.maxParticipants ?? 0) 
                             ? 'rgba(255, 255, 255, 0.1)' 
                             : 'rgba(46, 204, 113, 0.8)',
                           border: 'none',
                           borderRadius: '8px',
-                          color: (race.participants || 0) >= (race.maxParticipants || 0) ? '#666' : '#fff',
-                          cursor: (race.participants || 0) >= (race.maxParticipants || 0) ? 'not-allowed' : 'pointer',
+                          color: (race.participants ?? 0) >= (race.maxParticipants ?? 0) ? '#666' : '#fff',
+                          cursor: (race.participants ?? 0) >= (race.maxParticipants ?? 0) ? 'not-allowed' : 'pointer',
                           fontSize: '0.9rem',
                           fontWeight: 'bold'
                         }}
                       >
-                        {(race.participants || 0) >= (race.maxParticipants || 0) ? 'Full' : 'Join Race'}
+                        {(race.participants ?? 0) >= (race.maxParticipants ?? 0) ? 'Full' : 'Join Race'}
                       </button>
                     ) : race.status === 'in-progress' ? (
                       <button
