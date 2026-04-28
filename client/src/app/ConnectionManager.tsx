@@ -17,9 +17,10 @@ interface ServerInfo {
 interface ConnectionManagerProps {
   onConnected: () => void
   onRaceJoined: (raceId: string) => void
+  onAdminAccess?: () => void
 }
 
-export default function ConnectionManager({ onConnected, onRaceJoined }: ConnectionManagerProps) {
+export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAccess }: ConnectionManagerProps) {
   const [connectionState, setConnectionState] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected')
   const [servers, setServers] = useState<ServerInfo[]>([])
   const [selectedServer, setSelectedServer] = useState<ServerInfo | null>(null)
@@ -115,6 +116,12 @@ export default function ConnectionManager({ onConnected, onRaceJoined }: Connect
     return `${baseUrl}?server=${encodeURIComponent(server.url)}`
   }
 
+  const handleAdminAccess = () => {
+    if (onAdminAccess) {
+      onAdminAccess()
+    }
+  }
+
   if (connectionState === 'connected' && selectedServer) {
     return (
       <div style={{
@@ -160,11 +167,30 @@ export default function ConnectionManager({ onConnected, onRaceJoined }: Connect
             borderRadius: '6px',
             color: '#fff',
             cursor: 'pointer',
-            fontSize: '0.9rem'
+            fontSize: '0.9rem',
+            marginBottom: '8px'
           }}
         >
           Disconnect
         </button>
+        
+        {onAdminAccess && (
+          <button
+            onClick={handleAdminAccess}
+            style={{
+              width: '100%',
+              padding: '8px',
+              background: 'rgba(155, 89, 182, 0.8)',
+              border: 'none',
+              borderRadius: '6px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            🛠️ Admin Console
+          </button>
+        )}
       </div>
     )
   }

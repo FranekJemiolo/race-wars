@@ -44,7 +44,8 @@ class RaceService {
   private ws: WebSocket | null = null
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8082'
+    console.log('RaceService initialized with baseUrl:', this.baseUrl)
   }
 
   /**

@@ -10,8 +10,9 @@ import Status from "../ui/Status"
 import ConnectionManager from "./ConnectionManager"
 import RaceSelector from "./RaceSelector"
 import RaceCreator from "./RaceCreator"
+import AdminConsole from "./AdminConsole"
 
-type ViewState = 'connection' | 'race-selection' | 'race-creation' | 'racing' | 'spectating'
+type ViewState = 'connection' | 'race-selection' | 'race-creation' | 'racing' | 'spectating' | 'admin'
 
 export default function EnhancedApp() {
   const [viewState, setViewState] = useState<ViewState>('connection')
@@ -119,7 +120,7 @@ export default function EnhancedApp() {
       <div style={{ 
         width: '100vw',
         height: '100vh',
-        background: '#1a1a2e',
+        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
         color: '#ffffff',
         fontFamily: 'sans-serif',
         position: 'relative',
@@ -128,6 +129,26 @@ export default function EnhancedApp() {
         <ConnectionManager 
           onConnected={handleConnected}
           onRaceJoined={handleRaceJoined}
+          onAdminAccess={() => setViewState('admin')}
+        />
+      </div>
+    )
+  }
+
+  // Admin Console Screen
+  if (viewState === 'admin') {
+    return (
+      <div style={{ 
+        width: '100vw',
+        height: '100vh',
+        background: '#f3f4f6',
+        color: '#1f2937',
+        fontFamily: 'sans-serif',
+        position: 'relative',
+        overflow: 'auto'
+      }}>
+        <AdminConsole 
+          onBack={() => setViewState('connection')}
         />
       </div>
     )
