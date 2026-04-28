@@ -6,6 +6,7 @@
 import { query } from '../database/connection.simple'
 import { logger } from '../utils/logger'
 import { trackService } from './track.service'
+import { participationService } from './participation.service'
 
 export interface Race {
   id: string
@@ -172,9 +173,21 @@ export class RaceService {
   /**
    * Get all races
    */
-  async getAllRaces(): Promise<Race[]> {
-    // In a real implementation, this would query the database
-    return Array.from(this.races.values())
+  async getRaces(): Promise<Race[]> {
+    const races = Array.from(this.races.values())
+    
+    // Update participant counts from participation service
+    for (const race of races) {
+      try {
+        const participants = await participationService.getRaceParticipants(race.id)
+        race.participants = participants.length
+      } catch (error) {
+        logger.error(`Failed to get participants for race ${race.id}:`, error)
+        // Keep existing participant count if there's an error
+      }
+    }
+    
+    return races
   }
 
   /**
@@ -217,7 +230,7 @@ export class RaceService {
   /**
    * Join a race
    */
-  async joinRace(raceId: string, userId: string): Promise<{ success: boolean; error?: string }> {
+  async joinRace(raceId: string, userId: string, username: string, displayName: string): Promise<{ success: boolean; error?: string }> {
     const race = this.races.get(raceId)
     
     if (!race) {
@@ -228,17 +241,32 @@ export class RaceService {
       return { success: false, error: 'Race is not accepting new participants' }
     }
 
-    if (race.participants >= race.maxParticipants) {
+    // Check if race is full
+    const currentParticipants = await participationService.getRaceParticipants(raceId)
+    if (currentParticipants.length >= race.maxParticipants) {
       return { success: false, error: 'Race is full' }
     }
 
-    // In a real implementation, check if user is already in race
-    // For now, just increment participant count
-    race.participants++
-    race.updatedAt = new Date()
-    
-    logger.info(`User ${userId} joined race ${raceId}`)
-    return { success: true }
+    // Check if user is already in race
+    const existingParticipant = currentParticipants.find(p => p.userId === userId)
+    if (existingParticipant) {
+      return { success: false, error: 'User already in race' }
+    }
+
+    try {
+      // Add participant to race
+      await participationService.addParticipant(raceId, userId, username, displayName)
+      
+      // Update race participant count
+      race.participants = currentParticipants.length + 1
+      race.updatedAt = new Date()
+      
+      logger.info(`User ${username} joined race ${raceId}`)
+      return { success: true }
+    } catch (error) {
+      logger.error('Failed to add participant to race:', error)
+      return { success: false, error: 'Failed to join race' }
+    }
   }
 
   /**
@@ -251,17 +279,27 @@ export class RaceService {
       return { success: false, error: 'Race not found' }
     }
 
-    if (race.status === 'in-progress') {
-      return { success: false, error: 'Cannot leave race in progress' }
-    }
+    try {
+      // Find and remove participant from race
+      const currentParticipants = await participationService.getRaceParticipants(raceId)
+      const participant = currentParticipants.find(p => p.userId === userId)
+      
+      if (!participant) {
+        return { success: false, error: 'User not in race' }
+      }
 
-    if (race.participants > 0) {
-      race.participants--
+      await participationService.removeParticipant(participant.id)
+      
+      // Update race participant count
+      race.participants = Math.max(0, currentParticipants.length - 1)
       race.updatedAt = new Date()
+      
+      logger.info(`User ${userId} left race ${raceId}`)
+      return { success: true }
+    } catch (error) {
+      logger.error('Failed to remove participant from race:', error)
+      return { success: false, error: 'Failed to leave race' }
     }
-    
-    logger.info(`User ${userId} left race ${raceId}`)
-    return { success: true }
   }
 
   /**

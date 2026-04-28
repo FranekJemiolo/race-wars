@@ -13,7 +13,7 @@ export class RaceController {
    */
   async getRaces(req: Request, res: Response) {
     try {
-      const races = await raceService.getAllRaces()
+      const races = await raceService.getRaces()
       res.json(races)
     } catch (error) {
       logger.error('Failed to get races:', error)
@@ -99,13 +99,13 @@ export class RaceController {
   async joinRace(req: Request, res: Response) {
     try {
       const { raceId } = req.params
-      const userId = req.user?.id // Assuming auth middleware adds user info
+      const user = (req as any).user
       
-      if (!userId) {
+      if (!user) {
         return res.status(401).json({ error: 'Authentication required' })
       }
 
-      const result = await raceService.joinRace(raceId, userId)
+      const result = await raceService.joinRace(raceId, user.id, user.username, user.displayName)
       
       if (!result.success) {
         return res.status(400).json({ error: result.error })
@@ -114,7 +114,10 @@ export class RaceController {
       res.json({ message: 'Successfully joined race' })
     } catch (error) {
       logger.error('Failed to join race:', error)
-      res.status(500).json({ error: 'Failed to join race' })
+      res.status(500).json({
+        success: false,
+        error: 'Failed to join race'
+      })
     }
   }
 
