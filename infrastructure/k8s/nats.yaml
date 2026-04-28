@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nats
+  namespace: race-wars
+spec:
+  serviceName: nats-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+    spec:
+      containers:
+      - name: nats
+        image: nats:2-alpine
+        ports:
+        - containerPort: 4222
+          name: nats
+        - containerPort: 8222
+          name: nats-monitoring
+        command:
+        - nats-server
+        - --jetstream
+        - --store_dir
+        - /data
+        volumeMounts:
+        - name: nats-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+  volumeClaimTemplates:
+  - metadata:
+      name: nats-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-service
+  namespace: race-wars
+  labels:
+    app: nats
+spec:
+  ports:
+  - port: 4222
+    targetPort: 4222
+    name: nats
+  - port: 8222
+    targetPort: 8222
+    name: nats-monitoring
+  selector:
+    app: nats
+  clusterIP: None

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: race-wars-config
+  namespace: race-wars
+data:
+  NODE_ENV: "production"
+  PORT: "8080"
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_NAME: "racewars"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  NATS_URL: "nats://nats-service:4222"
+  SENTRY_ENVIRONMENT: "production"

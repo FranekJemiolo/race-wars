@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: race-wars-server
+  namespace: race-wars
+  labels:
+    app: race-wars
+    component: server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: race-wars
+      component: server
+  template:
+    metadata:
+      labels:
+        app: race-wars
+        component: server
+    spec:
+      containers:
+      - name: server
+        image: race-wars-server:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8081
+          name: websocket
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: PORT
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: DB_PASSWORD
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: JWT_SECRET
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: REDIS_PORT
+        - name: NATS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: NATS_URL
+        - name: SENTRY_DSN
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: SENTRY_DSN
+        - name: SENTRY_ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: race-wars-config
+              key: SENTRY_ENVIRONMENT
+        - name: OAUTH_GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: OAUTH_GOOGLE_CLIENT_ID
+        - name: OAUTH_GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: OAUTH_GOOGLE_CLIENT_SECRET
+        - name: OAUTH_APPLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: OAUTH_APPLE_CLIENT_ID
+        - name: OAUTH_APPLE_TEAM_ID
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: OAUTH_APPLE_TEAM_ID
+        - name: OAUTH_APPLE_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: OAUTH_APPLE_KEY_ID
+        - name: OAUTH_APPLE_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: race-wars-secret
+              key: OAUTH_APPLE_PRIVATE_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      restartPolicy: Always
