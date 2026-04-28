@@ -3,12 +3,6 @@ import { raceService, CreateRaceRequest } from '../network/raceService'
 import RouteBuilder, { RouteData } from '../components/RouteBuilder'
 import { routeService } from '../network/routeService'
 
-// Extend RouteData interface to include missing properties
-interface ExtendedRouteData extends RouteData {
-  id: string
-  difficulty: 'easy' | 'medium' | 'hard' | 'expert'
-}
-
 interface RaceFormData {
   name: string
   type: 'circuit' | 'custom' | 'duel'
@@ -32,8 +26,8 @@ interface RaceCreatorProps {
 
 export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProps) {
   const [showRouteBuilder, setShowRouteBuilder] = useState(false)
-  const [selectedRoute, setSelectedRoute] = useState<ExtendedRouteData | null>(null)
-  const [availableRoutes, setAvailableRoutes] = useState<ExtendedRouteData[]>([])
+  const [selectedRoute, setSelectedRoute] = useState<RouteData | null>(null)
+  const [availableRoutes, setAvailableRoutes] = useState<RouteData[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   
@@ -151,7 +145,7 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
     }
   }
 
-  const handleRouteCreated = async (route: ExtendedRouteData) => {
+  const handleRouteCreated = async (route: RouteData) => {
     try {
       // Create route on server
       const createdRoute = await routeService.createRoute({
@@ -160,7 +154,7 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
         points: route.points,
         description: route.description,
         isPublic: true,
-        difficulty: route.difficulty,
+        difficulty: route.difficulty || 'medium',
         surface: 'asphalt',
         laps: route.laps
       })
@@ -197,7 +191,7 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
     setShowRouteBuilder(true)
   }
 
-  const selectExistingRoute = (route: ExtendedRouteData) => {
+  const selectExistingRoute = (route: RouteData) => {
     setSelectedRoute(route)
     setFormData(prev => ({
       ...prev,

@@ -46,7 +46,7 @@ export default function AdminConsole({ onBack }: AdminConsoleProps) {
       // In a real implementation, this would fetch from an admin API
       const racesData = await raceService.getRaces()
       const activeRaces = racesData.filter(r => r.status === 'in-progress' || r.status === 'starting')
-      const totalParticipants = racesData.reduce((sum, race) => sum + race.participants, 0)
+      const totalParticipants = racesData.reduce((sum, race) => sum + (race.participants || 0), 0)
       
       setSystemStats({
         totalRaces: racesData.length,

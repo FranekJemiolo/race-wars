@@ -19,6 +19,8 @@ export interface RouteData {
   estimatedTime?: number
   laps?: number
   description?: string
+  id?: string
+  difficulty?: 'easy' | 'medium' | 'hard' | 'expert'
 }
 
 interface RouteBuilderProps {

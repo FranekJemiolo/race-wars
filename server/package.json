@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "simulation": "ts-node --transpile-only src/simulation/runSimulation.ts"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.7.0",

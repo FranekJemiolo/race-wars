@@ -327,7 +327,7 @@ export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, o
                         fontSize: '1rem', 
                         fontWeight: 'bold' 
                       }}>
-                        📊 {race.difficulty?.charAt(0).toUpperCase() + race.difficulty?.slice(1)}
+                        📊 {race.difficulty ? race.difficulty.charAt(0).toUpperCase() + race.difficulty.slice(1) : 'N/A'}
                       </div>
                     </div>
                     <div>
