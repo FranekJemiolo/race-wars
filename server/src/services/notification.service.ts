@@ -365,6 +365,37 @@ class NotificationService {
     });
   }
 
+  async createSpeedTrapNotification(userId: string, trigger: SpeedTrapTrigger, penalty: any): Promise<void> {
+    await this.createNotification({
+      userId,
+      type: 'penalty',
+      title: `Speed Trap Triggered - ${trigger.severity.toUpperCase()}`,
+      message: `Speed trap recorded ${trigger.speed} km/h (limit: ${trigger.limit} km/h). Penalty: ${penalty.type}`,
+      data: { trigger, penalty },
+      priority: trigger.severity === 'critical' ? 'urgent' : 'high'
+    });
+  }
+
+  async createSpeedTrapAlert(sessionId: string, trigger: SpeedTrapTrigger): Promise<void> {
+    // Get all participants for the session
+    const participants = await pool.query(
+      `SELECT user_id FROM session_participants WHERE session_id = $1`,
+      [sessionId]
+    );
+
+    // Create speed trap alert notifications for all participants
+    for (const participant of participants.rows) {
+      await this.createNotification({
+        userId: participant.user_id,
+        type: 'penalty',
+        title: `Speed Trap Alert - ${trigger.severity.toUpperCase()}`,
+        message: `Speed trap recorded ${trigger.speed} km/h (limit: ${trigger.limit} km/h)`,
+        data: { sessionId, trigger },
+        priority: trigger.severity === 'critical' ? 'urgent' : 'high'
+      });
+    }
+  }
+
   async createPositionNotification(userId: string, position: number, totalParticipants: number, sessionId: string): Promise<void> {
     await this.createNotification({
       userId,
