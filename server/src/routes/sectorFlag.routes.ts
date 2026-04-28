@@ -70,4 +70,35 @@ router.get('/flags/overall-status', sectorFlagController.getOverallTrackStatus.b
 // Set blue flag for a specific driver
 router.post('/flags/blue', sectorFlagController.setBlueFlagForDriver.bind(sectorFlagController));
 
+/**
+ * Marshal Zone Routes
+ */
+
+// Initialize marshal zones for a track
+router.post('/marshal-zones/initialize', sectorFlagController.initializeMarshalZones.bind(sectorFlagController));
+
+// Get all marshal zones
+router.get('/marshal-zones', sectorFlagController.getMarshalZones.bind(sectorFlagController));
+
+// Get marshal zone by ID
+router.get('/marshal-zones/:zoneId', sectorFlagController.getMarshalZone.bind(sectorFlagController));
+
+// Get marshal zones for a sector
+router.get('/marshal-zones/sector/:sectorId', sectorFlagController.getMarshalZonesForSector.bind(sectorFlagController));
+
+// Activate a marshal zone
+router.post('/marshal-zones/:zoneId/activate', sectorFlagController.activateMarshalZone.bind(sectorFlagController));
+
+// Deactivate a marshal zone
+router.post('/marshal-zones/:zoneId/deactivate', sectorFlagController.deactivateMarshalZone.bind(sectorFlagController));
+
+// Get nearest marshal zone to a position
+router.get('/marshal-zones/nearest', sectorFlagController.getNearestMarshalZone.bind(sectorFlagController));
+
+// Report incident to marshal zone
+router.post('/marshal-zones/:zoneId/incident', sectorFlagController.reportIncidentToMarshalZone.bind(sectorFlagController));
+
+// Get marshal zone status summary
+router.get('/marshal-zones/summary', sectorFlagController.getMarshalZoneStatusSummary.bind(sectorFlagController));
+
 export default router;

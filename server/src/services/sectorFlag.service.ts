@@ -19,6 +19,19 @@ export interface Sector {
   marshalZoneId?: string;
 }
 
+export interface MarshalZone {
+  id: string;
+  name: string;
+  sectorId: string;
+  position: {
+    lat: number;
+    lng: number;
+  };
+  radioChannel?: string;
+  primaryContact?: string;
+  isActive: boolean;
+}
+
 export interface SectorFlagState {
   sectorId: string;
   flag: FlagType;
@@ -39,6 +52,7 @@ export interface FlagChange {
 export class SectorFlagService {
   private sectorStates: Map<string, SectorFlagState> = new Map();
   private sectors: Map<string, Sector> = new Map();
+  private marshalZones: Map<string, MarshalZone> = new Map();
   private flagHistory: FlagChange[] = [];
 
   /**
@@ -423,6 +437,146 @@ export class SectorFlagService {
     
     this.flagHistory.push(change);
     return change;
+  }
+
+  /**
+   * Initialize marshal zones for a track
+   */
+  initializeMarshalZones(zones: MarshalZone[]): void {
+    this.marshalZones.clear();
+    
+    for (const zone of zones) {
+      this.marshalZones.set(zone.id, zone);
+    }
+  }
+
+  /**
+   * Get all marshal zones
+   */
+  getMarshalZones(): MarshalZone[] {
+    return Array.from(this.marshalZones.values());
+  }
+
+  /**
+   * Get marshal zone by ID
+   */
+  getMarshalZone(zoneId: string): MarshalZone | undefined {
+    return this.marshalZones.get(zoneId);
+  }
+
+  /**
+   * Get marshal zones for a sector
+   */
+  getMarshalZonesForSector(sectorId: string): MarshalZone[] {
+    const zones: MarshalZone[] = [];
+    
+    for (const [id, zone] of this.marshalZones) {
+      if (zone.sectorId === sectorId && zone.isActive) {
+        zones.push(zone);
+      }
+    }
+    
+    return zones;
+  }
+
+  /**
+   * Activate a marshal zone
+   */
+  activateMarshalZone(zoneId: string): void {
+    const zone = this.marshalZones.get(zoneId);
+    if (zone) {
+      zone.isActive = true;
+    }
+  }
+
+  /**
+   * Deactivate a marshal zone
+   */
+  deactivateMarshalZone(zoneId: string): void {
+    const zone = this.marshalZones.get(zoneId);
+    if (zone) {
+      zone.isActive = false;
+    }
+  }
+
+  /**
+   * Get nearest active marshal zone to a position
+   */
+  getNearestMarshalZone(lat: number, lng: number): MarshalZone | null {
+    let nearestZone: MarshalZone | null = null;
+    let minDistance = Infinity;
+
+    for (const zone of this.marshalZones.values()) {
+      if (!zone.isActive) continue;
+
+      const distance = this.calculateDistance(lat, lng, zone.position.lat, zone.position.lng);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestZone = zone;
+      }
+    }
+
+    return nearestZone;
+  }
+
+  /**
+   * Calculate distance between two points in meters
+   */
+  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371000; // Earth's radius in meters
+    const dLat = this.toRadians(lat2 - lat1);
+    const dLng = this.toRadians(lng2 - lng1);
+    
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  /**
+   * Convert degrees to radians
+   */
+  private toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
+
+  /**
+   * Report incident to marshal zone
+   */
+  reportIncidentToMarshalZone(zoneId: string, incident: any): void {
+    const zone = this.marshalZones.get(zoneId);
+    if (zone && zone.isActive) {
+      // In a real implementation, this would send a notification to the marshal
+      console.log(`Incident reported to marshal zone ${zone.name}:`, incident);
+      // TODO: Integrate with notification service to alert marshals
+    }
+  }
+
+  /**
+   * Get marshal zone status summary
+   */
+  getMarshalZoneStatusSummary(): {
+    totalZones: number;
+    activeZones: number;
+    zonesBySector: Record<string, number>;
+  } {
+    const zones = this.getMarshalZones();
+    const activeZones = zones.filter(z => z.isActive).length;
+    const zonesBySector: Record<string, number> = {};
+
+    for (const zone of zones) {
+      if (zone.isActive) {
+        zonesBySector[zone.sectorId] = (zonesBySector[zone.sectorId] || 0) + 1;
+      }
+    }
+
+    return {
+      totalZones: zones.length,
+      activeZones,
+      zonesBySector
+    };
   }
 }
 
