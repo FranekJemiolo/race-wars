@@ -50,6 +50,19 @@ router.post('/:raceId/leave', raceController.leaveRace.bind(raceController))
  */
 router.post('/:raceId/spectate', raceController.spectateRace.bind(raceController))
 
+/**
+ * @route   GET /api/tracks
+ * @desc    Get available tracks
+ * @access  Public
+ */
+router.get('/tracks', raceController.getTracks.bind(raceController))
+
+/**
+ * @route   GET /api/tracks/details
+ * @desc    Get track details with checkpoints
+ * @access  Public
+ */
+router.get('/tracks/details', raceController.getTrackDetails.bind(raceController))
 
 /**
  * @route   PATCH /api/races/:raceId/status

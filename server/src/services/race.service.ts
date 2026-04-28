@@ -5,6 +5,7 @@
 
 import { query } from '../database/connection.simple'
 import { logger } from '../utils/logger'
+import { trackService } from './track.service'
 
 export interface Race {
   id: string
@@ -54,18 +55,37 @@ export class RaceService {
   }
 
   /**
-   * Initialize with sample race data for development
+   * Initialize with scheduled races for development
    */
   private initializeSampleRaces() {
-    const sampleRaces: Race[] = [
+    const scheduledRaces: Race[] = [
+      // Race starting in 1 minute
       {
-        id: 'practice-1',
-        name: 'Morning Practice Session',
+        id: 'scheduled-1min',
+        name: 'Quick Sprint - 1 Minute Start',
+        type: 'circuit',
+        status: 'starting',
+        trackName: 'Test Circuit',
+        participants: 3,
+        maxParticipants: 8,
+        duration: 900, // 15 minutes
+        startTime: new Date(Date.now() + 1 * 60000), // 1 minute from now
+        description: 'Quick sprint race for fast action',
+        requirements: ['Valid driver license'],
+        difficulty: 'easy',
+        enforcementLevel: 'light',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      // Race starting in 5 minutes
+      {
+        id: 'scheduled-5min',
+        name: 'Practice Session - 5 Minute Start',
         type: 'circuit',
         status: 'waiting',
         trackName: 'Test Circuit',
-        participants: 8,
-        maxParticipants: 20,
+        participants: 5,
+        maxParticipants: 16,
         duration: 1800, // 30 minutes
         startTime: new Date(Date.now() + 5 * 60000), // 5 minutes from now
         description: 'Open practice session for all skill levels',
@@ -75,70 +95,78 @@ export class RaceService {
         createdAt: new Date(),
         updatedAt: new Date()
       },
+      // Race starting in 15 minutes
       {
-        id: 'duel-championship',
-        name: 'Duel Championship Round 1',
+        id: 'scheduled-15min',
+        name: 'Duel Tournament - 15 Minute Start',
         type: 'duel',
-        status: 'starting',
+        status: 'waiting',
         trackName: 'Speedway Arena',
-        participants: 9,
-        maxParticipants: 10,
-        duration: 900, // 15 minutes
-        startTime: new Date(Date.now() + 2 * 60000), // 2 minutes from now
+        participants: 4,
+        maxParticipants: 8,
+        duration: 1200, // 20 minutes
+        startTime: new Date(Date.now() + 15 * 60000), // 15 minutes from now
         description: 'Head-to-head racing tournament',
         requirements: ['Previous race experience', 'Vehicle inspection'],
-        prizePool: 1000,
-        entryFee: 50,
+        prizePool: 500,
+        entryFee: 25,
         difficulty: 'medium',
         enforcementLevel: 'medium',
         createdAt: new Date(),
         updatedAt: new Date()
       },
+      // Race starting in 30 minutes
       {
-        id: 'custom-mountain',
-        name: 'Mountain Pass Challenge',
-        type: 'custom',
-        status: 'in-progress',
-        trackName: 'Mountain Pass',
-        participants: 12,
-        maxParticipants: 16,
-        duration: 2400, // 40 minutes
-        startTime: new Date(Date.now() - 10 * 60000), // Started 10 minutes ago
-        description: 'Challenging custom route through mountain terrain',
-        requirements: ['Advanced driving skills', 'Off-road experience'],
-        prizePool: 2000,
-        entryFee: 100,
-        difficulty: 'hard',
-        enforcementLevel: 'hard',
-        createdBy: 'Admin',
-        createdAt: new Date(Date.now() - 20 * 60000),
-        updatedAt: new Date()
-      },
-      {
-        id: 'circuit-championship',
-        name: 'Circuit Championship Qualifier',
+        id: 'scheduled-30min',
+        name: 'Championship Qualifier - 30 Minute Start',
         type: 'circuit',
         status: 'waiting',
         trackName: 'Grand Prix Circuit',
-        participants: 15,
-        maxParticipants: 24,
+        participants: 8,
+        maxParticipants: 20,
         duration: 2700, // 45 minutes
-        startTime: new Date(Date.now() + 15 * 60000), // 15 minutes from now
+        startTime: new Date(Date.now() + 30 * 60000), // 30 minutes from now
         description: 'Official championship qualifying session',
         requirements: ['Racing license', 'Vehicle compliance check'],
-        prizePool: 5000,
-        entryFee: 200,
-        difficulty: 'expert',
+        prizePool: 2500,
+        entryFee: 100,
+        difficulty: 'hard',
         enforcementLevel: 'medium',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      // Custom race starting in 20 minutes
+      {
+        id: 'scheduled-20min-custom',
+        name: 'Mountain Challenge - 20 Minute Start',
+        type: 'custom',
+        status: 'waiting',
+        trackName: 'Mountain Pass',
+        participants: 6,
+        maxParticipants: 12,
+        duration: 2400, // 40 minutes
+        startTime: new Date(Date.now() + 20 * 60000), // 20 minutes from now
+        description: 'Challenging custom route through mountain terrain',
+        requirements: ['Advanced driving skills', 'Off-road experience'],
+        prizePool: 1500,
+        entryFee: 75,
+        difficulty: 'hard',
+        enforcementLevel: 'hard',
+        createdBy: 'System',
         createdAt: new Date(),
         updatedAt: new Date()
       }
     ]
 
-    sampleRaces.forEach(race => {
+    scheduledRaces.forEach(race => {
       this.races.set(race.id, race)
     })
-    this.nextId = sampleRaces.length + 1
+    this.nextId = scheduledRaces.length + 1
+    
+    logger.info(`Initialized ${scheduledRaces.length} scheduled races`)
+    
+    // Start race status update timer
+    this.startRaceStatusUpdates()
   }
 
   /**
@@ -255,16 +283,17 @@ export class RaceService {
    * Get available tracks
    */
   async getAvailableTracks(): Promise<string[]> {
-    return [
-      'Test Circuit',
-      'Grand Prix Circuit',
-      'Speedway Arena',
-      'Mountain Pass',
-      'City Streets',
-      'Coastal Highway',
-      'Desert Circuit',
-      'Forest Trail'
-    ]
+    const tracks = await trackService.getAllTracks()
+    return tracks.map(track => track.name)
+  }
+
+  /**
+   * Get track details for race
+   */
+  async getTrackDetails(trackName: string): Promise<any> {
+    const tracks = await trackService.getAllTracks()
+    const track = tracks.find(t => t.name === trackName)
+    return track || null
   }
 
   /**
@@ -307,6 +336,57 @@ export class RaceService {
    */
   async getRacesByType(type: Race['type']): Promise<Race[]> {
     return Array.from(this.races.values()).filter(race => race.type === type)
+  }
+
+  /**
+   * Start automatic race status updates
+   */
+  private startRaceStatusUpdates(): void {
+    setInterval(() => {
+      this.updateRaceStatuses()
+    }, 30000) // Update every 30 seconds
+  }
+
+  /**
+   * Update race statuses based on start times
+   */
+  private updateRaceStatuses(): void {
+    const now = new Date()
+    
+    this.races.forEach((race, raceId) => {
+      const startTime = race.startTime
+      if (!startTime) return
+
+      const timeUntilStart = startTime.getTime() - now.getTime()
+      
+      // Update status based on time until start
+      if (race.status === 'waiting' && timeUntilStart <= 2 * 60000) { // 2 minutes
+        race.status = 'starting'
+        race.updatedAt = now
+        logger.info(`Race ${raceId} status changed to starting`)
+      } else if (race.status === 'starting' && timeUntilStart <= 0) {
+        race.status = 'in-progress'
+        race.updatedAt = now
+        logger.info(`Race ${raceId} started`)
+        
+        // Schedule race end
+        setTimeout(() => {
+          this.endRace(raceId)
+        }, (race.duration || 1800) * 1000)
+      }
+    })
+  }
+
+  /**
+   * End a race
+   */
+  private endRace(raceId: string): void {
+    const race = this.races.get(raceId)
+    if (race && race.status === 'in-progress') {
+      race.status = 'finished'
+      race.updatedAt = new Date()
+      logger.info(`Race ${raceId} finished`)
+    }
   }
 }
 

@@ -26,9 +26,6 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/races', raceRoutes)
 
-// Separate tracks endpoint
-app.get('/api/tracks', raceController.getTracks.bind(raceController))
-
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })

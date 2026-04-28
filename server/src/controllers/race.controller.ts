@@ -182,6 +182,30 @@ export class RaceController {
   }
 
   /**
+   * Get track details with checkpoints
+   */
+  async getTrackDetails(req: Request, res: Response) {
+    try {
+      const { trackName } = req.query
+      
+      if (!trackName) {
+        return res.status(400).json({ error: 'Track name is required' })
+      }
+
+      const trackDetails = await raceService.getTrackDetails(trackName as string)
+      
+      if (!trackDetails) {
+        return res.status(404).json({ error: 'Track not found' })
+      }
+      
+      res.json(trackDetails)
+    } catch (error) {
+      logger.error('Failed to get track details:', error)
+      res.status(500).json({ error: 'Failed to fetch track details' })
+    }
+  }
+
+  /**
    * Update race status (for race management)
    */
   async updateRaceStatus(req: Request, res: Response) {
