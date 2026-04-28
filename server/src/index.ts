@@ -13,6 +13,7 @@ import enforcementRoutes from './routes/enforcement.routes'
 import sectorFlagRoutes from './routes/sectorFlag.routes'
 import proximityRoutes from './routes/proximity.routes'
 import incidentRoutes from './routes/incident.routes'
+import carProfileRoutes from './routes/carProfile.routes'
 import { raceController } from './controllers/race.controller'
 
 const app = express()
@@ -41,6 +42,7 @@ app.use('/api/enforcement', enforcementRoutes)
 app.use('/api/sector-flags', sectorFlagRoutes)
 app.use('/api/proximity', proximityRoutes)
 app.use('/api/incidents', incidentRoutes)
+app.use('/api/car-profiles', carProfileRoutes)
 
 // Health check
 app.get('/health', (req, res) => {
