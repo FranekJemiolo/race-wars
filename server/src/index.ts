@@ -10,6 +10,7 @@ import participationRoutes from './routes/participation.routes'
 import routeRoutes from './routes/route.routes'
 import notificationRoutes from './routes/notification.routes'
 import enforcementRoutes from './routes/enforcement.routes'
+import sectorFlagRoutes from './routes/sectorFlag.routes'
 import { raceController } from './controllers/race.controller'
 
 const app = express()
@@ -35,6 +36,7 @@ app.use('/api/participation', participationRoutes)
 app.use('/api/routes', routeRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/enforcement', enforcementRoutes)
+app.use('/api/sector-flags', sectorFlagRoutes)
 
 // Health check
 app.get('/health', (req, res) => {
