@@ -16,6 +16,7 @@ export { FlagRepository, flagRepository } from './flag.repository'
 export { CustomRouteRepository, customRouteRepository } from './customRoute.repository'
 export { CheckpointRepository, checkpointRepository } from './checkpoint.repository'
 export { EnforcementZoneRepository, enforcementZoneRepository } from './enforcementZone.repository'
+export { LapRecordRepository, lapRecordRepository } from './lapRecord.repository'
 
 // Re-export commonly used types
 export type { User, CreateUserInput, UpdateUserInput } from './user.repository'
