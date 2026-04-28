@@ -74,7 +74,8 @@ export default function App() {
           height: '100%',
           position: 'absolute',
           top: 0,
-          left: 0
+          left: 0,
+          zIndex: 1
         }} 
       />
 

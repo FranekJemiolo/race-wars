@@ -37,7 +37,8 @@ export default function HUD() {
       fontFamily: "sans-serif",
       minWidth: "200px",
       backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)"
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      zIndex: 100
     }}>
       <div style={{ marginBottom: "15px" }}>
         <div style={{ fontSize: "0.8rem", color: "#888", marginBottom: "5px" }}>SPEED</div>

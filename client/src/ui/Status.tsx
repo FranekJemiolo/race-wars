@@ -31,7 +31,8 @@ export default function Status() {
       border: "1px solid rgba(255, 255, 255, 0.1)",
       display: "flex",
       justifyContent: "space-between",
-      alignItems: "center"
+      alignItems: "center",
+      zIndex: 100
     }}>
       <div>
         <div style={{ fontSize: "0.8rem", color: "#888", marginBottom: "5px" }}>RACE STATUS</div>

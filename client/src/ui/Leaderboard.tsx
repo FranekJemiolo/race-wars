@@ -30,7 +30,8 @@ export default function Leaderboard() {
       maxHeight: "400px",
       overflowY: "auto",
       backdropFilter: "blur(10px)",
-      border: "1px solid rgba(255, 255, 255, 0.1)"
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      zIndex: 100
     }}>
       <h3 style={{ 
         margin: "0 0 15px 0", 
