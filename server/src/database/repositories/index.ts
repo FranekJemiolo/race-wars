@@ -12,6 +12,7 @@ export { TrackRepository, trackRepository } from './track.repository'
 export { SessionRepository, sessionRepository } from './session.repository'
 export { ParticipantRepository, participantRepository } from './participant.repository'
 export { SessionParticipantRepository, sessionParticipantRepository } from './sessionParticipant.repository'
+export { FlagRepository, flagRepository } from './flag.repository'
 
 // Re-export commonly used types
 export type { User, CreateUserInput, UpdateUserInput } from './user.repository'
