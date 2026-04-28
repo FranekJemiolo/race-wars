@@ -1,7 +1,11 @@
-import { pool } from '../database';
-import { notificationRepository } from '../database/repositories/notification.repository';
-import { userRepository } from '../database/repositories/user.repository';
-import { raceRepository } from '../database/repositories/race.repository';
+import { pool } from '../database/index';
+import { notificationRepository } from '../database/repositories';
+import { userRepository } from '../database/repositories';
+import { sessionRepository } from '../database/repositories';
+import { sectorFlagService } from './sectorFlag.service';
+import { enforcementService } from './enforcement.service';
+import type { FlagChange } from './sectorFlag.service';
+import type { SpeedZoneViolation, SpeedTrapTrigger } from './enforcement.service';
 
 export interface NotificationData {
   id: string;
@@ -39,7 +43,6 @@ export interface NotificationPreferences {
 class NotificationService {
   async createNotification(request: CreateNotificationRequest): Promise<NotificationData> {
     const notification = await notificationRepository.create({
-      id: crypto.randomUUID(),
       userId: request.userId,
       type: request.type,
       title: request.title,
@@ -205,7 +208,7 @@ class NotificationService {
   async createRaceNotifications(raceId: string, type: 'starting' | 'started' | 'finished'): Promise<void> {
     // Get all participants for the race
     const participants = await pool.query(
-      `SELECT user_id FROM race_participants WHERE race_id = $1`,
+      `SELECT user_id FROM session_participants WHERE session_id = $1`,
       [raceId]
     );
 
@@ -219,7 +222,7 @@ class NotificationService {
           type: 'race_starting',
           title: 'Race Starting Soon',
           message: 'The race you registered for is about to start!',
-          data: { raceId },
+          data: { sessionId: raceId },
           priority: 'high',
           expiresAt: new Date(Date.now() + 30 * 60 * 1000) // 30 minutes
         });
@@ -229,7 +232,7 @@ class NotificationService {
           type: 'race_started',
           title: 'Race Started!',
           message: 'The race has started! Good luck!',
-          data: { raceId },
+          data: { sessionId: raceId },
           priority: 'high'
         });
       } else if (type === 'finished') {
@@ -238,40 +241,101 @@ class NotificationService {
           type: 'race_finished',
           title: 'Race Finished',
           message: 'The race has finished. Check your results!',
-          data: { raceId },
+          data: { sessionId: raceId },
           priority: 'medium'
         });
       }
     }
   }
 
-  async createFlagNotification(raceId: string, flagType: string, message: string): Promise<void> {
-    // Get all participants and spectators for the race
+  async createSessionNotifications(sessionId: string, type: 'starting' | 'started' | 'ended'): Promise<void> {
+    // Get all participants for the session
     const participants = await pool.query(
-      `SELECT user_id FROM race_participants WHERE race_id = $1
-       UNION SELECT user_id FROM race_spectators WHERE race_id = $1`,
-      [raceId]
+      `SELECT user_id FROM session_participants WHERE session_id = $1`,
+      [sessionId]
     );
 
-    // Create flag notifications for all participants and spectators
+    // Create notifications for all participants
+    for (const participant of participants.rows) {
+      const userId = participant.user_id;
+      
+      if (type === 'starting') {
+        await this.createNotification({
+          userId,
+          type: 'race_starting',
+          title: 'Session Starting Soon',
+          message: 'The session is about to start. Get ready!',
+          data: { sessionId },
+          priority: 'high',
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+        });
+      } else if (type === 'started') {
+        await this.createNotification({
+          userId,
+          type: 'race_started',
+          title: 'Session Started',
+          message: 'The session has started!',
+          data: { sessionId },
+          priority: 'high'
+        });
+      } else if (type === 'ended') {
+        await this.createNotification({
+          userId,
+          type: 'race_finished',
+          title: 'Session Ended',
+          message: 'The session has ended. Good job!',
+          data: { sessionId },
+          priority: 'medium'
+        });
+      }
+    }
+  }
+
+  async createFlagNotification(sessionId: string, flagType: string, message: string): Promise<void> {
+    // Get all participants for the session
+    const participants = await pool.query(
+      `SELECT user_id FROM session_participants WHERE session_id = $1`,
+      [sessionId]
+    );
+
+    // Create flag notifications for all participants
     for (const participant of participants.rows) {
       await this.createNotification({
         userId: participant.user_id,
         type: 'flag_change',
         title: `Race Flag: ${flagType.toUpperCase()}`,
         message: message,
-        data: { raceId, flagType },
+        data: { sessionId, flagType },
         priority: 'high'
       });
     }
   }
 
-  async createSafetyCarNotification(raceId: string, action: 'deployed' | 'recalled', message: string): Promise<void> {
-    // Get all participants and spectators for the race
+  async createFlagChangeNotification(sessionId: string, flagChange: FlagChange): Promise<void> {
+    // Get all participants for the session
     const participants = await pool.query(
-      `SELECT user_id FROM race_participants WHERE race_id = $1
-       UNION SELECT user_id FROM race_spectators WHERE race_id = $1`,
-      [raceId]
+      `SELECT user_id FROM session_participants WHERE session_id = $1`,
+      [sessionId]
+    );
+
+    // Create flag change notifications for all participants
+    for (const participant of participants.rows) {
+      await this.createNotification({
+        userId: participant.user_id,
+        type: 'flag_change',
+        title: `Flag Changed: ${flagChange.newFlag.toUpperCase()}`,
+        message: flagChange.reason || 'Flag status changed',
+        data: { sessionId, flagChange },
+        priority: flagChange.newFlag === 'red' || flagChange.newFlag === 'double_yellow' ? 'urgent' : 'high'
+      });
+    }
+  }
+
+  async createSafetyCarNotification(sessionId: string, action: 'deployed' | 'recalled', message: string): Promise<void> {
+    // Get all participants for the session
+    const participants = await pool.query(
+      `SELECT user_id FROM session_participants WHERE session_id = $1`,
+      [sessionId]
     );
 
     // Create safety car notifications
@@ -281,10 +345,42 @@ class NotificationService {
         type: 'safety_car',
         title: `Safety Car ${action === 'deployed' ? 'Deployed' : 'Recalled'}`,
         message: message,
-        data: { raceId, action },
-        priority: 'high'
+        data: { sessionId, action },
+        priority: 'urgent'
       });
     }
+  }
+
+  async createEnforcementNotification(userId: string, violation: SpeedZoneViolation | SpeedTrapTrigger, penalty: any): Promise<void> {
+    const actualSpeed = 'actualSpeed' in violation ? violation.actualSpeed : violation.speed;
+    const speedLimit = 'speedLimit' in violation ? violation.speedLimit : violation.limit;
+    
+    await this.createNotification({
+      userId,
+      type: 'penalty',
+      title: `Speed Violation - ${violation.severity.toUpperCase()}`,
+      message: `You were recorded at ${actualSpeed} km/h in a ${speedLimit} km/h zone.`,
+      data: { violation, penalty },
+      priority: violation.severity === 'critical' ? 'urgent' : 'high'
+    });
+  }
+
+  async createPositionNotification(userId: string, position: number, totalParticipants: number, sessionId: string): Promise<void> {
+    await this.createNotification({
+      userId,
+      type: 'position_update',
+      title: `Position Update: ${position}${this.getPositionSuffix(position)}`,
+      message: `You are currently in position ${position} of ${totalParticipants}.`,
+      data: { position, totalParticipants, sessionId },
+      priority: 'low'
+    });
+  }
+
+  private getPositionSuffix(position: number): string {
+    if (position === 1) return 'st';
+    if (position === 2) return 'nd';
+    if (position === 3) return 'rd';
+    return 'th';
   }
 
   async createPenaltyNotification(userId: string, penalty: any, message: string): Promise<void> {
