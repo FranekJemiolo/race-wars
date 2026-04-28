@@ -1,11 +1,11 @@
 /**
- * JWT Service
+ * Simplified JWT Service
  * 
  * Handles JSON Web Token generation, verification, and management
  * for user authentication and authorization.
  */
 
-import jwt, { SignOptions } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { logger } from '../utils/logger'
 
 export interface JwtPayload {
@@ -44,9 +44,7 @@ export class JwtService {
   generateAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
     try {
       return jwt.sign(payload, this.accessTokenSecret, {
-        expiresIn: this.accessTokenExpiry,
-        issuer: 'race-wars',
-        audience: 'race-wars-users'
+        expiresIn: this.accessTokenExpiry
       })
     } catch (error) {
       logger.error('Failed to generate access token', { payload, error })
@@ -60,9 +58,7 @@ export class JwtService {
   generateRefreshToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
     try {
       return jwt.sign(payload, this.refreshTokenSecret, {
-        expiresIn: this.refreshTokenExpiry,
-        issuer: 'race-wars',
-        audience: 'race-wars-users'
+        expiresIn: this.refreshTokenExpiry
       })
     } catch (error) {
       logger.error('Failed to generate refresh token', { payload, error })
@@ -71,7 +67,7 @@ export class JwtService {
   }
 
   /**
-   * Generate both access and refresh tokens
+   * Generate a token pair
    */
   generateTokenPair(payload: Omit<JwtPayload, 'iat' | 'exp'>): TokenPair {
     return {
@@ -81,95 +77,57 @@ export class JwtService {
   }
 
   /**
-   * Verify and decode an access token
+   * Verify an access token
    */
   verifyAccessToken(token: string): JwtPayload {
     try {
-      const decoded = jwt.verify(token, this.accessTokenSecret, {
-        issuer: 'race-wars',
-        audience: 'race-wars-users'
-      }) as JwtPayload
-
+      const decoded = jwt.verify(token, this.accessTokenSecret) as JwtPayload
       return decoded
     } catch (error) {
-      logger.error('Failed to verify access token', { error })
-      throw new Error('Invalid access token')
+      logger.error('Failed to verify access token', { token, error })
+      throw new Error('Invalid token')
     }
   }
 
   /**
-   * Verify and decode a refresh token
+   * Verify a refresh token
    */
   verifyRefreshToken(token: string): JwtPayload {
     try {
-      const decoded = jwt.verify(token, this.refreshTokenSecret, {
-        issuer: 'race-wars',
-        audience: 'race-wars-users'
-      }) as JwtPayload
-
+      const decoded = jwt.verify(token, this.refreshTokenSecret) as JwtPayload
       return decoded
     } catch (error) {
-      logger.error('Failed to verify refresh token', { error })
-      throw new Error('Invalid refresh token')
+      logger.error('Failed to verify refresh token', { token, error })
+      throw new Error('Invalid token')
     }
   }
 
   /**
-   * Extract token from Authorization header
+   * Decode a token without verification (for debugging)
    */
-  extractTokenFromHeader(authHeader: string | undefined): string | null {
-    if (!authHeader) {
-      return null
-    }
-
-    const parts = authHeader.split(' ')
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
-      return null
-    }
-
-    return parts[1]
-  }
-
-  /**
-   * Get token expiration time
-   */
-  getTokenExpiration(token: string): Date | null {
+  decodeToken(token: string): JwtPayload | null {
     try {
-      const decoded = jwt.decode(token) as any
-      if (!decoded || !decoded.exp) {
-        return null
-      }
-      return new Date(decoded.exp * 1000)
+      const decoded = jwt.decode(token) as JwtPayload
+      return decoded
     } catch (error) {
-      logger.error('Failed to decode token for expiration', { error })
+      logger.error('Failed to decode token', { token, error })
       return null
     }
   }
 
   /**
-   * Check if token is expired
+   * Check if a token is expired
    */
   isTokenExpired(token: string): boolean {
-    const expiration = this.getTokenExpiration(token)
-    if (!expiration) {
+    try {
+      const decoded = this.decodeToken(token)
+      if (!decoded || !decoded.exp) {
+        return true
+      }
+      return Date.now() >= decoded.exp * 1000
+    } catch (error) {
       return true
     }
-    return expiration < new Date()
-  }
-
-  /**
-   * Get remaining time until token expires (in seconds)
-   */
-  getTokenRemainingTime(token: string): number {
-    const expiration = this.getTokenExpiration(token)
-    if (!expiration) {
-      return 0
-    }
-    const now = new Date()
-    if (expiration <= now) {
-      return 0
-    }
-    return Math.floor((expiration.getTime() - now.getTime()) / 1000)
   }
 }
 
