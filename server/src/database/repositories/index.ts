@@ -28,3 +28,7 @@ export type { SessionParticipant, CreateSessionParticipantInput, UpdateSessionPa
 
 // Add notification repository export
 export { NotificationRepository, notificationRepository } from './notification.repository'
+
+// Add incident repository export
+export { IncidentRepository, incidentRepository } from './incident.repository'
+export type { Incident, CreateIncidentInput, UpdateIncidentInput } from './incident.repository'
