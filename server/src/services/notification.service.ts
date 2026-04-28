@@ -4,6 +4,7 @@ import { sessionRepository } from '../repositories';
 import { sectorFlagService } from './sectorFlag.service';
 import { enforcementService } from './enforcement.service';
 import { pushNotificationService } from './pushNotification.service';
+import { emailNotificationService } from './emailNotification.service';
 import type { PushNotificationPayload } from './pushNotification.service';
 import type { FlagChange } from './sectorFlag.service';
 import type { SpeedZoneViolation, SpeedTrapTrigger } from './enforcement.service';
@@ -67,6 +68,20 @@ class NotificationService {
         priority: notification.priority === 'urgent' ? 'high' : 'normal'
       };
       await pushNotificationService.sendToUser(notification.userId, pushPayload);
+    }
+
+    // Send email notification if enabled
+    if (emailNotificationService.isReady()) {
+      try {
+        await emailNotificationService.sendGeneralNotification(
+          notification.userId,
+          notification.title,
+          notification.message,
+          notification.data || {}
+        );
+      } catch (error) {
+        console.error('Failed to send email notification:', error);
+      }
     }
 
     return notification;
