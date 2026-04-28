@@ -14,6 +14,8 @@ export default function App() {
   const mapRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    console.log("App mounted, setting up connection...")
+    
     // Setup message handlers
     setupMessageHandlers()
 
@@ -44,8 +46,12 @@ export default function App() {
   useEffect(() => {
     // Initialize map when container is ready
     if (mapRef.current && !mapInitialized) {
-      initializeMap("map")
-      setMapInitialized(true)
+      try {
+        initializeMap("map")
+        setMapInitialized(true)
+      } catch (e) {
+        console.error("Failed to initialize map:", e)
+      }
     }
   }, [mapInitialized])
 
