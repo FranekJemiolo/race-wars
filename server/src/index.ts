@@ -7,6 +7,8 @@ import { log } from "./utils/logger"
 import raceRoutes from './routes/race.routes'
 import authRoutes from './routes/auth.routes'
 import participationRoutes from './routes/participation.routes'
+import routeRoutes from './routes/route.routes'
+import notificationRoutes from './routes/notification.routes'
 import { raceController } from './controllers/race.controller'
 
 const app = express()
@@ -29,6 +31,8 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/races', raceRoutes)
 app.use('/api/participation', participationRoutes)
+app.use('/api/routes', routeRoutes)
+app.use('/api/notifications', notificationRoutes)
 
 // Health check
 app.get('/health', (req, res) => {

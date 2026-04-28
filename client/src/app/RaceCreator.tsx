@@ -1,5 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { raceService, CreateRaceRequest } from '../network/raceService'
+import RouteBuilder, { RouteData } from '../components/RouteBuilder'
+import { routeService } from '../network/routeService'
+
+// Extend RouteData interface to include missing properties
+interface ExtendedRouteData extends RouteData {
+  id: string
+  difficulty: 'easy' | 'medium' | 'hard' | 'expert'
+}
 
 interface RaceFormData {
   name: string
@@ -23,24 +31,44 @@ interface RaceCreatorProps {
 }
 
 export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProps) {
+  const [showRouteBuilder, setShowRouteBuilder] = useState(false)
+  const [selectedRoute, setSelectedRoute] = useState<ExtendedRouteData | null>(null)
+  const [availableRoutes, setAvailableRoutes] = useState<ExtendedRouteData[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  
   const [formData, setFormData] = useState<RaceFormData>({
     name: '',
     type: 'circuit',
     trackName: '',
-    maxParticipants: 20,
+    maxParticipants: 8,
     duration: 1800, // 30 minutes
-    startTime: new Date(Date.now() + 10 * 60000), // 10 minutes from now
+    startTime: new Date(Date.now() + 60000), // 1 minute from now
     description: '',
-    requirements: [],
+    requirements: ['Valid driver license'],
     entryFee: 0,
     prizePool: 0,
-    difficulty: 'medium',
-    enforcementLevel: 'medium',
+    difficulty: 'easy',
+    enforcementLevel: 'light',
     isPublic: true
   })
 
   const [newRequirement, setNewRequirement] = useState('')
   const [errors, setErrors] = useState<Partial<Record<keyof RaceFormData, string>>>({})
+
+  // Load available routes on mount
+  useEffect(() => {
+    loadAvailableRoutes()
+  }, [])
+
+  const loadAvailableRoutes = async () => {
+    try {
+      const routes = await routeService.getAllRoutes({ public: true })
+      setAvailableRoutes(routes)
+    } catch (error) {
+      console.error('Failed to load routes:', error)
+    }
+  }
 
   const tracks = [
     'Test Circuit',
@@ -53,27 +81,31 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
     'Forest Trail'
   ]
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof RaceFormData, string>> = {}
 
     if (!formData.name.trim()) {
       newErrors.name = 'Race name is required'
     }
 
-    if (!formData.trackName) {
+    if (!formData.trackName.trim()) {
       newErrors.trackName = 'Track selection is required'
     }
 
-    if (formData.maxParticipants < 2 || formData.maxParticipants > 50) {
-      newErrors.maxParticipants = 'Must be between 2 and 50 participants'
+    if (formData.maxParticipants < 2) {
+      newErrors.maxParticipants = 'Minimum 2 participants required'
     }
 
-    if (formData.duration < 300 || formData.duration > 7200) {
-      newErrors.duration = 'Must be between 5 minutes and 2 hours'
+    if (formData.maxParticipants > 50) {
+      newErrors.maxParticipants = 'Maximum 50 participants allowed'
     }
 
-    if (formData.startTime.getTime() < Date.now() + 5 * 60000) {
-      newErrors.startTime = 'Start time must be at least 5 minutes in the future'
+    if (formData.duration < 300) {
+      newErrors.duration = 'Minimum 5 minutes required'
+    }
+
+    if (formData.duration > 7200) {
+      newErrors.duration = 'Maximum 2 hours allowed'
     }
 
     if (formData.entryFee < 0) {
@@ -90,32 +122,90 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (validateForm()) {
-      try {
-        const createRaceRequest: CreateRaceRequest = {
-          name: formData.name,
-          type: formData.type,
-          trackName: formData.trackName,
-          maxParticipants: formData.maxParticipants,
-          duration: formData.duration,
-          startTime: formData.startTime,
-          description: formData.description,
-          requirements: formData.requirements,
-          entryFee: formData.entryFee,
-          prizePool: formData.prizePool,
-          difficulty: formData.difficulty,
-          enforcementLevel: formData.enforcementLevel,
-          isPublic: formData.isPublic
-        }
-        
-        const createdRace = await raceService.createRace(createRaceRequest)
-        onRaceCreated(createdRace)
-      } catch (error) {
-        console.error('Failed to create race:', error)
-        // Show error message to user
+    setLoading(true)
+    setError('')
+
+    try {
+      const raceData: CreateRaceRequest = {
+        name: formData.name,
+        type: formData.type,
+        trackName: formData.trackName,
+        maxParticipants: formData.maxParticipants,
+        duration: formData.duration,
+        startTime: formData.startTime,
+        description: formData.description,
+        requirements: formData.requirements,
+        entryFee: formData.entryFee,
+        prizePool: formData.prizePool,
+        difficulty: formData.difficulty,
+        enforcementLevel: formData.enforcementLevel,
+        isPublic: formData.isPublic
       }
+
+      await raceService.createRace(raceData)
+      onRaceCreated(raceData)
+    } catch (error) {
+      setError('Failed to create race')
+    } finally {
+      setLoading(false)
     }
+  }
+
+  const handleRouteCreated = async (route: ExtendedRouteData) => {
+    try {
+      // Create route on server
+      const createdRoute = await routeService.createRoute({
+        name: route.name,
+        type: route.type,
+        points: route.points,
+        description: route.description,
+        isPublic: true,
+        difficulty: route.difficulty,
+        surface: 'asphalt',
+        laps: route.laps
+      })
+
+      // Convert route to track format and use it
+      const trackData = await routeService.convertRouteToTrack(createdRoute.id)
+      
+      // Update form with route data
+      setFormData(prev => ({
+        ...prev,
+        name: prev.name || route.name,
+        trackName: route.name,
+        type: route.type === 'circuit' ? 'circuit' : 'custom',
+        duration: route.estimatedTime || 1800,
+        description: prev.description || route.description || ''
+      }))
+
+      setSelectedRoute(createdRoute)
+      setShowRouteBuilder(false)
+      
+      // Load updated routes list
+      await loadAvailableRoutes()
+    } catch (error) {
+      console.error('Failed to create route:', error)
+      setError('Failed to create route')
+    }
+  }
+
+  const handleRouteBuilderCancel = () => {
+    setShowRouteBuilder(false)
+  }
+
+  const openRouteBuilder = () => {
+    setShowRouteBuilder(true)
+  }
+
+  const selectExistingRoute = (route: ExtendedRouteData) => {
+    setSelectedRoute(route)
+    setFormData(prev => ({
+      ...prev,
+      trackName: route.name,
+      type: route.type === 'circuit' ? 'circuit' : 'custom',
+      duration: route.estimatedTime || 1800,
+      description: prev.description || route.description || ''
+    }))
   }
 
   const addRequirement = () => {
@@ -137,13 +227,8 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60)
-    const hours = Math.floor(minutes / 60)
-    const remainingMinutes = minutes % 60
-    
-    if (hours > 0) {
-      return `${hours}h ${remainingMinutes}m`
-    }
-    return `${minutes}m`
+    const remainingSeconds = seconds % 60
+    return `${minutes}m ${remainingSeconds}s`
   }
 
   const formatDateTime = (date: Date) => {
@@ -155,17 +240,30 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
     })
   }
 
+  // Show route builder if active
+  if (showRouteBuilder) {
+    return (
+      <RouteBuilder
+        onRouteCreated={handleRouteCreated}
+        onCancel={handleRouteBuilderCancel}
+      />
+    )
+  }
+
   return (
     <div style={{
-      position: 'absolute',
+      position: 'fixed',
       top: 0,
       left: 0,
-      width: '100%',
-      height: '100%',
-      background: 'rgba(26, 26, 46, 0.98)',
-      backdropFilter: 'blur(20px)',
-      zIndex: 3000,
-      overflow: 'auto'
+      right: 0,
+      bottom: 0,
+      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+      color: '#ffffff',
+      fontFamily: 'sans-serif',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000
     }}>
       <div style={{
         maxWidth: '800px',
@@ -234,98 +332,21 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
                     fontSize: '0.9rem'
                   }}
                 >
-                  <option value="circuit">⭕ Circuit Race</option>
-                  <option value="custom">🛣️ Custom Track</option>
-                  <option value="duel">⚔️ Duel Match</option>
+                  <option value="circuit">🏁 Circuit Race</option>
+                  <option value="custom">🛣️ Custom Route</option>
+                  <option value="duel">⚔️ Duel</option>
                 </select>
               </div>
             </div>
-
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>Description</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Describe your race..."
-                rows={3}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '0.9rem',
-                  resize: 'vertical'
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Track Configuration */}
-          <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ color: '#fff', marginBottom: '16px' }}>Track Configuration</h2>
             
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>Track *</label>
-              <select
-                value={formData.trackName}
-                onChange={(e) => setFormData(prev => ({ ...prev, trackName: e.target.value }))}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: errors.trackName ? '1px solid #e74c3c' : '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '8px',
-                  color: '#fff',
-                  fontSize: '0.9rem'
-                }}
-              >
-                <option value="">Select a track</option>
-                {tracks.map(track => (
-                  <option key={track} value={track}>{track}</option>
-                ))}
-              </select>
-              {errors.trackName && <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginTop: '4px' }}>{errors.trackName}</div>}
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
               <div>
-                <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>
-                  Max Participants ({formData.maxParticipants})
-                </label>
-                <input
-                  type="range"
-                  min="2"
-                  max="50"
-                  value={formData.maxParticipants}
-                  onChange={(e) => setFormData(prev => ({ ...prev, maxParticipants: parseInt(e.target.value) }))}
-                  style={{ width: '100%' }}
-                />
-                {errors.maxParticipants && <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginTop: '4px' }}>{errors.maxParticipants}</div>}
-              </div>
-
-              <div>
-                <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>
-                  Duration ({formatDuration(formData.duration)})
-                </label>
-                <input
-                  type="range"
-                  min="300"
-                  max="7200"
-                  step="300"
-                  value={formData.duration}
-                  onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
-                  style={{ width: '100%' }}
-                />
-                {errors.duration && <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginTop: '4px' }}>{errors.duration}</div>}
-              </div>
-
-              <div>
-                <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>Difficulty</label>
-                <select
-                  value={formData.difficulty}
-                  onChange={(e) => setFormData(prev => ({ ...prev, difficulty: e.target.value as any }))}
+                <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Describe your race..."
+                  rows={4}
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -333,22 +354,182 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
                     border: '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '8px',
                     color: '#fff',
-                    fontSize: '0.9rem'
+                    fontSize: '0.9rem',
+                    resize: 'vertical'
                   }}
-                >
-                  <option value="easy">🟢 Easy</option>
-                  <option value="medium">🟡 Medium</option>
-                  <option value="hard">🟠 Hard</option>
-                  <option value="expert">🔴 Expert</option>
-                </select>
+                />
               </div>
             </div>
           </div>
 
-          {/* Timing */}
+          {/* Track Configuration */}
           <div style={{ marginBottom: '32px' }}>
-            <h2 style={{ color: '#fff', marginBottom: '16px' }}>Timing</h2>
+            <h2 style={{ color: '#fff', marginBottom: '16px' }}>Track Configuration</h2>
             
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', color: '#b8c5d6' }}>
+                Track/Route
+              </label>
+              
+              {/* Route Selection */}
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={openRouteBuilder}
+                    style={{
+                      flex: 1,
+                      padding: '10px',
+                      background: 'linear-gradient(45deg, #667eea 0%, #764ba2 100%)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    🗺️ Create New Route
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, trackName: '' }))}
+                    style={{
+                      padding: '10px 16px',
+                      background: 'rgba(107, 114, 128, 0.8)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    Clear
+                  </button>
+                </div>
+                
+                {selectedRoute && (
+                  <div style={{
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '6px',
+                    padding: '8px',
+                    fontSize: '0.8rem',
+                    color: '#10b981'
+                  }}>
+                    📍 Selected: {selectedRoute.name} ({selectedRoute.type}, {(selectedRoute.totalDistance / 1000).toFixed(2)}km)
+                  </div>
+                )}
+              </div>
+
+              {/* Existing Routes */}
+              {availableRoutes.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ color: '#b8c5d6', fontSize: '0.8rem', marginBottom: '6px' }}>
+                    Or select an existing route:
+                  </div>
+                  <div style={{
+                    maxHeight: '120px',
+                    overflowY: 'auto',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '6px',
+                    padding: '8px'
+                  }}>
+                    {availableRoutes.map(route => (
+                      <div
+                        key={route.id}
+                        onClick={() => selectExistingRoute(route)}
+                        style={{
+                          padding: '6px 8px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          color: selectedRoute?.id === route.id ? '#10b981' : '#b8c5d6',
+                          background: selectedRoute?.id === route.id ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                          marginBottom: '4px',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          if (selectedRoute?.id !== route.id) {
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (selectedRoute?.id !== route.id) {
+                            e.currentTarget.style.background = 'transparent'
+                          }
+                        }}
+                      >
+                        <div style={{ fontWeight: 'bold' }}>{route.name}</div>
+                        <div style={{ fontSize: '0.7rem', opacity: 0.8 }}>
+                          {route.type} • {(route.totalDistance / 1000).toFixed(2)}km • {route.difficulty || 'medium'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Traditional Track Selection */}
+              <select
+                value={selectedRoute ? '' : formData.trackName}
+                onChange={(e) => {
+                  setFormData(prev => ({ ...prev, trackName: e.target.value }))
+                  setSelectedRoute(null)
+                }}
+                disabled={selectedRoute !== null}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: selectedRoute ? 'rgba(107, 114, 128, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  color: selectedRoute ? '#6b7280' : '#fff',
+                  fontSize: '1rem',
+                  cursor: selectedRoute ? 'not-allowed' : 'pointer'
+                }}
+              >
+                <option value="">Select a traditional track</option>
+                {tracks.map(track => (
+                  <option key={track} value={track}>{track}</option>
+                ))}
+              </select>
+            </div>
+            {errors.trackName && <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginTop: '4px' }}>{errors.trackName}</div>}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>
+                Max Participants ({formData.maxParticipants})
+              </label>
+              <input
+                type="range"
+                min="2"
+                max="50"
+                value={formData.maxParticipants}
+                onChange={(e) => setFormData(prev => ({ ...prev, maxParticipants: parseInt(e.target.value) }))}
+                style={{ width: '100%' }}
+              />
+              {errors.maxParticipants && <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginTop: '4px' }}>{errors.maxParticipants}</div>}
+            </div>
+
+            <div>
+              <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>
+                Duration ({formatDuration(formData.duration)})
+              </label>
+              <input
+                type="range"
+                min="300"
+                max="7200"
+                step="300"
+                value={formData.duration}
+                onChange={(e) => setFormData(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                style={{ width: '100%' }}
+              />
+              {errors.duration && <div style={{ color: '#e74c3c', fontSize: '0.8rem', marginTop: '4px' }}>{errors.duration}</div>}
+            </div>
+
             <div>
               <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>Start Time *</label>
               <input
@@ -446,6 +627,28 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
             <h2 style={{ color: '#fff', marginBottom: '16px' }}>Rules & Settings</h2>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>Difficulty</label>
+                <select
+                  value={formData.difficulty}
+                  onChange={(e) => setFormData(prev => ({ ...prev, difficulty: e.target.value as any }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  <option value="easy">🟢 Easy</option>
+                  <option value="medium">🟡 Medium</option>
+                  <option value="hard">🟠 Hard</option>
+                  <option value="expert">🔴 Expert</option>
+                </select>
+              </div>
+
               <div>
                 <label style={{ display: 'block', color: '#ccc', marginBottom: '8px' }}>Enforcement Level</label>
                 <select
@@ -550,18 +753,19 @@ export default function RaceCreator({ onRaceCreated, onCancel }: RaceCreatorProp
             </button>
             <button
               type="submit"
+              disabled={loading}
               style={{
                 padding: '12px 32px',
-                background: 'rgba(46, 204, 113, 0.8)',
+                background: loading ? 'rgba(107, 114, 128, 0.5)' : 'rgba(46, 204, 113, 0.8)',
                 border: 'none',
                 borderRadius: '8px',
                 color: '#fff',
-                cursor: 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 fontSize: '0.9rem',
                 fontWeight: 'bold'
               }}
             >
-              Create Race
+              {loading ? 'Creating...' : 'Create Race'}
             </button>
           </div>
         </form>

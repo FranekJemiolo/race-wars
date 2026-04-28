@@ -25,3 +25,6 @@ export type { Track, CreateTrackInput, UpdateTrackInput } from './track.reposito
 export type { Session, CreateSessionInput, UpdateSessionInput } from './session.repository'
 export type { Participant, CreateParticipantInput, UpdateParticipantInput } from './participant.repository'
 export type { SessionParticipant, CreateSessionParticipantInput, UpdateSessionParticipantInput } from './sessionParticipant.repository'
+
+// Add notification repository export
+export { NotificationRepository, notificationRepository } from './notification.repository'
