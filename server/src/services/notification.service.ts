@@ -1,9 +1,10 @@
-import { pool } from '../database/index';
-import { notificationRepository } from '../database/repositories';
-import { userRepository } from '../database/repositories';
-import { sessionRepository } from '../database/repositories';
+import { pool } from '../database/connection.simple';
+import { notificationRepository } from '../repositories';
+import { sessionRepository } from '../repositories';
 import { sectorFlagService } from './sectorFlag.service';
 import { enforcementService } from './enforcement.service';
+import { pushNotificationService } from './pushNotification.service';
+import type { PushNotificationPayload } from './pushNotification.service';
 import type { FlagChange } from './sectorFlag.service';
 import type { SpeedZoneViolation, SpeedTrapTrigger } from './enforcement.service';
 
@@ -55,17 +56,17 @@ class NotificationService {
     });
 
     // Send real-time notification via WebSocket
-    await this.sendRealTimeNotification(notification);
+    this.sendRealTimeNotification(notification);
 
     // Send push notification if enabled
-    const preferences = await this.getUserNotificationPreferences(request.userId);
-    if (preferences.enablePush) {
-      await this.sendPushNotification(notification, preferences);
-    }
-
-    // Send email notification if enabled
-    if (preferences.enableEmail) {
-      await this.sendEmailNotification(notification, preferences);
+    if (pushNotificationService.isReady()) {
+      const pushPayload: PushNotificationPayload = {
+        title: notification.title,
+        body: notification.message,
+        data: notification.data,
+        priority: notification.priority === 'urgent' ? 'high' : 'normal'
+      };
+      await pushNotificationService.sendToUser(notification.userId, pushPayload);
     }
 
     return notification;
