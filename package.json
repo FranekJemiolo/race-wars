@@ -17,8 +17,11 @@
     "build:client": "npm run -w client build"
   },
   "dependencies": {
+    "@turf/helpers": "^7.3.5",
+    "@turf/turf": "^7.3.5",
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
+    "@types/geojson": "^7946.0.16",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.20.0",
     "@types/uuid": "^10.0.0",
