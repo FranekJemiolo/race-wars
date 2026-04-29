@@ -12,10 +12,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - api.racewars.com
+    - api.racewars.local
     secretName: race-wars-tls
   rules:
-  - host: api.racewars.com
+  - host: api.racewars.local
     http:
       paths:
       - path: /

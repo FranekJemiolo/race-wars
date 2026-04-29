@@ -62,7 +62,7 @@ export class AuthService {
     const defaultUsers: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = [
       {
         username: 'admin',
-        email: 'admin@racewars.com',
+        email: 'admin@racewars.local',
         password: 'admin123', // will be hashed
         displayName: 'Race Admin',
         role: 'admin',
@@ -75,7 +75,7 @@ export class AuthService {
       },
       {
         username: 'testdriver',
-        email: 'driver@racewars.com',
+        email: 'driver@racewars.local',
         password: 'driver123', // will be hashed
         displayName: 'Test Driver',
         role: 'user',

@@ -5,7 +5,7 @@
 ### Account Setup
 
 1. **Create an Account**
-   - Visit app.racewars.com
+   - Visit app.racewars.local
    - Click "Sign Up"
    - Use email/password or sign in with Google/Apple
    - Verify your email address
@@ -223,9 +223,9 @@
 
 ### Getting Help
 
-- **Email**: support@racewars.com
+- **Email**: support@racewars.local
 - **In-App Help**: Tap the help icon in settings
-- **Community Forum**: community.racewars.com
+- **Community Forum**: community.racewars.local
 - **Twitter/X**: @RaceWarsSupport
 
 ### Reporting Issues

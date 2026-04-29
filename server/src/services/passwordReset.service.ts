@@ -30,7 +30,7 @@ export interface PasswordResetConfig {
 const DEFAULT_CONFIG: PasswordResetConfig = {
   tokenExpirationMinutes: 60,
   tokenLength: 32,
-  fromEmail: 'noreply@racewars.com',
+  fromEmail: 'noreply@racewars.local',
   fromName: 'Race Wars',
 };
 

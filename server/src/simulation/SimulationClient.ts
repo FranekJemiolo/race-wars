@@ -37,6 +37,8 @@ export class SimulationClient {
   private currentSpeed = 0;
   private currentHeading = 0;
   private isStalled = false;
+  private positionUpdateHandlers: ((position: PositionUpdate) => void)[] = [];
+  private violationHandlers: ((violation: any) => void)[] = [];
 
   constructor(config: SimulationConfig) {
     this.config = config;
@@ -293,6 +295,38 @@ export class SimulationClient {
       this.ws = null;
     }
     this.isConnected = false;
+  }
+
+  getIsConnected(): boolean {
+    return this.isConnected;
+  }
+
+  onPositionUpdate(handler: (position: PositionUpdate) => void): void {
+    this.positionUpdateHandlers.push(handler);
+  }
+
+  onViolation(handler: (violation: any) => void): void {
+    this.violationHandlers.push(handler);
+  }
+
+  private emitPositionUpdate(position: PositionUpdate): void {
+    this.positionUpdateHandlers.forEach(handler => handler(position));
+  }
+
+  private emitViolation(violation: any): void {
+    this.violationHandlers.forEach(handler => handler(violation));
+  }
+
+  startSimulation(): void {
+    this.start();
+  }
+
+  stopSimulation(): void {
+    this.stop();
+  }
+
+  getUserId(): string {
+    return this.config.clientId;
   }
 
   isConnectedToServer(): boolean {

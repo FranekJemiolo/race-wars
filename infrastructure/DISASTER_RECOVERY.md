@@ -131,7 +131,7 @@ This document outlines the disaster recovery (DR) strategy for the Race Wars app
 - **Escalation**: Phone call for critical incidents
 
 ### External Communication
-- **Status Page**: status.racewars.com
+- **Status Page**: status.racewars.local
 - **Twitter/X**: @RaceWarsStatus
 - **Email**: Broadcast to all users
 

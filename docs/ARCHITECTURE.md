@@ -249,7 +249,7 @@ Race Wars is a real-time GPS-based racing platform that enables drivers to parti
 ### WebSocket Protocol
 
 #### Connection
-- URL: `wss://api.racewars.com/ws`
+- URL: `wss://api.racewars.local/ws`
 - Authentication: JWT token in query string
 
 #### Messages

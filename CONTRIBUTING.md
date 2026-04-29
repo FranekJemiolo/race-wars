@@ -385,7 +385,7 @@ When requesting a feature, include:
 
 For security vulnerabilities:
 - Do not open a public issue
-- Email security@racewars.com
+- Email security@racewars.local
 - Include details and reproduction steps
 - Allow time for response before disclosure
 
@@ -393,16 +393,16 @@ For security vulnerabilities:
 
 ### Resources
 
-- **Documentation**: docs.racewars.com
-- **API Docs**: api.racewars.com/docs
-- **Community**: community.racewars.com
+- **Documentation**: docs.racewars.local
+- **API Docs**: api.racewars.local/docs
+- **Community**: community.racewars.local
 - **Discord**: discord.gg/racewars
 
 ### Contact
 
-- **General Questions**: hello@racewars.com
-- **Support**: support@racewars.com
-- **Security**: security@racewars.com
+- **General Questions**: hello@racewars.local
+- **Support**: support@racewars.local
+- **Security**: security@racewars.local
 
 ## Recognition
 

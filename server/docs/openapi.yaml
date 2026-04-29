@@ -7,12 +7,12 @@ info:
   version: 1.0.0
   contact:
     name: Race Wars Team
-    email: support@racewars.com
+    email: support@racewars.local
 
 servers:
   - url: http://localhost:3000/api
     description: Development server
-  - url: https://api.racewars.com/api
+  - url: https://api.racewars.local/api
     description: Production server
 
 tags:

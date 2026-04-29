@@ -8,7 +8,7 @@ The Race Wars Admin Console provides race organizers and administrators with too
 
 ### Login
 
-1. Navigate to admin.racewars.com
+1. Navigate to admin.racewars.local
 2. Enter your admin credentials
 3. Complete two-factor authentication if enabled
 4. You'll be redirected to the dashboard
@@ -459,9 +459,9 @@ Access application logs:
 
 ### Getting Help
 
-- **Email**: admin-support@racewars.com
-- **Documentation**: docs.racewars.com/admin
-- **Community**: admin-community.racewars.com
+- **Email**: admin-support@racewars.local
+- **Documentation**: docs.racewars.local/admin
+- **Community**: admin-community.racewars.local
 - **Emergency**: Emergency hotline for critical issues
 
 ### Reporting Issues
