@@ -1,0 +1,217 @@
+version: '3.8'
+
+services:
+  # Nginx Reverse Proxy (HTTP only for local development)
+  nginx:
+    image: nginx:alpine
+    container_name: race-wars-nginx-local
+    ports:
+      - "80:80"
+    volumes:
+      - ./infrastructure/nginx/nginx.local.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/logs:/var/log/nginx
+    depends_on:
+      - server
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+
+  # Application Server
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: race-wars-server-local
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=race_wars_dev
+      - DB_USER=race_wars
+      - DB_PASSWORD=race_wars_dev
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=dev_jwt_secret_key_change_in_production
+      - SENTRY_DSN=
+      - SENTRY_ENVIRONMENT=development
+      - LOG_LEVEL=debug
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ./server:/app/server
+      - ./shared:/app/shared
+      - /app/server/node_modules
+      - /app/shared/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL Database
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: race-wars-postgres-local
+    environment:
+      - POSTGRES_DB=race_wars_dev
+      - POSTGRES_USER=race_wars
+      - POSTGRES_PASSWORD=race_wars_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+      - ./database/seed:/docker-entrypoint-initdb.d/seed
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U race_wars -d race_wars_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: race-wars-redis-local
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_local_data:/data
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Client Development Server
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client.dev
+    container_name: race-wars-client-local
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost/api
+      - REACT_APP_WS_URL=ws://localhost/ws
+      - REACT_APP_MAPBOX_TOKEN=${REACT_APP_MAPBOX_TOKEN}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules
+    depends_on:
+      - server
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+
+  # Monitoring - Prometheus (optional for local)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: race-wars-prometheus-local
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_local_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+    profiles:
+      - monitoring
+
+  # Monitoring - Grafana (optional for local)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: race-wars-grafana-local
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_local_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infrastructure/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+    profiles:
+      - monitoring
+
+  # Database Admin - pgAdmin (optional for local)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: race-wars-pgadmin-local
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@racewars.local
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_local_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+    profiles:
+      - admin
+
+  # Redis Admin - Redis Commander (optional for local)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: race-wars-redis-commander-local
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8082:8081"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - race-wars-local
+    profiles:
+      - admin
+
+volumes:
+  postgres_local_data:
+    driver: local
+  redis_local_data:
+    driver: local
+  prometheus_local_data:
+    driver: local
+  grafana_local_data:
+    driver: local
+  pgadmin_local_data:
+    driver: local
+
+networks:
+  race-wars-local:
+    driver: bridge
