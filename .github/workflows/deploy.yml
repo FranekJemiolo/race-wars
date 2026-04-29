@@ -35,10 +35,25 @@ jobs:
 
       - name: Copy documentation files
         run: |
-          cp index.html docs/
-          cp IMPLEMENTATION_REVIEW.md docs/
-          cp README.md docs/ 2>/dev/null || echo "README not found"
-          cp race_wars.md docs/ 2>/dev/null || echo "Spec not found"
+          cp index.html docs/ 2>/dev/null || echo "index.html not found"
+          cp IMPLEMENTATION_REVIEW.md docs/ 2>/dev/null || echo "IMPLEMENTATION_REVIEW.md not found"
+          cp README.md docs/ 2>/dev/null || echo "README.md not found"
+          cp COMPONENT_REVIEW.md docs/ 2>/dev/null || echo "COMPONENT_REVIEW.md not found"
+          cp DEVELOPMENT.md docs/ 2>/dev/null || echo "DEVELOPMENT.md not found"
+          cp UI_GUIDE.md docs/ 2>/dev/null || echo "UI_GUIDE.md not found"
+          cp TEST_REPORT.md docs/ 2>/dev/null || echo "TEST_REPORT.md not found"
+
+      - name: Copy server documentation
+        run: |
+          mkdir -p docs/server
+          cp server/docs/*.md docs/server/ 2>/dev/null || echo "Server docs not found"
+          cp server/docs/openapi.yaml docs/server/ 2>/dev/null || echo "OpenAPI spec not found"
+
+      - name: Copy infrastructure documentation
+        run: |
+          mkdir -p docs/infrastructure
+          cp infrastructure/*.md docs/infrastructure/ 2>/dev/null || echo "Infrastructure docs not found"
+          cp infrastructure/DISASTER_RECOVERY.md docs/infrastructure/ 2>/dev/null || echo "Disaster recovery doc not found"
 
       - name: Generate API documentation
         run: |
@@ -51,6 +66,29 @@ jobs:
           echo "- GET /tracks" >> docs/api.md
           echo "- POST /tracks" >> docs/api.md
           echo "- GET /tracks/:id" >> docs/api.md
+          echo "## Sessions" >> docs/api.md
+          echo "- GET /sessions" >> docs/api.md
+          echo "- POST /sessions" >> docs/api.md
+          echo "- GET /sessions/:id" >> docs/api.md
+
+      - name: Generate index page
+        run: |
+          echo "# Race Wars Documentation" > docs/index.md
+          echo "" >> docs/index.md
+          echo "## Overview" >> docs/index.md
+          echo "- [README](README.md)" >> docs/index.md
+          echo "- [Development Guide](DEVELOPMENT.md)" >> docs/index.md
+          echo "- [UI Guide](UI_GUIDE.md)" >> docs/index.md
+          echo "- [Test Report](TEST_REPORT.md)" >> docs/index.md
+          echo "- [Component Review](COMPONENT_REVIEW.md)" >> docs/index.md
+          echo "- [Implementation Review](IMPLEMENTATION_REVIEW.md)" >> docs/index.md
+          echo "" >> docs/index.md
+          echo "## API Documentation" >> docs/index.md
+          echo "- [API Reference](api.md)" >> docs/index.md
+          echo "- [OpenAPI Spec](server/docs/openapi.yaml)" >> docs/index.md
+          echo "" >> docs/index.md
+          echo "## Infrastructure" >> docs/index.md
+          echo "- [Infrastructure](infrastructure/)" >> docs/index.md
 
       - name: Upload docs artifact
         uses: actions/upload-artifact@v4
