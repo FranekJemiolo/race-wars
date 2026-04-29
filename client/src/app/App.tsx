@@ -5,7 +5,7 @@ import { store } from "../state/store"
 import { initializeMap } from "../map/map"
 import { updatePlayerMarkers } from "../map/playerLayer"
 import HUD from "../ui/HUD"
-import Leaderboard from "../ui/Leaderboard"
+import { RealTimeLeaderboard } from "../components/RealTimeLeaderboard"
 import Status from "../ui/Status"
 
 export default function App() {
@@ -101,7 +101,7 @@ export default function App() {
       {connectionState === 'connected' && (
         <>
           <HUD />
-          <Leaderboard />
+          <RealTimeLeaderboard raceId="main-race" className="fixed top-20 right-4 w-80" showAntiCheat={true} maxEntries={10} />
           <Status />
         </>
       )}

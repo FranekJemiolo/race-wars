@@ -52,7 +52,7 @@ app.use('/api/leaderboard', leaderboardRoutes)
 // Health check routes
 // app.use('/', healthRoutes)
 
-async function startServer() {
+export async function startServer() {
   try {
     // Initialize database
     await initializeDatabase()
@@ -78,4 +78,7 @@ async function startServer() {
   }
 }
 
-startServer()
+// Only start server if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  startServer()
+}

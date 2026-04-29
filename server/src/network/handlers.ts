@@ -4,6 +4,7 @@ import { log, error } from "../utils/logger"
 import { setClient, removeClient, sendToClient, getClient } from "./websocket"
 import { createPlayer, createPlayerManager } from "../state/playerState"
 import { createRaceManager } from "../state/raceState"
+import { getAntiCheatService } from "../services/antiCheat.service"
 
 // Global race manager (in production, this would be per-race)
 let raceManager: ReturnType<typeof createRaceManager> | null = null
@@ -121,9 +122,67 @@ function handlePositionUpdate(ws: WebSocket, msg: Extract<ClientMessage, { type:
     return
   }
   
-  // Queue update for tick processing
-  // TODO: Implement update queue
-  log(`Position update from ${playerId}: ${msg.lat}, ${msg.lon}`)
+  // Get player manager
+  const playerManager = playerManagers.get(playerId)
+  if (!playerManager) return
+  
+  // Create GPS data point for anti-cheat analysis
+  const gpsDataPoint = {
+    sessionId: raceManager?.race.id || 'default',
+    participantId: playerId,
+    timestamp: now,
+    lat: msg.lat,
+    lng: msg.lon,
+    speed: msg.speed || 0,
+    heading: msg.heading || 0,
+    accuracy: msg.accuracy || 10,
+    source: msg.source || 'gps',
+    quality: msg.quality || 'medium',
+    satelliteCount: msg.satelliteCount,
+    hdop: msg.hdop,
+    vdop: msg.vdop
+  }
+  
+  // Run anti-cheat detection
+  const antiCheatService = getAntiCheatService()
+  antiCheatService.analyzeGPSData(gpsDataPoint).then(result => {
+    if (result.isCheating) {
+      log(`Cheat detected for ${playerId}: Risk score ${result.riskScore}`, {
+        anomalies: result.anomalies.length,
+        confidence: result.confidence
+      })
+      
+      // Send warning to player
+      const warningMessage: ServerMessage = {
+        type: "ANTI_CHEAT_WARNING",
+        riskScore: result.riskScore,
+        anomalies: result.anomalies.map(a => ({
+          type: a.type,
+          severity: a.severity,
+          description: a.description
+        })),
+        recommendations: result.recommendations
+      }
+      sendToClient(playerId, JSON.stringify(warningMessage))
+      
+      // If critical cheating detected, consider disqualification
+      if (result.riskScore > 90) {
+        log(`Critical cheating detected for ${playerId} - considering disqualification`)
+        // TODO: Implement disqualification logic
+      }
+    }
+  }).catch(error => {
+    error('Anti-cheat analysis failed:', error)
+  })
+  
+  // Update player position
+  playerManager.updatePosition({
+    lat: msg.lat,
+    lon: msg.lon,
+    timestamp: now
+  })
+  
+  log(`Position update from ${playerId}: ${msg.lat}, ${msg.lon} (source: ${gpsDataPoint.source})`)
 }
 
 function handleReady(ws: WebSocket, clients: Map<WebSocket, string>): void {

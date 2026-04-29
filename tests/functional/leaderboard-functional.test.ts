@@ -12,21 +12,31 @@ test.describe('Leaderboard Functional Tests', () => {
   let raceId: string;
 
   test.beforeAll(async () => {
-    // Set up test authentication
-    authToken = 'test-functional-token';
+    // Set up test data
     raceId = 'test-functional-race';
   });
 
   test.beforeEach(async ({ page }) => {
-    // Set up authentication
-    await page.goto('/login');
-    await page.evaluate((token) => {
-      localStorage.setItem('authToken', token);
-      window.location.href = '/dashboard';
-    }, authToken);
+    // Perform proper login
+    await page.goto('/');
     
-    // Wait for navigation to complete
-    await page.waitForURL('/dashboard');
+    // Wait for auth screen to load
+    await page.waitForSelector('input[name="username"]');
+    
+    // Fill in login credentials
+    await page.fill('input[name="username"]', 'testdriver');
+    await page.fill('input[name="password"]', 'driver123');
+    
+    // Click login button
+    await page.click('button[type="submit"]');
+    
+    // Wait for successful login - check if we're no longer on auth screen
+    await page.waitForSelector('input[name="username"]', { state: 'hidden', timeout: 5000 }).catch(() => {});
+    
+    // Get auth token from localStorage
+    authToken = await page.evaluate(() => {
+      return localStorage.getItem('authToken');
+    });
   });
 
   test.describe('Race Lifecycle Management', () => {

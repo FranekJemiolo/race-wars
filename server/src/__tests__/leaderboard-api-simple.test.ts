@@ -4,8 +4,52 @@
 
 import request from 'supertest';
 import { app } from '../index';
+import jwt from 'jsonwebtoken';
+import { authService } from '../services/auth.service';
+
+// Helper function to generate valid test tokens
+async function generateTestToken(username: string, role: 'user' | 'admin' = 'user'): Promise<string> {
+  const JWT_SECRET = process.env.JWT_SECRET || 'race-wars-secret-key';
+  
+  // Get the actual user from the auth service to get the correct userId
+  const user = await authService.getUserByUsername(username);
+  if (!user) {
+    throw new Error(`User ${username} not found in auth service`);
+  }
+  
+  return jwt.sign(
+    { 
+      userId: user.id,
+      username: user.username,
+      role: user.role
+    },
+    JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+}
 
 describe('Leaderboard API Integration Tests', () => {
+  let validUserToken: string;
+  let validAdminToken: string;
+
+  // Initialize auth service and tokens before tests
+  beforeAll(async () => {
+    // Set test environment and use random ports to avoid conflicts
+    process.env.NODE_ENV = 'test';
+    process.env.PORT = '0'; // Use 0 to let OS assign random port
+    process.env.WS_PORT = '0'; // Use 0 to let OS assign random port
+    
+    // Start server manually for tests
+    const { startServer } = require('../index');
+    await startServer();
+    
+    // Ensure auth service is initialized
+    authService;
+    
+    // Generate valid tokens
+    validUserToken = await generateTestToken('testdriver', 'user');
+    validAdminToken = await generateTestToken('admin', 'admin');
+  });
   describe('GET /api/leaderboard/:raceId', () => {
     it('should require authentication', async () => {
       const response = await request(app)
@@ -19,7 +63,7 @@ describe('Leaderboard API Integration Tests', () => {
     it('should handle non-existent race with authentication', async () => {
       const response = await request(app)
         .get('/api/leaderboard/non-existent-race')
-        .set('Authorization', 'Bearer test-token')
+        .set('Authorization', `Bearer ${validUserToken}`)
         .expect(500);
 
       expect(response.body.success).toBe(false);
@@ -41,7 +85,7 @@ describe('Leaderboard API Integration Tests', () => {
     it('should validate race name with authentication', async () => {
       const response = await request(app)
         .post('/api/leaderboard/test-race/initialize')
-        .set('Authorization', 'Bearer test-token')
+        .set('Authorization', `Bearer ${validUserToken}`)
         .send({})
         .expect(400);
 
@@ -72,7 +116,7 @@ describe('Leaderboard API Integration Tests', () => {
     it('should validate position data with authentication', async () => {
       const response = await request(app)
         .post('/api/leaderboard/test-race/position')
-        .set('Authorization', 'Bearer test-token')
+        .set('Authorization', `Bearer ${validUserToken}`)
         .send({
           participantId: 'test-participant'
           // Missing required fields
@@ -86,7 +130,7 @@ describe('Leaderboard API Integration Tests', () => {
     it('should validate coordinates with authentication', async () => {
       const response = await request(app)
         .post('/api/leaderboard/test-race/position')
-        .set('Authorization', 'Bearer test-token')
+        .set('Authorization', `Bearer ${validUserToken}`)
         .send({
           participantId: 'test-participant',
           position: 1,
@@ -128,7 +172,7 @@ describe('Leaderboard API Integration Tests', () => {
     it('should validate total time with authentication', async () => {
       const response = await request(app)
         .post('/api/leaderboard/test-race/finish/test-participant')
-        .set('Authorization', 'Bearer test-token')
+        .set('Authorization', `Bearer ${validUserToken}`)
         .send({ totalTime: -1000 })
         .expect(400);
 
@@ -172,11 +216,11 @@ describe('Leaderboard API Integration Tests', () => {
     it('should deny access for non-admin users', async () => {
       const response = await request(app)
         .delete('/api/leaderboard/test-race/cache')
-        .set('Authorization', 'Bearer user-token')
-        .expect(401);
+        .set('Authorization', `Bearer ${validUserToken}`)
+        .expect(403);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Access token required');
+      expect(response.body.error).toBe('Access denied');
     });
   });
 
@@ -184,7 +228,7 @@ describe('Leaderboard API Integration Tests', () => {
     it('should handle malformed requests', async () => {
       const response = await request(app)
         .post('/api/leaderboard/test-race/position')
-        .set('Authorization', 'Bearer test-token')
+        .set('Authorization', `Bearer ${validUserToken}`)
         .send('invalid-json')
         .expect(400);
 
@@ -194,7 +238,7 @@ describe('Leaderboard API Integration Tests', () => {
     it('should handle invalid race ID format', async () => {
       const response = await request(app)
         .get('/api/leaderboard/')
-        .set('Authorization', 'Bearer test-token')
+        .set('Authorization', `Bearer ${validUserToken}`)
         .expect(404);
 
       expect(response.status).toBe(404);
@@ -205,8 +249,8 @@ describe('Leaderboard API Integration Tests', () => {
     it('should have proper API response format', async () => {
       const response = await request(app)
         .get('/api/leaderboard/non-existent-race')
-        .set('Authorization', 'Bearer test-token')
-        .expect(401);
+        .set('Authorization', `Bearer ${validUserToken}`)
+        .expect(500);
 
       expect(response.body).toHaveProperty('success');
       expect(response.body).toHaveProperty('error');

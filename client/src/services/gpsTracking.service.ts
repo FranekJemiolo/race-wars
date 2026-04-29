@@ -14,6 +14,14 @@ export interface PositionData {
   altitude?: number | null;
   altitudeAccuracy?: number | null;
   timestamp: number;
+  // Enhanced tracking data
+  sessionId: string;
+  deviceId?: string;
+  source: 'gps' | 'simulation' | 'mock';
+  quality: 'high' | 'medium' | 'low';
+  satelliteCount?: number;
+  hdop?: number; // Horizontal dilution of precision
+  vdop?: number; // Vertical dilution of precision
 }
 
 export interface GPSConfig {
@@ -23,11 +31,32 @@ export interface GPSConfig {
   updateInterval: number;
 }
 
+export interface SimulationConfig {
+  // Route simulation
+  routeType: 'circular' | 'linear' | 'figure8' | 'custom';
+  centerLat: number;
+  centerLng: number;
+  radius: number; // in meters
+  speed: number; // in km/h
+  // Data quality simulation
+  accuracyVariation: number; // GPS accuracy variation in meters
+  signalLoss: boolean; // Simulate occasional signal loss
+  drift: boolean; // Simulate GPS drift
+  // Advanced simulation
+  satelliteCount: number;
+  hdopRange: [number, number];
+  vdopRange: [number, number];
+}
+
 export interface GPSTrackingOptions {
   sessionId: string;
   onPositionUpdate?: (position: PositionData) => void;
   onError?: (error: Error) => void;
   config?: Partial<GPSConfig>;
+  // Enhanced options
+  deviceId?: string;
+  enableSimulation?: boolean;
+  simulationConfig?: SimulationConfig;
 }
 
 const DEFAULT_CONFIG: GPSConfig = {
@@ -47,12 +76,23 @@ export class GPSTrackingService {
   private lastPosition: PositionData | null = null;
   private positionHistory: PositionData[] = [];
   private maxHistorySize = 1000;
+  
+  // Enhanced tracking features
+  private deviceId: string;
+  private enableSimulation: boolean;
+  private simulationConfig?: SimulationConfig;
+  private simulationInterval?: NodeJS.Timeout;
+  private simulationAngle = 0;
+  private simulationTime = 0;
 
   constructor(options: GPSTrackingOptions) {
     this.sessionId = options.sessionId;
     this.onPositionUpdate = options.onPositionUpdate;
     this.onError = options.onError;
     this.config = { ...DEFAULT_CONFIG, ...options.config };
+    this.deviceId = options.deviceId || this.generateDeviceId();
+    this.enableSimulation = options.enableSimulation || false;
+    this.simulationConfig = options.simulationConfig;
   }
 
   /**
@@ -61,6 +101,14 @@ export class GPSTrackingService {
   async startTracking(): Promise<void> {
     if (this.isTracking) {
       console.warn('GPS tracking is already active');
+      return;
+    }
+
+    if (this.enableSimulation) {
+      // Start simulation mode
+      this.startSimulation();
+      this.isTracking = true;
+      console.log('GPS simulation started for session:', this.sessionId);
       return;
     }
 
@@ -97,6 +145,11 @@ export class GPSTrackingService {
    * Stop GPS tracking
    */
   stopTracking(): void {
+    if (this.enableSimulation && this.simulationInterval) {
+      clearInterval(this.simulationInterval);
+      this.simulationInterval = undefined;
+    }
+
     if (this.watchId !== null) {
       navigator.geolocation.clearWatch(this.watchId);
       this.watchId = null;
@@ -187,6 +240,11 @@ export class GPSTrackingService {
       altitude: position.coords.altitude ?? undefined,
       altitudeAccuracy: position.coords.altitudeAccuracy ?? undefined,
       timestamp: position.timestamp,
+      // Enhanced tracking data
+      sessionId: this.sessionId,
+      deviceId: this.deviceId,
+      source: 'gps',
+      quality: this.determineQuality(position.coords.accuracy),
     };
 
     this.lastPosition = positionData;
@@ -242,6 +300,128 @@ export class GPSTrackingService {
     if (this.positionHistory.length > this.maxHistorySize) {
       this.positionHistory.shift();
     }
+  }
+
+  /**
+   * Start simulation mode
+   */
+  private startSimulation(): void {
+    if (!this.simulationConfig) {
+      throw new Error('Simulation config is required for simulation mode');
+    }
+
+    this.simulationTime = 0;
+    this.simulationAngle = 0;
+
+    this.simulationInterval = setInterval(() => {
+      const position = this.generateSimulatedPosition();
+      this.lastPosition = position;
+      this.addToHistory(position);
+
+      if (this.onPositionUpdate) {
+        this.onPositionUpdate(position);
+      }
+
+      this.simulationTime += this.config.updateInterval;
+    }, this.config.updateInterval);
+  }
+
+  /**
+   * Generate simulated GPS position
+   */
+  private generateSimulatedPosition(): PositionData {
+    if (!this.simulationConfig) {
+      throw new Error('Simulation config is required');
+    }
+
+    const { routeType, centerLat, centerLng, radius, speed, accuracyVariation, signalLoss, drift } = this.simulationConfig;
+    
+    let lat: number, lng: number, heading: number;
+    
+    switch (routeType) {
+      case 'circular':
+        heading = (this.simulationAngle * 180 / Math.PI) % 360;
+        lat = centerLat + (radius / 111320) * Math.cos(this.simulationAngle);
+        lng = centerLng + (radius / (111320 * Math.cos(centerLat * Math.PI / 180))) * Math.sin(this.simulationAngle);
+        this.simulationAngle += (speed / 3.6) / radius * (this.config.updateInterval / 1000);
+        break;
+        
+      case 'figure8':
+        const t = this.simulationAngle;
+        lat = centerLat + (radius / 111320) * Math.sin(t);
+        lng = centerLng + (radius / (111320 * Math.cos(centerLat * Math.PI / 180))) * Math.sin(2 * t) / 2;
+        heading = Math.atan2(Math.cos(t), Math.cos(2 * t) / 2) * 180 / Math.PI;
+        this.simulationAngle += (speed / 3.6) / radius * (this.config.updateInterval / 1000);
+        break;
+        
+      case 'linear':
+        const distance = (speed / 3.6) * (this.simulationTime / 1000);
+        lat = centerLat + (distance / 111320);
+        lng = centerLng + (distance / (111320 * Math.cos(centerLat * Math.PI / 180))) * 0.1;
+        heading = 45; // Northeast direction
+        break;
+        
+      default:
+        lat = centerLat;
+        lng = centerLng;
+        heading = 0;
+    }
+
+    // Add drift if enabled
+    if (drift) {
+      lat += (Math.random() - 0.5) * 0.00001;
+      lng += (Math.random() - 0.5) * 0.00001;
+    }
+
+    // Simulate signal loss
+    if (signalLoss && Math.random() < 0.01) { // 1% chance of signal loss
+      return this.lastPosition || {
+        lat, lng, speed: 0, heading, accuracy: 1000,
+        sessionId: this.sessionId,
+        deviceId: this.deviceId,
+        source: 'simulation',
+        quality: 'low',
+        timestamp: Date.now()
+      };
+    }
+
+    const accuracy = 5 + Math.random() * accuracyVariation;
+    
+    return {
+      lat,
+      lng,
+      speed,
+      heading,
+      accuracy,
+      timestamp: Date.now(),
+      sessionId: this.sessionId,
+      deviceId: this.deviceId,
+      source: 'simulation',
+      quality: this.determineQuality(accuracy),
+      satelliteCount: this.simulationConfig.satelliteCount || 8 + Math.floor(Math.random() * 8),
+      hdop: this.simulationConfig.hdopRange ? 
+        this.simulationConfig.hdopRange[0] + Math.random() * (this.simulationConfig.hdopRange[1] - this.simulationConfig.hdopRange[0]) : 
+        undefined,
+      vdop: this.simulationConfig.vdopRange ? 
+        this.simulationConfig.vdopRange[0] + Math.random() * (this.simulationConfig.vdopRange[1] - this.simulationConfig.vdopRange[0]) : 
+        undefined,
+    };
+  }
+
+  /**
+   * Determine GPS quality based on accuracy
+   */
+  private determineQuality(accuracy: number): 'high' | 'medium' | 'low' {
+    if (accuracy < 5) return 'high';
+    if (accuracy < 20) return 'medium';
+    return 'low';
+  }
+
+  /**
+   * Generate unique device ID
+   */
+  private generateDeviceId(): string {
+    return 'device-' + Math.random().toString(36).substr(2, 9);
   }
 
   /**
