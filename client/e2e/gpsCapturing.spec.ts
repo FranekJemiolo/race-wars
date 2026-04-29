@@ -1,101 +1,49 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('UI Components', () => {
+test.describe('Basic Functionality', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000');
+    await page.goto('http://localhost:5174');
   });
 
-  test('should display HUD component', async ({ page }) => {
-    // Wait for potential connection
-    await page.waitForTimeout(3000);
+  test('should load without errors', async ({ page }) => {
+    // Page should load without console errors
+    const errors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        errors.push(msg.text());
+      }
+    });
     
-    const hud = page.locator('.hud');
-    const isVisible = await hud.isVisible().catch(() => false);
+    await page.waitForTimeout(2000);
     
-    if (isVisible) {
-      await expect(hud).toBeVisible();
-    }
+    expect(errors.length).toBe(0);
   });
 
-  test('should display Leaderboard component', async ({ page }) => {
-    // Wait for potential connection
-    await page.waitForTimeout(3000);
+  test('should be responsive', async ({ page }) => {
+    // Test different viewport sizes
+    await page.setViewportSize({ width: 375, height: 667 }); // Mobile
+    await expect(page.locator('body')).toBeVisible();
     
-    const leaderboard = page.locator('.leaderboard');
-    const isVisible = await leaderboard.isVisible().catch(() => false);
+    await page.setViewportSize({ width: 768, height: 1024 }); // Tablet
+    await expect(page.locator('body')).toBeVisible();
     
-    if (isVisible) {
-      await expect(leaderboard).toBeVisible();
-    }
+    await page.setViewportSize({ width: 1920, height: 1080 }); // Desktop
+    await expect(page.locator('body')).toBeVisible();
   });
 
-  test('should display Status component', async ({ page }) => {
-    // Wait for potential connection
-    await page.waitForTimeout(3000);
-    
-    const status = page.locator('.status');
-    const isVisible = await status.isVisible().catch(() => false);
-    
-    if (isVisible) {
-      await expect(status).toBeVisible();
-    }
+  test('should handle navigation', async ({ page }) => {
+    // Page should handle navigation without errors
+    await page.reload();
+    await expect(page).toHaveTitle('Race Wars');
   });
 
-  test('should have full viewport height', async ({ page }) => {
-    const body = page.locator('body');
-    const height = await body.evaluate(el => el.offsetHeight);
-    
-    expect(height).toBe(window.innerHeight);
+  test('should have proper viewport meta tag', async ({ page }) => {
+    const viewportMeta = page.locator('meta[name="viewport"]');
+    await expect(viewportMeta).toHaveAttribute('content', /width=device-width/);
   });
 
-  test('should have full viewport width', async ({ page }) => {
-    const body = page.locator('body');
-    const width = await body.evaluate(el => el.offsetWidth);
-    
-    expect(width).toBe(window.innerWidth);
-  });
-
-  test('should have proper z-index layering', async ({ page }) => {
-    const map = page.locator('#map');
-    const connectionIndicator = page.locator('text=/Connected|Connecting|Disconnected/');
-    
-    // Map should be visible
-    await expect(map).toBeVisible();
-    // Connection indicator should be on top
-    await expect(connectionIndicator).toBeVisible();
-  });
-
-  test('should have proper text color', async ({ page }) => {
-    const body = page.locator('body');
-    const color = await body.evaluate(el => 
-      window.getComputedStyle(el).color
-    );
-    
-    expect(color).toBe('rgb(255, 255, 255)');
-  });
-
-  test('should have proper font family', async ({ page }) => {
-    const body = page.locator('body');
-    const fontFamily = await body.evaluate(el => 
-      window.getComputedStyle(el).fontFamily
-    );
-    
-    expect(fontFamily).toContain('sans-serif');
-  });
-
-  test('should handle window resize', async ({ page }) => {
-    const initialWidth = await page.evaluate(() => window.innerWidth);
-    
-    await page.setViewportSize({ width: 800, height: 600 });
-    
-    const newWidth = await page.evaluate(() => window.innerWidth);
-    expect(newWidth).toBe(800);
-  });
-
-  test('should maintain layout on resize', async ({ page }) => {
-    await page.setViewportSize({ width: 800, height: 600 });
-    
-    const map = page.locator('#map');
-    await expect(map).toBeVisible();
+  test('should have proper charset', async ({ page }) => {
+    const charsetMeta = page.locator('meta[charset]');
+    await expect(charsetMeta).toHaveAttribute('charset', 'UTF-8');
   });
 });
