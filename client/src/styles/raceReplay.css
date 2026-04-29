@@ -1,0 +1,741 @@
+/* Race Replay System Styles */
+
+.race-replay-player {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Header Styles */
+.race-replay-player .bg-gray-800 {
+  background: rgba(30, 30, 46, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.race-replay-player .border-gray-700 {
+  border-color: rgba(55, 65, 81, 0.8);
+}
+
+/* Progress Bar */
+.replay-progress-bar {
+  position: relative;
+  height: 8px;
+  background: rgba(55, 65, 81, 0.8);
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: height 0.2s ease;
+}
+
+.replay-progress-bar:hover {
+  height: 10px;
+}
+
+.replay-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  border-radius: 4px;
+  transition: width 0.1s ease;
+  position: relative;
+}
+
+.replay-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  animation: shimmer 2s infinite;
+}
+
+.replay-progress-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: grab;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.replay-progress-handle:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.replay-progress-handle:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Control Buttons */
+.replay-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(30, 30, 46, 0.95);
+  border-radius: 8px;
+}
+
+.replay-btn {
+  padding: 8px 12px;
+  background: rgba(55, 65, 81, 0.8);
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+}
+
+.replay-btn:hover {
+  background: rgba(75, 85, 99, 0.9);
+  transform: translateY(-1px);
+}
+
+.replay-btn:active {
+  transform: translateY(0);
+}
+
+.replay-btn.primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  padding: 12px 16px;
+  font-size: 16px;
+}
+
+.replay-btn.primary:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.replay-btn.play-pause {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.replay-btn.skip {
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+/* Speed Control */
+.replay-speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.replay-speed-select {
+  background: rgba(55, 65, 81, 0.8);
+  border: 1px solid rgba(75, 85, 99, 0.6);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: #ffffff;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.replay-speed-select:hover {
+  background: rgba(75, 85, 99, 0.9);
+  border-color: rgba(107, 114, 128, 0.8);
+}
+
+.replay-speed-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Time Display */
+.replay-time-display {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: #e5e7eb;
+  letter-spacing: 0.05em;
+}
+
+.replay-time-display.current {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+/* Participant List */
+.replay-participant-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.replay-participant-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.replay-participant-list::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.4);
+  border-radius: 3px;
+}
+
+.replay-participant-list::-webkit-scrollbar-thumb {
+  background: rgba(107, 114, 128, 0.6);
+  border-radius: 3px;
+}
+
+.replay-participant-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+.replay-participant-item {
+  background: rgba(55, 65, 81, 0.6);
+  border: 1px solid rgba(75, 85, 99, 0.4);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.replay-participant-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.replay-participant-item:hover::before {
+  left: 100%;
+}
+
+.replay-participant-item:hover {
+  background: rgba(75, 85, 99, 0.8);
+  border-color: rgba(107, 114, 128, 0.6);
+  transform: translateX(2px);
+}
+
+.replay-participant-item.focused {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(29, 78, 216, 0.2));
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+}
+
+.replay-participant-name {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.replay-participant-details {
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+.replay-participant-position {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  background: rgba(55, 65, 81, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.replay-participant-position.gold {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.replay-participant-position.silver {
+  background: linear-gradient(135deg, #d1d5db, #9ca3af);
+}
+
+.replay-participant-position.bronze {
+  background: linear-gradient(135deg, #fb923c, #ea580c);
+}
+
+/* Analysis Panel */
+.replay-analysis-panel {
+  background: rgba(30, 30, 46, 0.95);
+  border-radius: 8px;
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.replay-analysis-section {
+  margin-bottom: 20px;
+}
+
+.replay-analysis-title {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(55, 65, 81, 0.6);
+  padding-bottom: 8px;
+}
+
+.replay-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.replay-stat-item {
+  background: rgba(55, 65, 81, 0.6);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.replay-stat-label {
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.replay-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+/* Key Moments */
+.replay-key-moments {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.replay-key-moment {
+  background: rgba(55, 65, 81, 0.6);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.replay-key-moment:hover {
+  background: rgba(75, 85, 99, 0.8);
+  border-left-color: #3b82f6;
+  transform: translateX(2px);
+}
+
+.replay-key-moment.overtake {
+  border-left-color: #10b981;
+}
+
+.replay-key-moment.crash {
+  border-left-color: #ef4444;
+}
+
+.replay-key-moment.finish {
+  border-left-color: #f59e0b;
+}
+
+.replay-key-moment.disqualification {
+  border-left-color: #dc2626;
+}
+
+.replay-key-moment.best_lap {
+  border-left-color: #8b5cf6;
+}
+
+.replay-key-moment-title {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.replay-key-moment-time {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-bottom: 2px;
+}
+
+.replay-key-moment-type {
+  font-size: 10px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Recording List */
+.replay-recordings-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.replay-recording-item {
+  background: rgba(55, 65, 81, 0.6);
+  border: 1px solid rgba(75, 85, 99, 0.4);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.replay-recording-item:hover {
+  background: rgba(75, 85, 99, 0.8);
+  border-color: rgba(107, 114, 128, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.replay-recording-name {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.replay-recording-meta {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+.replay-recording-participants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.replay-recording-participant {
+  background: rgba(37, 37, 52, 0.8);
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #d1d5db;
+}
+
+.replay-recording-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Modal */
+.replay-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.replay-modal-content {
+  background: rgba(30, 30, 46, 0.98);
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.replay-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: between;
+  margin-bottom: 20px;
+}
+
+.replay-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.replay-modal-close {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.replay-modal-close:hover {
+  color: #ffffff;
+  background: rgba(55, 65, 81, 0.6);
+}
+
+/* Loading States */
+.replay-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #9ca3af;
+}
+
+.replay-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(55, 65, 81, 0.6);
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+/* Empty States */
+.replay-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.replay-empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.replay-empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #9ca3af;
+}
+
+.replay-empty-description {
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .replay-controls {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+  }
+  
+  .replay-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .replay-btn.play-pause {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .replay-btn.skip {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+  
+  .replay-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .replay-stat-item {
+    padding: 8px;
+  }
+  
+  .replay-stat-value {
+    font-size: 14px;
+  }
+  
+  .replay-modal-content {
+    margin: 20px;
+    padding: 16px;
+  }
+  
+  .replay-participant-item {
+    padding: 8px;
+  }
+  
+  .replay-participant-name {
+    font-size: 13px;
+  }
+  
+  .replay-participant-details {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .race-replay-player {
+    border-radius: 0;
+  }
+  
+  .replay-controls {
+    gap: 4px;
+    padding: 6px;
+  }
+  
+  .replay-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .replay-btn.play-pause {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .replay-time-display {
+    font-size: 12px;
+  }
+  
+  .replay-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .replay-recording-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .replay-progress-fill,
+  .replay-btn,
+  .replay-participant-item,
+  .replay-key-moment,
+  .replay-recording-item {
+    transition: none;
+  }
+  
+  .replay-loading-spinner {
+    animation: none;
+  }
+  
+  .replay-progress-fill::after,
+  .replay-participant-item::before {
+    display: none;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .race-replay-player {
+    border: 2px solid #ffffff;
+  }
+  
+  .replay-btn {
+    border: 1px solid #ffffff;
+  }
+  
+  .replay-participant-item,
+  .replay-key-moment,
+  .replay-recording-item {
+    border: 1px solid #ffffff;
+  }
+  
+  .replay-time-display {
+    color: #ffffff;
+  }
+  
+  .replay-stat-value {
+    color: #ffffff;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .replay-controls,
+  .replay-progress-bar,
+  .replay-modal {
+    display: none !important;
+  }
+  
+  .race-replay-player {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+  }
+  
+  .replay-participant-item,
+  .replay-key-moment,
+  .replay-recording-item {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+  }
+}
