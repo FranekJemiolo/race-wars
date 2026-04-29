@@ -1,0 +1,1493 @@
+openapi: 3.0.3
+info:
+  title: Race Wars API
+  description: |
+    API for the Race Wars racing application. This API provides endpoints for race management,
+    enforcement zones, sector flags, notifications, proximity detection, and more.
+  version: 1.0.0
+  contact:
+    name: Race Wars Team
+    email: support@racewars.local
+
+servers:
+  - url: http://localhost:3000/api
+    description: Development server
+  - url: https://api.racewars.local/api
+    description: Production server
+
+tags:
+  - name: Enforcement
+    description: Enforcement zone management and violation tracking
+  - name: Notifications
+    description: User notification management
+  - name: Sector Flags
+    description: Sector-based flag system management
+  - name: Proximity
+    description: Proximity detection and alerts
+  - name: Races
+    description: Race session management
+  - name: Routes
+    description: Route and track management
+  - name: Participation
+    description: Driver participation in races
+  - name: Auth
+    description: Authentication and authorization
+
+paths:
+  /enforcement/zones/route/{routeId}:
+    get:
+      tags:
+        - Enforcement
+      summary: Get all enforcement zones for a route
+      description: Retrieve all enforcement zones associated with a specific route
+      parameters:
+        - name: routeId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the route
+      responses:
+        '200':
+          description: Successfully retrieved enforcement zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnforcementZone'
+        '400':
+          description: Route ID is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /enforcement/zones/route/{routeId}/visible:
+    get:
+      tags:
+        - Enforcement
+      summary: Get visible enforcement zones for a route
+      description: Retrieve only visible enforcement zones for a specific route
+      parameters:
+        - name: routeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved visible enforcement zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnforcementZone'
+        '400':
+          description: Route ID is required
+        '500':
+          description: Server error
+
+  /enforcement/zones/route/{routeId}/type/{zoneType}:
+    get:
+      tags:
+        - Enforcement
+      summary: Get enforcement zones by type
+      description: Retrieve enforcement zones of a specific type for a route
+      parameters:
+        - name: routeId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: zoneType
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [speed_limit, speed_trap, no_overtaking, pit_lane]
+      responses:
+        '200':
+          description: Successfully retrieved enforcement zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EnforcementZone'
+        '400':
+          description: Route ID and zone type are required
+        '500':
+          description: Server error
+
+  /enforcement/zones/route/{routeId}/stats:
+    get:
+      tags:
+        - Enforcement
+      summary: Get enforcement zone statistics
+      description: Retrieve statistics for enforcement zones on a route
+      parameters:
+        - name: routeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalZones:
+                    type: integer
+                  speedLimitZones:
+                    type: integer
+                  speedTrapZones:
+                    type: integer
+                  noOvertakingZones:
+                    type: integer
+        '400':
+          description: Route ID is required
+        '500':
+          description: Server error
+
+  /enforcement/zones:
+    post:
+      tags:
+        - Enforcement
+      summary: Create a new enforcement zone
+      description: Create a new enforcement zone for a route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnforcementZoneCreate'
+      responses:
+        '201':
+          description: Successfully created enforcement zone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnforcementZone'
+        '400':
+          description: Missing required fields
+        '500':
+          description: Server error
+
+  /enforcement/zones/{id}:
+    put:
+      tags:
+        - Enforcement
+      summary: Update an enforcement zone
+      description: Update an existing enforcement zone
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnforcementZoneUpdate'
+      responses:
+        '200':
+          description: Successfully updated enforcement zone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnforcementZone'
+        '400':
+          description: Zone ID is required
+        '404':
+          description: Enforcement zone not found
+        '500':
+          description: Server error
+    delete:
+      tags:
+        - Enforcement
+      summary: Delete an enforcement zone
+      description: Delete an existing enforcement zone
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully deleted enforcement zone
+        '400':
+          description: Zone ID is required
+        '404':
+          description: Enforcement zone not found
+        '500':
+          description: Server error
+
+  /enforcement/check-speed-zones/{routeId}:
+    post:
+      tags:
+        - Enforcement
+      summary: Check position for speed zone violations
+      description: Check if a vehicle position violates any speed zones
+      parameters:
+        - name: routeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Position'
+      responses:
+        '200':
+          description: Successfully checked speed zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpeedZoneViolation'
+        '400':
+          description: Missing required fields
+        '500':
+          description: Server error
+
+  /enforcement/check-speed-traps/{routeId}:
+    post:
+      tags:
+        - Enforcement
+      summary: Check position for speed trap triggers
+      description: Check if a vehicle position triggers any speed traps
+      parameters:
+        - name: routeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Position'
+      responses:
+        '200':
+          description: Successfully checked speed traps
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpeedTrapTrigger'
+        '400':
+          description: Missing required fields
+        '500':
+          description: Server error
+
+  /enforcement/calculate-penalty:
+    post:
+      tags:
+        - Enforcement
+      summary: Calculate penalty for a violation
+      description: Calculate the penalty amount for a given violation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpeedZoneViolation'
+      responses:
+        '200':
+          description: Successfully calculated penalty
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenaltyCalculation'
+        '400':
+          description: Violation data is required
+        '500':
+          description: Server error
+
+  /enforcement/check-route-deviation:
+    post:
+      tags:
+        - Enforcement
+      summary: Check for route deviation
+      description: Check if a vehicle has deviated from the route
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  $ref: '#/components/schemas/Position'
+                routePoints:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Position'
+                toleranceMeters:
+                  type: integer
+                  default: 50
+      responses:
+        '200':
+          description: Successfully checked route deviation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isDeviating:
+                    type: boolean
+        '400':
+          description: Missing required fields
+        '500':
+          description: Server error
+
+  /enforcement/check-checkpoint-violation:
+    post:
+      tags:
+        - Enforcement
+      summary: Check for checkpoint violation
+      description: Check if a vehicle has violated checkpoint rules
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  $ref: '#/components/schemas/Position'
+                checkpoint:
+                  type: object
+                previousPosition:
+                  $ref: '#/components/schemas/Position'
+      responses:
+        '200':
+          description: Successfully checked checkpoint violation
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Missing required fields
+        '500':
+          description: Server error
+
+  /enforcement/risk-level/{routeId}:
+    get:
+      tags:
+        - Enforcement
+      summary: Get risk level for a session
+      description: Get the current risk level for a route/session
+      parameters:
+        - name: routeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved risk level
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  riskLevel:
+                    type: string
+                    enum: [low, medium, high, critical]
+        '400':
+          description: Route ID is required
+        '500':
+          description: Server error
+
+  /enforcement/violations/{routeId}:
+    delete:
+      tags:
+        - Enforcement
+      summary: Clear violations for a session
+      description: Clear all violations for a specific route/session
+      parameters:
+        - name: routeId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Successfully cleared violations
+        '400':
+          description: Route ID is required
+        '500':
+          description: Server error
+
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      summary: Get user notifications
+      description: Retrieve notifications for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  pagination:
+                    type: object
+                    properties:
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+                      total:
+                        type: integer
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /notifications/mark-read:
+    post:
+      tags:
+        - Notifications
+      summary: Mark notification as read
+      description: Mark a specific notification as read
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notificationId:
+                  type: string
+              required:
+                - notificationId
+      responses:
+        '200':
+          description: Successfully marked as read
+        '400':
+          description: User ID and notification ID required
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /notifications/mark-all-read:
+    post:
+      tags:
+        - Notifications
+      summary: Mark all notifications as read
+      description: Mark all notifications for the user as read
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully marked all as read
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /notifications/{notificationId}:
+    delete:
+      tags:
+        - Notifications
+      summary: Delete notification
+      description: Delete a specific notification
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted notification
+        '400':
+          description: User ID and notification ID required
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /notifications/preferences:
+    get:
+      tags:
+        - Notifications
+      summary: Get notification preferences
+      description: Retrieve notification preferences for the user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved preferences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preferences:
+                    $ref: '#/components/schemas/NotificationPreferences'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+    put:
+      tags:
+        - Notifications
+      summary: Update notification preferences
+      description: Update notification preferences for the user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferences'
+      responses:
+        '200':
+          description: Successfully updated preferences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  preferences:
+                    $ref: '#/components/schemas/NotificationPreferences'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /notifications/stats:
+    get:
+      tags:
+        - Notifications
+      summary: Get notification statistics
+      description: Retrieve notification statistics for the user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    type: object
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /notifications/unread-count:
+    get:
+      tags:
+        - Notifications
+      summary: Get unread notification count
+      description: Retrieve the count of unread notifications for the user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved unread count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+        '401':
+          description: Unauthorized
+        '500':
+          description: Server error
+
+  /sector-flags/initialize:
+    post:
+      tags:
+        - Sector Flags
+      summary: Initialize sectors for a track
+      description: Initialize sectors for a track with their configurations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sectors:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Sector'
+              required:
+                - sectors
+      responses:
+        '200':
+          description: Successfully initialized sectors
+        '400':
+          description: sectors array is required
+        '500':
+          description: Server error
+
+  /sector-flags:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get all sectors
+      description: Retrieve all sectors for the current track
+      responses:
+        '200':
+          description: Successfully retrieved sectors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sector'
+        '500':
+          description: Server error
+
+  /sector-flags/{sectorId}:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get sector by ID
+      description: Retrieve a specific sector by its ID
+      parameters:
+        - name: sectorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved sector
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sector'
+        '400':
+          description: Sector ID is required
+        '404':
+          description: Sector not found
+        '500':
+          description: Server error
+
+  /sector-flags/{sectorId}/flag:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get flag state for a sector
+      description: Retrieve the current flag state for a specific sector
+      parameters:
+        - name: sectorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved flag state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectorFlagState'
+        '400':
+          description: Sector ID is required
+        '404':
+          description: Sector flag state not found
+        '500':
+          description: Server error
+    put:
+      tags:
+        - Sector Flags
+      summary: Set flag for a sector
+      description: Set the flag for a specific sector
+      parameters:
+        - name: sectorId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flag:
+                  $ref: '#/components/schemas/FlagType'
+                reason:
+                  type: string
+                updatedBy:
+                  type: string
+                propagate:
+                  type: boolean
+                  default: true
+              required:
+                - flag
+      responses:
+        '200':
+          description: Successfully set flag
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  changes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FlagChange'
+        '400':
+          description: sectorId and flag are required
+        '500':
+          description: Server error
+
+  /sector-flags/flags:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get all sector flag states
+      description: Retrieve flag states for all sectors
+      responses:
+        '200':
+          description: Successfully retrieved all flag states
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SectorFlagState'
+        '500':
+          description: Server error
+
+  /sector-flags/position/{distanceMeters}/flag:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get flag at position
+      description: Get the flag at a specific position on the track
+      parameters:
+        - name: distanceMeters
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Successfully retrieved flag
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flag:
+                    $ref: '#/components/schemas/FlagType'
+        '400':
+          description: distanceMeters is required
+        '500':
+          description: Server error
+
+  /sector-flags/position/{distanceMeters}/sector:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get sector at position
+      description: Get the sector at a specific position on the track
+      parameters:
+        - name: distanceMeters
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Successfully retrieved sector
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sector'
+        '400':
+          description: distanceMeters is required
+        '404':
+          description: No sector found at position
+        '500':
+          description: Server error
+
+  /sector-flags/clear:
+    post:
+      tags:
+        - Sector Flags
+      summary: Clear all flags
+      description: Reset all flags to green
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                updatedBy:
+                  type: string
+      responses:
+        '200':
+          description: Successfully cleared all flags
+        '500':
+          description: Server error
+
+  /sector-flags/history:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get flag history
+      description: Retrieve the history of flag changes
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: Successfully retrieved flag history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlagChange'
+        '500':
+          description: Server error
+
+  /sector-flags/yellow-sectors:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get yellow flag sectors
+      description: Retrieve all sectors with yellow flags
+      responses:
+        '200':
+          description: Successfully retrieved yellow flag sectors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sector'
+        '500':
+          description: Server error
+
+  /sector-flags/red-sectors:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get red flag sectors
+      description: Retrieve all sectors with red flags
+      responses:
+        '200':
+          description: Successfully retrieved red flag sectors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sector'
+        '500':
+          description: Server error
+
+  /sector-flags/has-flag/{flag}:
+    get:
+      tags:
+        - Sector Flags
+      summary: Check if any sector has a specific flag
+      description: Check if any sector currently has a specific flag type
+      parameters:
+        - name: flag
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/FlagType'
+      responses:
+        '200':
+          description: Successfully checked flag
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hasFlag:
+                    type: boolean
+        '400':
+          description: Flag type is required
+        '500':
+          description: Server error
+
+  /sector-flags/overall-status:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get overall track status
+      description: Get the overall track status flag
+      responses:
+        '200':
+          description: Successfully retrieved track status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/FlagType'
+        '500':
+          description: Server error
+
+  /sector-flags/blue-flag:
+    post:
+      tags:
+        - Sector Flags
+      summary: Set blue flag for a driver
+      description: Set a blue flag for a specific driver in a sector
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                driverId:
+                  type: string
+                sectorId:
+                  type: string
+                reason:
+                  type: string
+              required:
+                - driverId
+                - sectorId
+      responses:
+        '200':
+          description: Successfully set blue flag
+        '400':
+          description: driverId and sectorId are required
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones/initialize:
+    post:
+      tags:
+        - Sector Flags
+      summary: Initialize marshal zones
+      description: Initialize marshal zones for a track
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                zones:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MarshalZone'
+              required:
+                - zones
+      responses:
+        '200':
+          description: Successfully initialized marshal zones
+        '400':
+          description: zones array is required
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get all marshal zones
+      description: Retrieve all marshal zones
+      responses:
+        '200':
+          description: Successfully retrieved marshal zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarshalZone'
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones/{zoneId}:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get marshal zone by ID
+      description: Retrieve a specific marshal zone
+      parameters:
+        - name: zoneId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved marshal zone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarshalZone'
+        '400':
+          description: Zone ID is required
+        '404':
+          description: Marshal zone not found
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones/sector/{sectorId}:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get marshal zones for a sector
+      description: Retrieve all marshal zones for a specific sector
+      parameters:
+        - name: sectorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved marshal zones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MarshalZone'
+        '400':
+          description: Sector ID is required
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones/{zoneId}/activate:
+    post:
+      tags:
+        - Sector Flags
+      summary: Activate marshal zone
+      description: Activate a specific marshal zone
+      parameters:
+        - name: zoneId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully activated marshal zone
+        '400':
+          description: Zone ID is required
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones/{zoneId}/deactivate:
+    post:
+      tags:
+        - Sector Flags
+      summary: Deactivate marshal zone
+      description: Deactivate a specific marshal zone
+      parameters:
+        - name: zoneId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deactivated marshal zone
+        '400':
+          description: Zone ID is required
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones/nearest:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get nearest marshal zone
+      description: Get the nearest active marshal zone to a position
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Successfully retrieved nearest marshal zone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarshalZone'
+        '400':
+          description: lat and lng are required
+        '404':
+          description: No active marshal zone found
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones/{zoneId}/incident:
+    post:
+      tags:
+        - Sector Flags
+      summary: Report incident to marshal zone
+      description: Report an incident to a specific marshal zone
+      parameters:
+        - name: zoneId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                incident:
+                  type: object
+              required:
+                - incident
+      responses:
+        '200':
+          description: Successfully reported incident
+        '400':
+          description: zoneId and incident are required
+        '500':
+          description: Server error
+
+  /sector-flags/marshal-zones/summary:
+    get:
+      tags:
+        - Sector Flags
+      summary: Get marshal zone status summary
+      description: Get a summary of all marshal zone statuses
+      responses:
+        '200':
+          description: Successfully retrieved summary
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+    Position:
+      type: object
+      properties:
+        lat:
+          type: number
+        lng:
+          type: number
+        speed:
+          type: number
+        heading:
+          type: number
+        timestamp:
+          type: number
+
+    EnforcementZone:
+      type: object
+      properties:
+        id:
+          type: string
+        route_id:
+          type: string
+        name:
+          type: string
+        zone_type:
+          type: string
+          enum: [speed_limit, speed_trap, no_overtaking, pit_lane]
+        geometry:
+          type: object
+        speed_limit:
+          type: number
+        is_visible:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    EnforcementZoneCreate:
+      type: object
+      required:
+        - route_id
+        - name
+        - geometry
+        - zone_type
+      properties:
+        route_id:
+          type: string
+        name:
+          type: string
+        geometry:
+          type: object
+        zone_type:
+          type: string
+          enum: [speed_limit, speed_trap, no_overtaking, pit_lane]
+        speed_limit:
+          type: number
+        is_visible:
+          type: boolean
+
+    EnforcementZoneUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        geometry:
+          type: object
+        speed_limit:
+          type: number
+        is_visible:
+          type: boolean
+
+    SpeedZoneViolation:
+      type: object
+      properties:
+        zoneId:
+          type: string
+        zoneName:
+          type: string
+        zoneType:
+          type: string
+        actualSpeed:
+          type: number
+        speedLimit:
+          type: number
+        overSpeed:
+          type: number
+        severity:
+          type: string
+          enum: [minor, moderate, major, critical]
+        position:
+          $ref: '#/components/schemas/Position'
+        timestamp:
+          type: number
+
+    SpeedTrapTrigger:
+      type: object
+      properties:
+        trapId:
+          type: string
+        trapName:
+          type: string
+        speed:
+          type: number
+        position:
+          $ref: '#/components/schemas/Position'
+        timestamp:
+          type: number
+
+    PenaltyCalculation:
+      type: object
+      properties:
+        penaltyType:
+          type: string
+          enum: [time, points, disqualification]
+        value:
+          type: number
+        reason:
+          type: string
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        type:
+          type: string
+          enum: [race_starting, race_started, race_finished, flag_change, penalty, position_update, checkpoint, safety_car, session_update]
+        title:
+          type: string
+        message:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        read:
+          type: boolean
+        data:
+          type: object
+        expiresAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    NotificationPreferences:
+      type: object
+      properties:
+        userId:
+          type: string
+        enableEmail:
+          type: boolean
+        enablePush:
+          type: boolean
+        enableInApp:
+          type: boolean
+        raceNotifications:
+          type: boolean
+        flagNotifications:
+          type: boolean
+        penaltyNotifications:
+          type: boolean
+        positionNotifications:
+          type: boolean
+
+    Sector:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        order:
+          type: integer
+        startDistance:
+          type: number
+        endDistance:
+          type: number
+        marshalZoneId:
+          type: string
+
+    FlagType:
+      type: string
+      enum: [none, green, yellow, double_yellow, red, blue, checkered, safety_car]
+
+    SectorFlagState:
+      type: object
+      properties:
+        sectorId:
+          type: string
+        flag:
+          $ref: '#/components/schemas/FlagType'
+        reason:
+          type: string
+        updatedAt:
+          type: number
+        updatedBy:
+          type: string
+
+    FlagChange:
+      type: object
+      properties:
+        sectorId:
+          type: string
+        previousFlag:
+          $ref: '#/components/schemas/FlagType'
+        newFlag:
+          $ref: '#/components/schemas/FlagType'
+        reason:
+          type: string
+        timestamp:
+          type: number
+        updatedBy:
+          type: string
+
+    MarshalZone:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        sectorId:
+          type: string
+        position:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+        radioChannel:
+          type: string
+        primaryContact:
+          type: string
+        isActive:
+          type: boolean
