@@ -298,7 +298,7 @@ export class EventRepository {
   /**
    * Search events
    */
-  async search(query: string, limit: number = 20, offset: number = 0): Promise<Event[]> {
+  async search(searchTerm: string, limit: number = 20, offset: number = 0): Promise<Event[]> {
     try {
       const sql = `
         SELECT * FROM events 
@@ -312,10 +312,10 @@ export class EventRepository {
         LIMIT $2 OFFSET $3
       `
 
-      const result = await query(sql, [`%${query}%`, limit, offset])
+      const result = await query(sql, [`%${searchTerm}%`, limit, offset])
       return result.rows.map((row: any) => this.mapRowToEvent(row))
     } catch (error) {
-      logger.error('Failed to search events', { query, error })
+      logger.error('Failed to search events', { searchTerm, error })
       throw error
     }
   }

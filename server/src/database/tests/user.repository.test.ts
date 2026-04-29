@@ -43,13 +43,13 @@ describe('UserRepository', () => {
         first_name: createUserInput.first_name,
         last_name: createUserInput.last_name,
         display_name: createUserInput.display_name,
-        phone: null,
-        date_of_birth: null,
-        license_number: null,
-        license_expiry: null,
+        phone: undefined,
+        date_of_birth: undefined,
+        license_number: undefined,
+        license_expiry: undefined,
         experience_level: 'beginner',
-        profile_image_url: null,
-        bio: null,
+        profile_image_url: undefined,
+        bio: undefined,
         preferences: {},
         is_active: true,
         email_verified: false,
@@ -108,13 +108,13 @@ describe('UserRepository', () => {
         first_name: 'John',
         last_name: 'Doe',
         display_name: 'John Doe',
-        phone: null,
-        date_of_birth: null,
-        license_number: null,
-        license_expiry: null,
+        phone: undefined,
+        date_of_birth: undefined,
+        license_number: undefined,
+        license_expiry: undefined,
         experience_level: 'beginner',
-        profile_image_url: null,
-        bio: null,
+        profile_image_url: undefined,
+        bio: undefined,
         preferences: {},
         is_active: true,
         email_verified: false,
@@ -157,13 +157,13 @@ describe('UserRepository', () => {
         first_name: 'John',
         last_name: 'Doe',
         display_name: 'John Doe',
-        phone: null,
-        date_of_birth: null,
-        license_number: null,
-        license_expiry: null,
+        phone: undefined,
+        date_of_birth: undefined,
+        license_number: undefined,
+        license_expiry: undefined,
         experience_level: 'beginner',
-        profile_image_url: null,
-        bio: null,
+        profile_image_url: undefined,
+        bio: undefined,
         preferences: {},
         is_active: true,
         email_verified: false,
@@ -211,13 +211,13 @@ describe('UserRepository', () => {
         first_name: 'Jane',
         last_name: 'Smith',
         display_name: 'Jane Smith',
-        phone: null,
-        date_of_birth: null,
-        license_number: null,
-        license_expiry: null,
+        phone: undefined,
+        date_of_birth: undefined,
+        license_number: undefined,
+        license_expiry: undefined,
         experience_level: 'beginner',
-        profile_image_url: null,
-        bio: null,
+        profile_image_url: undefined,
+        bio: undefined,
         preferences: {},
         is_active: true,
         email_verified: false,
@@ -279,13 +279,13 @@ describe('UserRepository', () => {
         first_name: 'John',
         last_name: 'Doe',
         display_name: 'John Doe',
-        phone: null,
-        date_of_birth: null,
-        license_number: null,
-        license_expiry: null,
+        phone: undefined,
+        date_of_birth: undefined,
+        license_number: undefined,
+        license_expiry: undefined,
         experience_level: 'beginner',
-        profile_image_url: null,
-        bio: null,
+        profile_image_url: undefined,
+        bio: undefined,
         preferences: {},
         is_active: true,
         email_verified: false,
@@ -294,7 +294,7 @@ describe('UserRepository', () => {
       }
 
       // Mock findByEmail to return user
-      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(mockUser)
+      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(mockUser as any)
       
       // Mock bcrypt.compare to return true
       const bcrypt = require('bcrypt')
@@ -320,13 +320,13 @@ describe('UserRepository', () => {
         first_name: 'John',
         last_name: 'Doe',
         display_name: 'John Doe',
-        phone: null,
-        date_of_birth: null,
-        license_number: null,
-        license_expiry: null,
+        phone: undefined,
+        date_of_birth: undefined,
+        license_number: undefined,
+        license_expiry: undefined,
         experience_level: 'beginner',
-        profile_image_url: null,
-        bio: null,
+        profile_image_url: undefined,
+        bio: undefined,
         preferences: {},
         is_active: true,
         email_verified: false,
@@ -334,7 +334,7 @@ describe('UserRepository', () => {
         updated_at: new Date()
       }
 
-      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(mockUser)
+      jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(mockUser as any)
       
       const bcrypt = require('bcrypt')
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false)
@@ -454,7 +454,11 @@ describe('UserRepository', () => {
       // Assert
       expect(result).toBe(true)
       expect(mockQuery).toHaveBeenCalledWith(
-        'UPDATE users SET is_active = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
+        `
+        UPDATE users 
+        SET is_active = false, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+      `,
         [userId]
       )
       expect(mockLogger.info).toHaveBeenCalledWith('User deactivated successfully', { userId })

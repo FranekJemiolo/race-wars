@@ -284,7 +284,7 @@ export class UserRepository {
   /**
    * Search users by name or email
    */
-  async search(query: string, limit: number = 20, offset: number = 0): Promise<User[]> {
+  async search(searchTerm: string, limit: number = 20, offset: number = 0): Promise<User[]> {
     try {
       const sql = `
         SELECT * FROM users 
@@ -299,10 +299,10 @@ export class UserRepository {
         LIMIT $2 OFFSET $3
       `
 
-      const result = await query(sql, [`%${query}%`, limit, offset])
+      const result = await query(sql, [`%${searchTerm}%`, limit, offset])
       return result.rows.map((row: any) => this.mapRowToUser(row))
     } catch (error) {
-      logger.error('Failed to search users', { query, error })
+      logger.error('Failed to search users', { searchTerm, error })
       throw error
     }
   }

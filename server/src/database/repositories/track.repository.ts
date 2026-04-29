@@ -293,7 +293,7 @@ export class TrackRepository {
   /**
    * Search tracks
    */
-  async search(query: string, limit: number = 20, offset: number = 0): Promise<Track[]> {
+  async search(searchTerm: string, limit: number = 20, offset: number = 0): Promise<Track[]> {
     try {
       const sql = `
         SELECT * FROM tracks 
@@ -308,10 +308,10 @@ export class TrackRepository {
         LIMIT $2 OFFSET $3
       `
 
-      const result = await query(sql, [`%${query}%`, limit, offset])
+      const result = await query(sql, [`%${searchTerm}%`, limit, offset])
       return result.rows.map((row: any) => this.mapRowToTrack(row))
     } catch (error) {
-      logger.error('Failed to search tracks', { query, error })
+      logger.error('Failed to search tracks', { searchTerm, error })
       throw error
     }
   }
