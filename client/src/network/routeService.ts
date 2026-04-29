@@ -57,7 +57,7 @@ class RouteService {
   async createRoute(routeData: CreateRouteRequest): Promise<RouteData> {
     try {
       const token = localStorage.getItem('race_wars_token')
-      const response = await fetch(`${this.baseUrl}/api/routes`, {
+      const response = await fetch(`${this.baseUrl}/routes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ class RouteService {
         params.append('tags', filters.tags.join(','))
       }
 
-      const response = await fetch(`${this.baseUrl}/api/routes?${params.toString()}`)
+      const response = await fetch(`${this.baseUrl}/routes?${params.toString()}`)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -123,7 +123,7 @@ class RouteService {
    */
   async getRouteById(routeId: string): Promise<RouteData | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/routes/${routeId}`)
+      const response = await fetch(`${this.baseUrl}/routes/${routeId}`)
       
       if (!response.ok) {
         if (response.status === 404) return null
@@ -144,7 +144,7 @@ class RouteService {
   async getUserRoutes(): Promise<RouteData[]> {
     try {
       const token = localStorage.getItem('race_wars_token')
-      const response = await fetch(`${this.baseUrl}/api/routes/user`, {
+      const response = await fetch(`${this.baseUrl}/routes/user`, {
         headers: {
           ...(token && { 'Authorization': `Bearer ${token}` })
         }
@@ -168,7 +168,7 @@ class RouteService {
   async updateRoute(routeId: string, updates: Partial<CreateRouteRequest>): Promise<RouteData> {
     try {
       const token = localStorage.getItem('race_wars_token')
-      const response = await fetch(`${this.baseUrl}/api/routes/${routeId}`, {
+      const response = await fetch(`${this.baseUrl}/routes/${routeId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ class RouteService {
   async deleteRoute(routeId: string): Promise<void> {
     try {
       const token = localStorage.getItem('race_wars_token')
-      const response = await fetch(`${this.baseUrl}/api/routes/${routeId}`, {
+      const response = await fetch(`${this.baseUrl}/routes/${routeId}`, {
         method: 'DELETE',
         headers: {
           ...(token && { 'Authorization': `Bearer ${token}` })
@@ -218,7 +218,7 @@ class RouteService {
    */
   async searchRoutesByTags(tags: string[]): Promise<RouteData[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/routes/search?tags=${tags.join(',')}`)
+      const response = await fetch(`${this.baseUrl}/routes/search?tags=${tags.join(',')}`)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -237,7 +237,7 @@ class RouteService {
    */
   async getRoutesByType(type: 'sprint' | 'time-trial' | 'circuit'): Promise<RouteData[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/routes/type/${type}`)
+      const response = await fetch(`${this.baseUrl}/routes/type/${type}`)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -256,7 +256,7 @@ class RouteService {
    */
   async getRoutesByDifficulty(difficulty: 'easy' | 'medium' | 'hard' | 'expert'): Promise<RouteData[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/routes/difficulty/${difficulty}`)
+      const response = await fetch(`${this.baseUrl}/routes/difficulty/${difficulty}`)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -275,7 +275,7 @@ class RouteService {
    */
   async convertRouteToTrack(routeId: string): Promise<any> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/routes/${routeId}/convert`)
+      const response = await fetch(`${this.baseUrl}/routes/${routeId}/convert`)
       
       if (!response.ok) {
         const errorData = await response.json()

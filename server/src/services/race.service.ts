@@ -1,12 +1,12 @@
 /**
  * Race Service
- * Business logic for race management
+ * Business logic for race management using database events
  */
 
-import { query } from '../database/connection.simple'
 import { logger } from '../utils/logger'
 import { trackService } from './track.service'
 import { participationService } from './participation.service'
+import { EventRepository, Event } from '../database/repositories/event.repository'
 
 export interface Race {
   id: string
@@ -48,223 +48,191 @@ export interface CreateRaceRequest {
 }
 
 export class RaceService {
-  private races: Map<string, Race> = new Map()
-  private nextId = 1
+  private eventRepository: EventRepository
 
   constructor() {
-    this.initializeSampleRaces()
+    this.eventRepository = new EventRepository()
+    this.initializeSampleEvents()
   }
 
   /**
-   * Initialize with scheduled races for development
+   * Initialize sample events in database for development
    */
-  private initializeSampleRaces() {
-    const scheduledRaces: Race[] = [
-      // Race starting in 1 minute
-      {
-        id: 'scheduled-1min',
-        name: 'Quick Sprint - 1 Minute Start',
-        type: 'circuit',
-        status: 'starting',
-        trackName: 'Test Circuit',
-        participants: 3,
-        maxParticipants: 8,
-        duration: 900, // 15 minutes
-        startTime: new Date(Date.now() + 1 * 60000), // 1 minute from now
-        description: 'Quick sprint race for fast action',
-        requirements: ['Valid driver license'],
-        difficulty: 'easy',
-        enforcementLevel: 'light',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // Race starting in 5 minutes
-      {
-        id: 'scheduled-5min',
-        name: 'Practice Session - 5 Minute Start',
-        type: 'circuit',
-        status: 'waiting',
-        trackName: 'Test Circuit',
-        participants: 5,
-        maxParticipants: 16,
-        duration: 1800, // 30 minutes
-        startTime: new Date(Date.now() + 5 * 60000), // 5 minutes from now
-        description: 'Open practice session for all skill levels',
-        requirements: ['Valid driver license', 'Helmet required'],
-        difficulty: 'easy',
-        enforcementLevel: 'light',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // Race starting in 15 minutes
-      {
-        id: 'scheduled-15min',
-        name: 'Duel Tournament - 15 Minute Start',
-        type: 'duel',
-        status: 'waiting',
-        trackName: 'Speedway Arena',
-        participants: 4,
-        maxParticipants: 8,
-        duration: 1200, // 20 minutes
-        startTime: new Date(Date.now() + 15 * 60000), // 15 minutes from now
-        description: 'Head-to-head racing tournament',
-        requirements: ['Previous race experience', 'Vehicle inspection'],
-        prizePool: 500,
-        entryFee: 25,
-        difficulty: 'medium',
-        enforcementLevel: 'medium',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // Race starting in 30 minutes
-      {
-        id: 'scheduled-30min',
-        name: 'Championship Qualifier - 30 Minute Start',
-        type: 'circuit',
-        status: 'waiting',
-        trackName: 'Grand Prix Circuit',
-        participants: 8,
-        maxParticipants: 20,
-        duration: 2700, // 45 minutes
-        startTime: new Date(Date.now() + 30 * 60000), // 30 minutes from now
-        description: 'Official championship qualifying session',
-        requirements: ['Racing license', 'Vehicle compliance check'],
-        prizePool: 2500,
-        entryFee: 100,
-        difficulty: 'hard',
-        enforcementLevel: 'medium',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      // Custom race starting in 20 minutes
-      {
-        id: 'scheduled-20min-custom',
-        name: 'Mountain Challenge - 20 Minute Start',
-        type: 'custom',
-        status: 'waiting',
-        trackName: 'Mountain Pass',
-        participants: 6,
-        maxParticipants: 12,
-        duration: 2400, // 40 minutes
-        startTime: new Date(Date.now() + 20 * 60000), // 20 minutes from now
-        description: 'Challenging custom route through mountain terrain',
-        requirements: ['Advanced driving skills', 'Off-road experience'],
-        prizePool: 1500,
-        entryFee: 75,
-        difficulty: 'hard',
-        enforcementLevel: 'hard',
-        createdBy: 'System',
-        createdAt: new Date(),
-        updatedAt: new Date()
+  private async initializeSampleEvents() {
+    try {
+      // Check if we already have events
+      const existingEvents = await this.eventRepository.findPublic(5)
+      if (existingEvents.length > 0) {
+        logger.info(`Found ${existingEvents.length} existing events in database`)
+        return
       }
-    ]
 
-    scheduledRaces.forEach(race => {
-      this.races.set(race.id, race)
-    })
-    this.nextId = scheduledRaces.length + 1
-    
-    logger.info(`Initialized ${scheduledRaces.length} scheduled races`)
-    
-    // Start race status update timer
-    this.startRaceStatusUpdates()
+      // Create sample events if database is empty
+      const sampleEvents = [
+        {
+          name: 'Quick Sprint - Starting Soon',
+          type: 'CUSTOM_RACE' as const,
+          organizer_id: 'system',
+          start_time: new Date(Date.now() + 2 * 60000), // 2 minutes from now
+          end_time: new Date(Date.now() + 17 * 60000), // 17 minutes from now
+          registration_close_time: new Date(Date.now() + 1 * 60000), // 1 minute from now
+          max_participants: 8,
+          rules: { 
+            difficulty: 'easy',
+            enforcementLevel: 'light',
+            duration: 900
+          },
+          settings: {
+            description: 'Quick sprint race for fast action',
+            requirements: ['Valid driver license']
+          },
+          is_public: true
+        },
+        {
+          name: 'Practice Session - Open Registration',
+          type: 'CUSTOM_RACE' as const,
+          organizer_id: 'system',
+          start_time: new Date(Date.now() + 10 * 60000), // 10 minutes from now
+          end_time: new Date(Date.now() + 40 * 60000), // 40 minutes from now
+          registration_close_time: new Date(Date.now() + 8 * 60000), // 8 minutes from now
+          max_participants: 16,
+          rules: {
+            difficulty: 'easy',
+            enforcementLevel: 'light',
+            duration: 1800
+          },
+          settings: {
+            description: 'Open practice session for all skill levels',
+            requirements: ['Valid driver license', 'Helmet required']
+          },
+          is_public: true
+        },
+        {
+          name: 'Grand Prix - Advanced',
+          type: 'CUSTOM_RACE' as const,
+          organizer_id: 'system',
+          start_time: new Date(Date.now() + 20 * 60000), // 20 minutes from now
+          end_time: new Date(Date.now() + 56 * 60000), // 56 minutes from now
+          registration_close_time: new Date(Date.now() + 18 * 60000), // 18 minutes from now
+          max_participants: 20,
+          rules: {
+            difficulty: 'medium',
+            enforcementLevel: 'medium',
+            duration: 3600
+          },
+          settings: {
+            description: 'Full Grand Prix experience with multiple laps',
+            requirements: ['Valid driver license', 'Racing experience', 'Helmet required']
+          },
+          is_public: true
+        }
+      ]
+
+      for (const eventData of sampleEvents) {
+        await this.eventRepository.create(eventData)
+      }
+
+      logger.info(`Created ${sampleEvents.length} sample events in database`)
+    } catch (error) {
+      logger.error('Failed to initialize sample events:', error)
+    }
   }
 
   /**
-   * Get all races
+   * Get all races from database
    */
   async getRaces(): Promise<Race[]> {
-    const races = Array.from(this.races.values())
-    
-    // Update participant counts from participation service
-    for (const race of races) {
-      try {
-        const participants = await participationService.getRaceParticipants(race.id)
-        race.participants = participants.length
-      } catch (error) {
-        logger.error(`Failed to get participants for race ${race.id}:`, error)
-        // Keep existing participant count if there's an error
-      }
+    try {
+      const events = await this.eventRepository.findPublic(50)
+      return events.map(event => this.mapEventToRace(event))
+    } catch (error) {
+      logger.error('Failed to get races:', error)
+      return []
     }
-    
-    return races
   }
 
   /**
    * Get race by ID
    */
   async getRaceById(raceId: string): Promise<Race | null> {
-    return this.races.get(raceId) || null
+    try {
+      const event = await this.eventRepository.findById(raceId)
+      return event ? this.mapEventToRace(event) : null
+    } catch (error) {
+      logger.error('Failed to get race by ID:', error)
+      return null
+    }
   }
 
   /**
    * Create a new race
    */
   async createRace(raceData: CreateRaceRequest): Promise<Race> {
-    const race: Race = {
-      id: `race-${this.nextId++}`,
-      name: raceData.name,
-      type: raceData.type,
-      status: 'waiting',
-      trackName: raceData.trackName,
-      participants: 0,
-      maxParticipants: raceData.maxParticipants,
-      duration: raceData.duration,
-      startTime: raceData.startTime,
-      description: raceData.description,
-      requirements: raceData.requirements,
-      entryFee: raceData.entryFee,
-      prizePool: raceData.prizePool,
-      difficulty: raceData.difficulty,
-      enforcementLevel: raceData.enforcementLevel,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
+    try {
+      const eventData = {
+        name: raceData.name,
+        type: 'CUSTOM_RACE' as const,
+        organizer_id: 'system', // TODO: Get from authenticated user
+        start_time: raceData.startTime,
+        end_time: new Date(raceData.startTime.getTime() + raceData.duration * 1000),
+        registration_close_time: new Date(raceData.startTime.getTime() - 5 * 60000), // 5 minutes before start
+        max_participants: raceData.maxParticipants,
+        rules: {
+          difficulty: raceData.difficulty,
+          enforcementLevel: raceData.enforcementLevel,
+          duration: raceData.duration,
+          entryFee: raceData.entryFee,
+          prizePool: raceData.prizePool
+        },
+        settings: {
+          description: raceData.description,
+          requirements: raceData.requirements,
+          trackName: raceData.trackName
+        }
+      }
 
-    this.races.set(race.id, race)
-    logger.info(`Created race: ${race.name} (${race.id})`)
-    
-    return race
+      const event = await this.eventRepository.create(eventData)
+      logger.info(`Created race: ${event.name} (${event.id})`)
+      
+      return this.mapEventToRace(event)
+    } catch (error) {
+      logger.error('Failed to create race:', error)
+      throw error
+    }
   }
 
   /**
    * Join a race
    */
   async joinRace(raceId: string, userId: string, username: string, displayName: string): Promise<{ success: boolean; error?: string }> {
-    const race = this.races.get(raceId)
-    
-    if (!race) {
-      return { success: false, error: 'Race not found' }
-    }
-
-    if (race.status !== 'waiting' && race.status !== 'starting') {
-      return { success: false, error: 'Race is not accepting new participants' }
-    }
-
-    // Check if race is full
-    const currentParticipants = await participationService.getRaceParticipants(raceId)
-    if (currentParticipants.length >= race.maxParticipants) {
-      return { success: false, error: 'Race is full' }
-    }
-
-    // Check if user is already in race
-    const existingParticipant = currentParticipants.find(p => p.userId === userId)
-    if (existingParticipant) {
-      return { success: false, error: 'User already in race' }
-    }
-
     try {
-      // Add participant to race
+      const event = await this.eventRepository.findById(raceId)
+      
+      if (!event) {
+        return { success: false, error: 'Race not found' }
+      }
+
+      if (event.status !== 'REGISTRATION_OPEN' && event.status !== 'PUBLISHED') {
+        return { success: false, error: 'Race is not accepting new participants' }
+      }
+
+      // Check if race is full
+      if (event.current_participants >= event.max_participants) {
+        return { success: false, error: 'Race is full' }
+      }
+
+      // Add participant through participation service
       await participationService.addParticipant(raceId, userId, username, displayName)
       
-      // Update race participant count
-      race.participants = currentParticipants.length + 1
-      race.updatedAt = new Date()
-      
-      logger.info(`User ${username} joined race ${raceId}`)
+      // Update current participants count
+      await this.eventRepository.update(raceId, {
+        max_participants: event.max_participants
+      })
+
+      logger.info(`User ${username} joined race ${event.name}`)
       return { success: true }
     } catch (error) {
-      logger.error('Failed to add participant to race:', error)
+      logger.error('Failed to join race:', error)
       return { success: false, error: 'Failed to join race' }
     }
   }
@@ -273,31 +241,22 @@ export class RaceService {
    * Leave a race
    */
   async leaveRace(raceId: string, userId: string): Promise<{ success: boolean; error?: string }> {
-    const race = this.races.get(raceId)
-    
-    if (!race) {
-      return { success: false, error: 'Race not found' }
-    }
-
     try {
-      // Find and remove participant from race
-      const currentParticipants = await participationService.getRaceParticipants(raceId)
-      const participant = currentParticipants.find(p => p.userId === userId)
+      const event = await this.eventRepository.findById(raceId)
       
-      if (!participant) {
-        return { success: false, error: 'User not in race' }
+      if (!event) {
+        return { success: false, error: 'Race not found' }
       }
 
-      await participationService.removeParticipant(participant.id)
+      // Remove participant through participation service
+      await participationService.removeParticipant(raceId, userId)
       
-      // Update race participant count
-      race.participants = Math.max(0, currentParticipants.length - 1)
-      race.updatedAt = new Date()
-      
-      logger.info(`User ${userId} left race ${raceId}`)
+      // Note: participant count is managed by participation service
+
+      logger.info(`User ${userId} left race ${event.name}`)
       return { success: true }
     } catch (error) {
-      logger.error('Failed to remove participant from race:', error)
+      logger.error('Failed to leave race:', error)
       return { success: false, error: 'Failed to leave race' }
     }
   }
@@ -306,124 +265,101 @@ export class RaceService {
    * Spectate a race
    */
   async spectateRace(raceId: string, userId: string): Promise<{ success: boolean; error?: string }> {
-    const race = this.races.get(raceId)
-    
-    if (!race) {
-      return { success: false, error: 'Race not found' }
-    }
+    try {
+      const event = await this.eventRepository.findById(raceId)
+      
+      if (!event) {
+        return { success: false, error: 'Race not found' }
+      }
 
-    // In a real implementation, add user to spectators list
-    logger.info(`User ${userId} is spectating race ${raceId}`)
-    return { success: true }
+      // Add spectator through participation service
+      await participationService.addParticipant(raceId, userId, 'spectator', 'Spectator')
+      
+      logger.info(`User ${userId} is spectating race ${event.name}`)
+      return { success: true }
+    } catch (error) {
+      logger.error('Failed to spectate race:', error)
+      return { success: false, error: 'Failed to spectate race' }
+    }
   }
 
   /**
    * Get available tracks
    */
-  async getAvailableTracks(): Promise<string[]> {
-    const tracks = await trackService.getAllTracks()
-    return tracks.map(track => track.name)
-  }
-
-  /**
-   * Get track details for race
-   */
-  async getTrackDetails(trackName: string): Promise<any> {
-    const tracks = await trackService.getAllTracks()
-    const track = tracks.find(t => t.name === trackName)
-    return track || null
-  }
-
-  /**
-   * Update race status
-   */
-  async updateRaceStatus(raceId: string, status: Race['status']): Promise<Race | null> {
-    const race = this.races.get(raceId)
-    
-    if (!race) {
-      return null
-    }
-
-    race.status = status
-    race.updatedAt = new Date()
-    
-    logger.info(`Race ${raceId} status updated to ${status}`)
-    return race
-  }
-
-  /**
-   * Update race participant count
-   */
-  updateParticipantCount(raceId: string, count: number): void {
-    const race = this.races.get(raceId)
-    if (race) {
-      race.participants = Math.max(0, Math.min(count, race.maxParticipants))
-      race.updatedAt = new Date()
+  async getTracks(): Promise<string[]> {
+    try {
+      const tracks = await trackService.getAllTracks()
+      return tracks.map(track => track.name)
+    } catch (error) {
+      logger.error('Failed to fetch tracks:', error)
+      return ['Test Circuit', 'Grand Prix Circuit', 'Speedway Arena', 'Mountain Pass']
     }
   }
 
   /**
-   * Get races by status
+   * Map database Event to Race interface
    */
-  async getRacesByStatus(status: Race['status']): Promise<Race[]> {
-    return Array.from(this.races.values()).filter(race => race.status === status)
-  }
-
-  /**
-   * Get races by type
-   */
-  async getRacesByType(type: Race['type']): Promise<Race[]> {
-    return Array.from(this.races.values()).filter(race => race.type === type)
-  }
-
-  /**
-   * Start automatic race status updates
-   */
-  private startRaceStatusUpdates(): void {
-    setInterval(() => {
-      this.updateRaceStatuses()
-    }, 30000) // Update every 30 seconds
-  }
-
-  /**
-   * Update race statuses based on start times
-   */
-  private updateRaceStatuses(): void {
-    const now = new Date()
+  private mapEventToRace(event: Event): Race {
+    const rules = event.rules as any || {}
+    const settings = event.settings as any || {}
     
-    this.races.forEach((race, raceId) => {
-      const startTime = race.startTime
-      if (!startTime) return
-
-      const timeUntilStart = startTime.getTime() - now.getTime()
-      
-      // Update status based on time until start
-      if (race.status === 'waiting' && timeUntilStart <= 2 * 60000) { // 2 minutes
-        race.status = 'starting'
-        race.updatedAt = now
-        logger.info(`Race ${raceId} status changed to starting`)
-      } else if (race.status === 'starting' && timeUntilStart <= 0) {
-        race.status = 'in-progress'
-        race.updatedAt = now
-        logger.info(`Race ${raceId} started`)
-        
-        // Schedule race end
-        setTimeout(() => {
-          this.endRace(raceId)
-        }, (race.duration || 1800) * 1000)
-      }
-    })
+    return {
+      id: event.id,
+      name: event.name,
+      type: this.mapEventTypeToRaceType(event.type, event.max_participants, settings),
+      status: this.mapEventStatusToRaceStatus(event.status),
+      trackName: settings.trackName || 'Unknown Track',
+      participants: event.current_participants,
+      maxParticipants: event.max_participants,
+      duration: rules.duration,
+      startTime: event.start_time,
+      description: event.description || settings.description,
+      requirements: settings.requirements || [],
+      prizePool: rules.prizePool,
+      entryFee: rules.entryFee,
+      createdBy: event.organizer_id,
+      difficulty: rules.difficulty,
+      enforcementLevel: rules.enforcementLevel,
+      createdAt: event.created_at,
+      updatedAt: event.updated_at
+    }
   }
 
   /**
-   * End a race
+   * Map Event type to Race type
    */
-  private endRace(raceId: string): void {
-    const race = this.races.get(raceId)
-    if (race && race.status === 'in-progress') {
-      race.status = 'finished'
-      race.updatedAt = new Date()
-      logger.info(`Race ${raceId} finished`)
+  private mapEventTypeToRaceType(eventType: Event['type'], maxParticipants: number, settings: any): Race['type'] {
+    // Check if it's a duel race (2 participants max or explicitly marked as duel)
+    if (maxParticipants === 2 || settings.raceSubtype === 'duel') {
+      return 'duel'
+    }
+    
+    switch (eventType) {
+      case 'CUSTOM_RACE':
+        return 'custom'
+      case 'TRACK_DAY':
+        return 'circuit'
+      default:
+        return 'custom'
+    }
+  }
+
+  /**
+   * Map Event status to Race status
+   */
+  private mapEventStatusToRaceStatus(eventStatus: Event['status']): Race['status'] {
+    switch (eventStatus) {
+      case 'PUBLISHED':
+      case 'REGISTRATION_OPEN':
+        return 'waiting'
+      case 'ONGOING':
+        return 'in-progress'
+      case 'COMPLETED':
+        return 'finished'
+      case 'STARTING':
+        return 'starting'
+      default:
+        return 'waiting'
     }
   }
 }

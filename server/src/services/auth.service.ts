@@ -3,7 +3,7 @@
  * Handles user registration, login, and JWT token management
  */
 
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { logger } from '../utils/logger'
 

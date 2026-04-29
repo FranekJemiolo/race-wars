@@ -127,7 +127,7 @@ class AuthService {
    */
   async register(registerData: RegisterRequest): Promise<AuthResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/auth/register`, {
+      const response = await fetch(`${this.baseUrl}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -156,7 +156,7 @@ class AuthService {
    */
   async login(loginData: LoginRequest): Promise<AuthResponse> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/auth/login`, {
+      const response = await fetch(`${this.baseUrl}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -186,7 +186,7 @@ class AuthService {
   async logout(): Promise<void> {
     try {
       if (this.token) {
-        await fetch(`${this.baseUrl}/api/auth/logout`, {
+        await fetch(`${this.baseUrl}/auth/logout`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${this.token}`
@@ -240,7 +240,7 @@ class AuthService {
    */
   async verifyToken(token: string): Promise<User | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/auth/verify`, {
+      const response = await fetch(`${this.baseUrl}/auth/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -270,7 +270,7 @@ class AuthService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/api/auth/profile`, {
+      const response = await fetch(`${this.baseUrl}/auth/profile`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${this.token}`

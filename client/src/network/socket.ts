@@ -6,16 +6,17 @@ let reconnectAttempts = 0
 const MAX_RECONNECT_ATTEMPTS = 5
 const RECONNECT_DELAY = 3000
 
-export function connect(serverUrl: string = "ws://localhost:8080"): void {
+export function connect(serverUrl?: string): void {
+  const wsUrl = serverUrl || import.meta.env.VITE_WS_URL || 'ws://localhost/ws'
   if (ws && ws.readyState === WebSocket.OPEN) {
     console.log("Already connected")
     return
   }
 
-  ws = new WebSocket(serverUrl)
+  ws = new WebSocket(wsUrl)
 
   ws.onopen = () => {
-    console.log("Connected to server")
+    console.log(`Connected to server: ${wsUrl}`)
     reconnectAttempts = 0
   }
 
@@ -35,7 +36,7 @@ export function connect(serverUrl: string = "ws://localhost:8080"): void {
 
   ws.onclose = () => {
     console.log("Disconnected from server")
-    attemptReconnect(serverUrl)
+    attemptReconnect(wsUrl)
   }
 
   ws.onerror = (error) => {

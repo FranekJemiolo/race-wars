@@ -44,8 +44,9 @@ class RaceService {
   private ws: WebSocket | null = null
 
   constructor() {
-    this.baseUrl = (import.meta as any).env.VITE_API_URL || 'http://localhost:8082'
+    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8082'
     console.log('RaceService initialized with baseUrl:', this.baseUrl)
+    console.log('Available VITE env vars:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')))
   }
 
   /**
@@ -53,7 +54,7 @@ class RaceService {
    */
   async getRaces(): Promise<Race[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/races`)
+      const response = await fetch(`${this.baseUrl}/races`)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
@@ -76,7 +77,7 @@ class RaceService {
    */
   async getRace(raceId: string): Promise<Race | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/races/${raceId}`)
+      const response = await fetch(`${this.baseUrl}/races/${raceId}`)
       if (!response.ok) {
         if (response.status === 404) return null
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -98,7 +99,7 @@ class RaceService {
   async createRace(raceData: CreateRaceRequest): Promise<Race> {
     try {
       const token = localStorage.getItem('race_wars_token')
-      const response = await fetch(`${this.baseUrl}/api/races`, {
+      const response = await fetch(`${this.baseUrl}/races`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +126,7 @@ class RaceService {
    */
   async joinRace(raceId: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/races/${raceId}/join`, {
+      const response = await fetch(`${this.baseUrl}/races/${raceId}/join`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +147,7 @@ class RaceService {
    */
   async leaveRace(raceId: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/races/${raceId}/leave`, {
+      const response = await fetch(`${this.baseUrl}/races/${raceId}/leave`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +168,7 @@ class RaceService {
    */
   async spectateRace(raceId: string): Promise<void> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/races/${raceId}/spectate`, {
+      const response = await fetch(`${this.baseUrl}/races/${raceId}/spectate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -188,7 +189,7 @@ class RaceService {
    */
   async getTracks(): Promise<string[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/tracks`)
+      const response = await fetch(`${this.baseUrl}/tracks`)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
@@ -204,7 +205,7 @@ class RaceService {
    * Setup WebSocket connection for real-time race updates
    */
   setupWebSocket(onRaceUpdate: (race: Race) => void, onRaceListUpdate: (races: Race[]) => void): void {
-    const wsUrl = ((import.meta as any).env.VITE_WS_URL || 'ws://localhost:8081').replace('http', 'ws')
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost/ws'
     
     try {
       this.ws = new WebSocket(wsUrl)

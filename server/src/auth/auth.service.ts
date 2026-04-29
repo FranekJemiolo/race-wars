@@ -8,7 +8,7 @@
 import { userRepository } from '../database/repositories'
 import { jwtService, JwtPayload, TokenPair } from './jwt.service'
 import { logger } from '../utils/logger'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 export interface LoginInput {
   email: string
