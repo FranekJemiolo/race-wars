@@ -156,6 +156,20 @@
             border-color: #e94560;
         }
 
+        .screenshot {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .screenshot:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
@@ -319,6 +333,408 @@
             color: #666;
         }
 
+        /* App Showcase Styles */
+        .app-showcase {
+            padding: 4rem 0;
+        }
+
+        .app-showcase h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #e94560;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .showcase-item {
+            text-align: center;
+        }
+
+        .showcase-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #feca57;
+        }
+
+        .showcase-item p {
+            color: #b0b0b0;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Mockup Styles */
+        .mockup-mobile {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 1rem;
+            margin: 0 auto;
+            max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .mobile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .mobile-content {
+            background: rgba(0,0,0,0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            min-height: 300px;
+        }
+
+        .team-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-icon {
+            font-size: 1.2rem;
+        }
+
+        .team-name {
+            font-weight: bold;
+            color: #feca57;
+        }
+
+        .team-tag {
+            font-size: 0.8rem;
+            color: #b0b0b0;
+        }
+
+        .team-rank {
+            background: #e94560;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .team-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #b0b0b0;
+        }
+
+        .race-map {
+            background: linear-gradient(45deg, #2d3436 25%, #353b48 25%, #353b48 50%, #2d3436 50%, #2d3436 75%, #353b48 75%);
+            background-size: 10px 10px;
+            border-radius: 10px;
+            height: 120px;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .route-line {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: #e94560;
+            transform: translateY(-50%) rotate(-3deg);
+            border-radius: 2px;
+        }
+
+        .car-position {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #feca57;
+            border-radius: 50%;
+            top: 50%;
+            left: 40%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px rgba(254, 202, 87, 0.5);
+        }
+
+        .checkpoint {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00d2d3;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .race-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.05);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .leaderboard-mini {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .leader {
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .current {
+            font-size: 0.8rem;
+            background: rgba(254, 202, 87, 0.1);
+            padding: 0.25rem;
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+        }
+
+        .chat-messages {
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .message.system {
+            background: rgba(254, 202, 87, 0.1);
+            border: 1px solid rgba(254, 202, 87, 0.3);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .message-text {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reactions {
+            font-size: 0.8rem;
+            color: #b0b0b0;
+        }
+
+        .chat-input {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .emoji-bar {
+            margin-top: 0.5rem;
+            font-size: 1.2rem;
+            color: #b0b0b0;
+        }
+
+        /* Desktop Mockup Styles */
+        .mockup-desktop {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .desktop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        .desktop-content {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            min-height: 400px;
+        }
+
+        .team-overview {
+            margin-bottom: 2rem;
+        }
+
+        .team-info h4 {
+            color: #feca57;
+            margin-bottom: 1rem;
+        }
+
+        .team-stats-large {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .team-stats-large span {
+            background: rgba(255,255,255,0.05);
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        .team-members h5 {
+            color: #00d2d3;
+            margin-bottom: 1rem;
+        }
+
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .member {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        .leaderboard-desktop h4 {
+            color: #feca57;
+            margin-bottom: 1rem;
+        }
+
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        .replay-controls {
+            margin-bottom: 2rem;
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .replay-map {
+            background: linear-gradient(45deg, #2d3436 25%, #353b48 25%, #353b48 50%, #2d3436 50%, #2d3436 75%, #353b48 75%);
+            background-size: 15px 15px;
+            border-radius: 10px;
+            height: 150px;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .car-positions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+        }
+
+        .race-analysis {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .analysis-section h5 {
+            color: #00d2d3;
+            margin-bottom: 1rem;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .analysis-item h6 {
+            color: #feca57;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .lap-times div, .speed-stats div {
+            background: rgba(255,255,255,0.05);
+            padding: 0.25rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .race-results h5 {
+            color: #feca57;
+            margin-bottom: 1rem;
+        }
+
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.05);
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.5rem;
@@ -334,6 +750,22 @@
 
             .arch-arrow {
                 transform: rotate(90deg);
+            }
+
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mockup-desktop {
+                max-width: 100%;
+            }
+
+            .race-analysis {
+                grid-template-columns: 1fr;
+            }
+
+            .analysis-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -362,7 +794,7 @@
         </section>
 
         <section class="features">
-            <h2>Core Features</h2>
+            <h2>🏁 Core Features</h2>
             <div class="feature-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🗺️</div>
@@ -393,6 +825,226 @@
                     <div class="feature-icon">⚡</div>
                     <h3>Real-Time Sync</h3>
                     <p>WebSocket-based architecture delivers position updates at 1-2Hz. Client-side interpolation ensures smooth 60fps rendering.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>👥 Team-Based Racing</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🏢</div>
+                    <h3>Team Management</h3>
+                    <p>Create, join, and manage racing teams with roles, permissions, and member statistics. Team-based competitions and leaderboards.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Team Communication</h3>
+                    <p>Real-time team chat with reactions, system messages, and achievement notifications. Coordinate strategies and share race insights.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Team Competitions</h3>
+                    <p>Seasonal, tournament, and championship formats with team scoring. Multiple competition types and time-based rankings.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Team Analytics</h3>
+                    <p>Performance metrics, achievements, and statistics. Track team progress, member contributions, and competitive insights.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>🎬 Advanced Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎞️</div>
+                    <h3>Race Replay System</h3>
+                    <p>Video-like playback with analysis tools, lap times, sector analysis, and performance metrics. Review and learn from past races.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏎️</div>
+                    <h3>Predefined Routes</h3>
+                    <p>Famous circuits: Monaco, Silverstone, Spa-Francorchamps, Suzuka, Nürburgring. Realistic track data and racing tips.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📢</div>
+                    <h3>Admin Event System</h3>
+                    <p>Real-time race management with event broadcasting, safety car deployment, weather warnings, and penalty systems.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Anti-Cheat Detection</h3>
+                    <p>Advanced GPS validation and pattern analysis. Detect suspicious behavior and ensure fair competition.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="app-showcase">
+            <h2>🖼️ App Interface Showcase</h2>
+            
+            <div class="showcase-grid">
+                <div class="showcase-item">
+                    <h3>📱 Mobile Team Management</h3>
+                    <div class="mockup-mobile">
+                        <div class="mobile-header">
+                            <span>🏁 Teams</span>
+                            <span>(2) 📬</span>
+                        </div>
+                        <div class="mobile-content">
+                            <div class="team-card">
+                                <div class="team-header">
+                                    <span className="team-icon">🏢</span>
+                                    <div>
+                                        <div className="team-name">Speed Racers</div>
+                </div>
+                
+                <div class="interface-card">
+                    <h3>Live Racing</h3>
+                    <img src="assets/main-app.png" alt="Live Racing Interface" class="screenshot">
+                    <p>Real-time GPS racing with live position tracking and leaderboard</p>
+                </div>
+                
+                <div class="interface-card">
+                    <h3>App Showcase</h3>
+                    <img src="assets/showcase-page.png" alt="App Showcase" class="screenshot">
+                    <p>Interactive demonstration of all app features and interfaces</p>
+                </div>
+            </div>
+            
+            <h2>💻 Desktop Interface</h2>
+            <div class="interface-grid">
+                <div class="interface-card">
+                    <h3>Team Dashboard</h3>
+                    <img src="assets/button-0.png" alt="Desktop Team Management" class="screenshot">
+                            <span>👤 Admin</span>
+                        </div>
+                        <div class="desktop-content">
+                            <div class="team-overview">
+                                <div class="team-info">
+                                    <h4>🏢 Speed Racers</h4>
+                                    <div class="team-stats-large">
+                                        <span>🏷️ SR</span>
+                                        <span>📍 12/12</span>
+                                        <span>📊 1850</span>
+                                        <span>🏆 #1</span>
+                                        <span>🥇 85%</span>
+                                        <span>🏁 45W</span>
+                                        <span>📈 +5</span>
+                                    </div>
+                                    <p>"The fastest team on the track!"</p>
+                                </div>
+                                <div class="team-members">
+                                    <h5>Team Members (12)</h5>
+                                    <div class="member-list">
+                                        <div class="member">
+                                            <span>👑 Alex (Leader)</span>
+                                            <span>📊 1920</span>
+                                            <span>🏁 15W</span>
+                                            <span>🥇 88%</span>
+                                        </div>
+                                        <div class="member">
+                                            <span>🎯 Sarah (Co-Leader)</span>
+                                            <span>📊 1880</span>
+                                            <span>🏁 12W</span>
+                                            <span>🥇 82%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="leaderboard-desktop">
+                                <h4>🏆 Seasonal Leaderboard - Top 10 Teams</h4>
+                                <div class="leaderboard-list">
+                                    <div class="leaderboard-item">
+                                        <span>#1 🏢 Speed Racers</span>
+                                        <span>📊 1850</span>
+                                        <span>🏁 45W</span>
+                                        <span>🥇 85%</span>
+                                        <span>⭐ 1125 pts</span>
+                                    </div>
+                                    <div class="leaderboard-item">
+                                        <span>#2 🏢 Lightning Team</span>
+                                        <span>📊 1820</span>
+                                        <span>🏁 42W</span>
+                                        <span>🥇 82%</span>
+                                        <span>⭐ 1050 pts</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Comprehensive team management with analytics and member statistics</p>
+                </div>
+
+                <div class="showcase-item desktop">
+                    <h3>🎬 Race Replay System</h3>
+                    <div class="mockup-desktop">
+                        <div class="desktop-header">
+                            <span>🎬 Race Replay - Monaco Grand Prix 2024</span>
+                            <span>📅 June 15, 2024</span>
+                        </div>
+                        <div class="desktop-content">
+                            <div class="replay-controls">
+                                <div class="video-controls">
+                                    <span>⏮️ ⏸️ ⏯️ ⏹️</span>
+                                    <span>⏪ 0:45:23 ────────⏩ 1:23:45</span>
+                                    <span>🔊 📺 ⚙️</span>
+                                </div>
+                                <div class="replay-map">
+                                    <div class="route-line"></div>
+                                    <div class="car-positions">
+                                        <span>🏎️ You (2nd)</span>
+                                        <span>🏎️ Lightning (1st)</span>
+                                        <span>🏎️ Thunder (3rd)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="race-analysis">
+                                <div class="analysis-section">
+                                    <h5>📊 Race Analysis</h5>
+                                    <div class="analysis-grid">
+                                        <div class="analysis-item">
+                                            <h6>Lap Times</h6>
+                                            <div class="lap-times">
+                                                <div>Lap 1: 1:23.456</div>
+                                                <div>Lap 2: 1:22.987</div>
+                                                <div>Lap 3: 1:23.234</div>
+                                                <div>Lap 4: 1:21.789</div>
+                                                <div>Lap 5: 1:22.456</div>
+                                            </div>
+                                        </div>
+                                        <div class="analysis-item">
+                                            <h6>Speed Profile</h6>
+                                            <div class="speed-stats">
+                                                <div>Max: 285 km/h</div>
+                                                <div>Avg: 245 km/h</div>
+                                                <div>Min: 180 km/h</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="race-results">
+                                    <h5>🏆 Race Results</h5>
+                                    <div class="results-list">
+                                        <div class="result-item">
+                                            <span>1️⃣ Lightning Team</span>
+                                            <span>1:21:234</span>
+                                            <span>⭐ +25 pts</span>
+                                            <span>🏆 Fastest Lap</span>
+                                        </div>
+                                        <div class="result-item">
+                                            <span>2️⃣ Your Team</span>
+                                            <span>1:21:456</span>
+                                            <span>⭐ +18 pts</span>
+                                            <span>📈 +2 positions</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p>Advanced race replay with video controls and detailed analysis</p>
                 </div>
             </div>
         </section>
