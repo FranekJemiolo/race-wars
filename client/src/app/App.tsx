@@ -8,6 +8,7 @@ import HUD from "../ui/HUD"
 import { RealTimeLeaderboard } from "../components/RealTimeLeaderboard"
 import Status from "../ui/Status"
 import "../test/browserTestRunner"
+import "../styles/mobile.css"
 
 export default function App() {
   const [connectionState, setConnectionState] = useState<"connecting" | "connected" | "disconnected">("disconnected")
