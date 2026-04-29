@@ -47,29 +47,35 @@ Race Wars is a comprehensive web-based racing platform that transforms GPS data 
 - **Anti-Cheat Detection**: Advanced GPS validation and pattern analysis
 - **Comprehensive Testing**: 45+ E2E tests covering all functionality
 
-## � App Screenshots
+## 📸 App Screenshots
 
 ### 📱 Mobile Interface
 
 **Team Management**
 ![Mobile Team Management](docs/assets/mobile-view.png)
+*Touch-friendly team management with real-time stats and member coordination*
 
 **Live Racing Interface**  
 ![Main Racing App](docs/assets/main-app.png)
+*Real-time GPS racing with live position tracking and interactive leaderboard*
 
 **Interactive Features**
 ![App Showcase](docs/assets/showcase-page.png)
+*Comprehensive feature demonstration with mobile-optimized interface*
 
 ### 💻 Desktop Interface
 
 **Team Dashboard**
 ![Desktop Team Management](docs/assets/button-0.png)
+*Comprehensive team management with analytics, statistics, and member oversight*
 
 **Race Replay System**
 ![Race Replay](docs/assets/button-1.png)
+*Advanced race replay with video-like controls and detailed performance analysis*
 
 **Admin Event Panel**
 ![Admin Panel](docs/assets/button-2.png)
+*Real-time race management with event broadcasting and safety controls*
 
 ---
 
