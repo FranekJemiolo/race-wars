@@ -7,6 +7,7 @@ import { updatePlayerMarkers } from "../map/playerLayer"
 import HUD from "../ui/HUD"
 import { RealTimeLeaderboard } from "../components/RealTimeLeaderboard"
 import Status from "../ui/Status"
+import "../test/browserTestRunner"
 
 export default function App() {
   const [connectionState, setConnectionState] = useState<"connecting" | "connected" | "disconnected">("disconnected")
