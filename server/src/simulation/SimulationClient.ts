@@ -46,7 +46,9 @@ export class SimulationClient {
 
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(this.config.serverUrl);
+      // Build URL with query parameters for mock server
+      const url = `${this.config.serverUrl}?clientId=${this.config.clientId}&sessionId=${this.config.sessionId}`;
+      this.ws = new WebSocket(url);
 
       this.ws.on('open', () => {
         console.log(`Client ${this.config.clientId} connected`);
@@ -110,7 +112,7 @@ export class SimulationClient {
     }
   }
 
-  startSimulation(): void {
+  private start(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }

@@ -12,15 +12,21 @@ import { SimulationClient } from '../../simulation/SimulationClient';
 import { enforcementService } from '../../services/enforcement.service';
 import { participationService } from '../../services/participation.service';
 import { notificationService } from '../../services/notification.service';
+import { getMockWebSocketServer, resetMockWebSocketServer } from '../utils/mockWebSocketServer';
 import type { PositionUpdate, RoutePoint } from '../../simulation/SimulationClient';
 
 describe('Multi-Client Simulation Integration Tests', () => {
   let simulationClients: SimulationClient[];
+  let mockServer: any;
   const TEST_SESSION_ID = 'test-session-multi-client';
-  const SERVER_URL = 'ws://localhost:8080';
+  const SERVER_URL = 'ws://localhost:8081';
 
   beforeAll(async () => {
     simulationClients = [];
+    mockServer = getMockWebSocketServer(8081);
+    mockServer.start();
+    // Wait for server to start
+    await new Promise(resolve => setTimeout(resolve, 100));
   });
 
   afterAll(async () => {
@@ -30,6 +36,12 @@ describe('Multi-Client Simulation Integration Tests', () => {
         client.disconnect();
       }
     }
+    
+    // Stop mock server
+    if (mockServer) {
+      await mockServer.stop();
+    }
+    resetMockWebSocketServer();
   });
 
   describe('Multi-Client Race Scenarios', () => {
@@ -66,10 +78,9 @@ describe('Multi-Client Simulation Integration Tests', () => {
       );
 
       const connectionResults = await Promise.all(connectionPromises);
-      const connectedClients = connectionResults.filter(result => result !== null);
       
-      // At least some clients should connect (in test environment)
-      expect(connectedClients.length).toBeGreaterThanOrEqual(0);
+      // All clients should connect to mock server
+      expect(mockServer.getClientCount()).toBeGreaterThanOrEqual(clientCount);
 
       // Start all connected clients
       for (const client of simulationClients) {
