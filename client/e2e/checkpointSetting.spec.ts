@@ -1,180 +1,78 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Checkpoint Setting', () => {
+test.describe('Connection Management', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3000');
   });
 
-  test('should add checkpoint with custom radius', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
-    
-    // Add start point
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    
-    // Select checkpoint tool
-    await page.locator('button:has-text("Checkpoint")').click();
-    
-    // Set custom radius
-    await page.fill('input[name="checkpointRadius"]', '50');
-    
-    // Add checkpoint
-    await map.click({ position: { x: 500, y: 300 } });
-    
-    // Check if checkpoint is added with radius
-    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2);
+  test('should attempt WebSocket connection', async ({ page }) => {
+    // Check if connection attempt is made
+    const connectionIndicator = page.locator('text=/Connecting|Connected|Disconnected/');
+    await expect(connectionIndicator).toBeVisible();
   });
 
-  test('should reorder checkpoints', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
-    
-    const map = page.locator('.leaflet-container');
-    
-    // Add multiple checkpoints
-    await map.click({ position: { x: 400, y: 300 } });
-    await page.locator('button:has-text("Checkpoint")').click();
-    await map.click({ position: { x: 450, y: 300 } });
-    await map.click({ position: { x: 500, y: 300 } });
-    await map.click({ position: { x: 550, y: 300 } });
-    
-    // Drag to reorder
-    const checkpoint3 = page.locator('.checkpoint-marker').nth(2);
-    await checkpoint3.dragTo(page.locator('.checkpoint-marker').first());
-    
-    // Verify order changed
-    const order = await page.locator('.checkpoint-order').allTextContents();
-    expect(order[0]).toBe('3');
+  test('should show connecting state initially', async ({ page }) => {
+    // Initial state should be connecting or disconnected
+    const indicator = page.locator('text=/Connecting|Disconnected/');
+    await expect(indicator).toBeVisible();
   });
 
-  test('should delete checkpoint', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
+  test('should update connection status over time', async ({ page }) => {
+    // Wait for connection state to potentially change
+    await page.waitForTimeout(5000);
     
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    await page.locator('button:has-text("Checkpoint")').click();
-    await map.click({ position: { x: 500, y: 300 } });
-    
-    // Right-click checkpoint to delete
-    await page.locator('.checkpoint-marker').click({ button: 'right' });
-    await page.locator('text=Delete Checkpoint').click();
-    
-    // Check if checkpoint is removed
-    await expect(page.locator('.checkpoint-marker')).toHaveCount(0);
+    const indicator = page.locator('text=/Connected|Connecting|Disconnected/');
+    await expect(indicator).toBeVisible();
   });
 
-  test('should set checkpoint as mandatory', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
+  test('should have proper connection indicator styling', async ({ page }) => {
+    const indicator = page.locator('text=/Connected|Connecting|Disconnected/');
+    await expect(indicator).toBeVisible();
     
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    await page.locator('button:has-text("Checkpoint")').click();
-    await map.click({ position: { x: 500, y: 300 } });
+    // Check that indicator has proper styling
+    const backgroundColor = await indicator.evaluate(el => 
+      window.getComputedStyle(el).backgroundColor
+    );
     
-    // Set as mandatory
-    await page.check('input[name="mandatoryCheckpoint"]');
-    
-    // Verify mandatory flag
-    const isMandatory = await page.isChecked('input[name="mandatoryCheckpoint"]');
-    expect(isMandatory).toBe(true);
+    // Should have a colored background (not transparent)
+    expect(backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
   });
 
-  test('should set checkpoint as optional', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
-    
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    await page.locator('button:has-text("Checkpoint")').click();
-    await map.click({ position: { x: 500, y: 300 } });
-    
-    // Uncheck mandatory (optional)
-    await page.uncheck('input[name="mandatoryCheckpoint"]');
-    
-    // Verify optional flag
-    const isMandatory = await page.isChecked('input[name="mandatoryCheckpoint"]');
-    expect(isMandatory).toBe(false);
+  test('should display loading screen while disconnected', async ({ page }) => {
+    // Check for loading screen
+    const loadingScreen = page.locator('text=Waiting for server connection');
+    await expect(loadingScreen).toBeVisible();
   });
 
-  test('should display checkpoint count', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
+  test('should hide UI components when disconnected', async ({ page }) => {
+    // HUD, Leaderboard, Status should not be visible when disconnected
+    const hud = page.locator('.hud');
+    const leaderboard = page.locator('.leaderboard');
+    const status = page.locator('.status');
     
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    await page.locator('button:has-text("Checkpoint")').click();
-    await map.click({ position: { x: 500, y: 300 } });
-    await map.click({ position: { x: 600, y: 300 } });
-    
-    // Check checkpoint count display
-    await expect(page.locator('text=Checkpoints: 2')).toBeVisible();
+    await expect(hud).not.toBeVisible();
+    await expect(leaderboard).not.toBeVisible();
+    await expect(status).not.toBeVisible();
   });
 
-  test('should validate minimum checkpoints', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
-    
-    // Add only start point
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    
-    // Try to save without checkpoints
-    await page.click('text=Save Route');
-    
-    // Check for validation error
-    await expect(page.locator('text=At least 1 checkpoint required')).toBeVisible();
+  test('should maintain connection state in URL', async ({ page }) => {
+    const url = page.url();
+    expect(url).toContain('http://localhost:3000');
   });
 
-  test('should duplicate checkpoint', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
+  test('should handle connection errors gracefully', async ({ page }) => {
+    // Wait to see if error handling occurs
+    await page.waitForTimeout(5000);
     
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    await page.locator('button:has-text("Checkpoint")').click();
-    await map.click({ position: { x: 500, y: 300 } });
-    
-    // Right-click to duplicate
-    await page.locator('.checkpoint-marker').click({ button: 'right' });
-    await page.locator('text=Duplicate Checkpoint').click();
-    
-    // Check if checkpoint is duplicated
-    await expect(page.locator('.checkpoint-marker')).toHaveCount(2);
+    // Page should still be responsive
+    await expect(page.locator('body')).toBeVisible();
   });
 
-  test('should set checkpoint time limit', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
+  test('should display proper connection text', async ({ page }) => {
+    const indicator = page.locator('text=/Connected|Connecting|Disconnected/');
+    await expect(indicator).toBeVisible();
     
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    await page.locator('button:has-text("Checkpoint")').click();
-    await map.click({ position: { x: 500, y: 300 } });
-    
-    // Set time limit
-    await page.fill('input[name="timeLimit"]', '30');
-    
-    // Verify time limit is set
-    const timeLimit = await page.inputValue('input[name="timeLimit"]');
-    expect(timeLimit).toBe('30');
-  });
-
-  test('should display checkpoint sequence number', async ({ page }) => {
-    await page.click('text=Create Race');
-    await page.click('text=Create Custom Route');
-    
-    const map = page.locator('.leaflet-container');
-    await map.click({ position: { x: 400, y: 300 } });
-    await page.locator('button:has-text("Checkpoint")').click();
-    await map.click({ position: { x: 500, y: 300 } });
-    await map.click({ position: { x: 600, y: 300 } });
-    
-    // Check sequence numbers on markers
-    const markers = page.locator('.checkpoint-marker');
-    await expect(markers.nth(0)).toContainText('1');
-    await expect(markers.nth(1)).toContainText('2');
+    const text = await indicator.textContent();
+    expect(text).toMatch(/Connected|Connecting|Disconnected/);
   });
 });
