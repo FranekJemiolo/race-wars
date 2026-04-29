@@ -47,49 +47,44 @@ Race Wars is a comprehensive web-based racing platform that transforms GPS data 
 - **Anti-Cheat Detection**: Advanced GPS validation and pattern analysis
 - **Comprehensive Testing**: 45+ E2E tests covering all functionality
 
-## 🖼️ App Screenshots
+## � App Screenshots
 
 ### 📱 Mobile Interface
 
-<div align="center">
-  <h4>🏁 Mobile Team Management</h4>
-  <img src="docs/assets/mobile-team-management.png" alt="Mobile Team Management" width="300"/>
-  <p><em>Touch-friendly team interface with real-time stats and quick actions</em></p>
-</div>
+**Team Management**
+![Mobile Team Management](docs/assets/mobile-view.png)
 
-<div align="center">
-  <h4>🏁 Live Racing Interface</h4>
-  <img src="docs/assets/mobile-racing.png" alt="Mobile Racing" width="300"/>
-  <p><em>Real-time GPS racing with live position tracking and leaderboard</em></p>
-</div>
+**Live Racing Interface**  
+![Main Racing App](docs/assets/main-app.png)
 
-<div align="center">
-  <h4>💬 Team Chat</h4>
-  <img src="docs/assets/mobile-chat.png" alt="Mobile Team Chat" width="300"/>
-  <p><em>Real-time team communication with reactions and achievements</em></p>
-</div>
+**Interactive Features**
+![App Showcase](docs/assets/showcase-page.png)
 
 ### 💻 Desktop Interface
 
-<div align="center">
-  <h4>🏁 Desktop Team Dashboard</h4>
-  <img src="docs/assets/desktop-team-dashboard.png" alt="Desktop Team Dashboard" width="600"/>
-  <p><em>Comprehensive team management with analytics and member statistics</em></p>
-</div>
+**Team Dashboard**
+![Desktop Team Management](docs/assets/button-0.png)
 
-<div align="center">
-  <h4>🎬 Race Replay System</h4>
-  <img src="docs/assets/desktop-race-replay.png" alt="Race Replay" width="600"/>
-  <p><em>Advanced race replay with video controls and detailed analysis</em></p>
-</div>
+**Race Replay System**
+![Race Replay](docs/assets/button-1.png)
 
-<div align="center">
-  <h4>📢 Admin Event Panel</h4>
-  <img src="docs/assets/desktop-admin-panel.png" alt="Admin Panel" width="600"/>
-  <p><em>Real-time race management with event broadcasting and analytics</em></p>
-</div>
+**Admin Event Panel**
+![Admin Panel](docs/assets/button-2.png)
 
-*For detailed visual mockups and interface descriptions, see our [Screenshots Documentation](docs/screenshots.md)*
+---
+
+### 🎯 Key Interface Features
+
+- **📱 Mobile-First Design**: Touch-optimized interfaces for on-the-go racing
+- **💻 Desktop Dashboard**: Comprehensive management and analytics tools
+- **🗺️ Interactive Maps**: Real-time GPS tracking with OpenStreetMap integration
+- **📊 Live Leaderboards**: Sub-second updates with advanced statistics
+- **💬 Team Communication**: Real-time chat with reactions and achievements
+- **🎬 Race Replay**: Video-like playback with detailed analysis tools
+- **📢 Admin Controls**: Real-time event management and broadcasting
+- **🏆 Team Management**: Create, join, and manage racing teams
+
+All screenshots are generated using Playwright automation to showcase the actual application interface and user experience.
 
 ## 🛠️ Tech Stack
 

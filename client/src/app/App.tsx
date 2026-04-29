@@ -7,13 +7,22 @@ import { updatePlayerMarkers } from "../map/playerLayer"
 import HUD from "../ui/HUD"
 import { RealTimeLeaderboard } from "../components/RealTimeLeaderboard"
 import Status from "../ui/Status"
+import { ShowcasePage } from "../pages/ShowcasePage"
 import "../test/browserTestRunner"
 import "../styles/mobile.css"
 
 export default function App() {
   const [connectionState, setConnectionState] = useState<"connecting" | "connected" | "disconnected">("disconnected")
   const [mapInitialized, setMapInitialized] = useState(false)
+  const [showShowcase, setShowShowcase] = useState(false)
   const mapRef = useRef<HTMLDivElement>(null)
+
+  // Check URL hash for showcase mode
+  useEffect(() => {
+    if (window.location.hash === '#showcase') {
+      setShowShowcase(true)
+    }
+  }, [])
 
   useEffect(() => {
     console.log("App mounted, setting up connection...")
@@ -56,6 +65,11 @@ export default function App() {
       }
     }
   }, [mapInitialized])
+
+  // Show showcase page if hash is #showcase
+  if (showShowcase) {
+    return <ShowcasePage />;
+  }
 
   return (
     <div style={{ 

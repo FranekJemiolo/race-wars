@@ -156,6 +156,20 @@
             border-color: #e94560;
         }
 
+        .screenshot {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .screenshot:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
@@ -884,116 +898,26 @@
                                     <span className="team-icon">🏢</span>
                                     <div>
                                         <div className="team-name">Speed Racers</div>
-                                        <div className="team-tag">SR</div>
-                                    </div>
-                                    <div className="team-rank">#3</div>
-                                </div>
-                                <div className="team-stats">
-                                    <span>📍 8/12</span>
-                                    <span>📊 1650</span>
-                                    <span>🥇 75%</span>
-                                    <span>🏁 25W</span>
-                                </div>
-                            </div>
-                            <div class="team-card">
-                                <div class="team-header">
-                                    <span className="team-icon">🏢</span>
-                                    <div>
-                                        <div className="team-name">Thunder Team</div>
-                                        <div className="team-tag">TT</div>
-                                    </div>
-                                    <div className="team-rank">#7</div>
-                                </div>
-                                <div className="team-stats">
-                                    <span>📍 6/8</span>
-                                    <span>📊 1580</span>
-                                    <span>🥇 62%</span>
-                                    <span>🏁 18W</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <p>Touch-friendly team interface with real-time stats and quick actions</p>
                 </div>
-
-                <div class="showcase-item">
-                    <h3>🏁 Live Racing Interface</h3>
-                    <div class="mockup-mobile">
-                        <div class="mobile-header">
-                            <span>🏁 Monaco Grand Prix</span>
-                            <span>📍 Live</span>
-                        </div>
-                        <div class="mobile-content">
-                            <div class="race-map">
-                                <div class="route-line"></div>
-                                <div class="car-position"></div>
-                                <div class="checkpoint"></div>
-                            </div>
-                            <div class="race-stats">
-                                <div class="stat">📊 Position: 2nd</div>
-                                <div class="stat">⚡ 245km/h</div>
-                                <div class="stat">🏁 Lap: 12/20</div>
-                                <div class="stat">⏱️ 1:23.456</div>
-                            </div>
-                            <div class="leaderboard-mini">
-                                <div class="leader">1️⃣ Lightning - 1:21.234</div>
-                                <div class="current">2️⃣ You - 1:23.456</div>
-                                <div class="leader">3️⃣ Thunder - 1:24.789</div>
-                            </div>
-                        </div>
-                    </div>
+                
+                <div class="interface-card">
+                    <h3>Live Racing</h3>
+                    <img src="assets/main-app.png" alt="Live Racing Interface" class="screenshot">
                     <p>Real-time GPS racing with live position tracking and leaderboard</p>
                 </div>
-
-                <div class="showcase-item">
-                    <h3>💬 Team Chat</h3>
-                    <div class="mockup-mobile">
-                        <div class="mobile-header">
-                            <span>💬 Team Chat - Speed Racers</span>
-                        </div>
-                        <div class="mobile-content">
-                            <div class="chat-messages">
-                                <div class="message">
-                                    <div class="message-header">
-                                        <span>👤 Alex (Captain)</span>
-                                        <span>2:34 PM</span>
-                                    </div>
-                                    <div class="message-text">Great race everyone! 🏁</div>
-                                    <div class="reactions">👍 2  ❤️ 1</div>
-                                </div>
-                                <div class="message">
-                                    <div class="message-header">
-                                        <span>👤 Sarah</span>
-                                        <span>2:35 PM</span>
-                                    </div>
-                                    <div class="message-text">Thanks for the coordination! 🤝</div>
-                                    <div class="reactions">👍 1</div>
-                                </div>
-                                <div class="message system">
-                                    <div class="message-header">
-                                        <span>🏆 System</span>
-                                        <span>2:36 PM</span>
-                                    </div>
-                                    <div class="message-text">Team unlocked: First Victory! 🎉</div>
-                                    <div class="reactions">👍 5  🎉 3  🏆 2</div>
-                                </div>
-                            </div>
-                            <div class="chat-input">
-                                <span>[Type message...]</span>
-                                <div class="emoji-bar">📷 😊 👍 ❤️ 🏆 🎉</div>
-                            </div>
-                        </div>
-                    </div>
-                    <p>Real-time team communication with reactions and achievements</p>
+                
+                <div class="interface-card">
+                    <h3>App Showcase</h3>
+                    <img src="assets/showcase-page.png" alt="App Showcase" class="screenshot">
+                    <p>Interactive demonstration of all app features and interfaces</p>
                 </div>
             </div>
-
-            <div class="showcase-grid">
-                <div class="showcase-item desktop">
-                    <h3>💻 Desktop Team Dashboard</h3>
-                    <div class="mockup-desktop">
-                        <div class="desktop-header">
-                            <span>🏁 Race Wars - Team Management</span>
+            
+            <h2>💻 Desktop Interface</h2>
+            <div class="interface-grid">
+                <div class="interface-card">
+                    <h3>Team Dashboard</h3>
+                    <img src="assets/button-0.png" alt="Desktop Team Management" class="screenshot">
                             <span>👤 Admin</span>
                         </div>
                         <div class="desktop-content">
