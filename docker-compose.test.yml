@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: race-wars-test-db
+    environment:
+      POSTGRES_DB: race_wars_test
+      POSTGRES_USER: race_wars
+      POSTGRES_PASSWORD: race_wars_dev
+    ports:
+      - "5433:5432"  # Different port to avoid conflict with main DB
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U race_wars -d race_wars_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: race-wars-test-redis
+    ports:
+      - "6380:6379"  # Different port to avoid conflict
+    volumes:
+      - redis_test_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_test_data:
+  redis_test_data:

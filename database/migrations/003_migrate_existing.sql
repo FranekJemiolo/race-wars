@@ -1,0 +1,2 @@
+-- This file will run the existing server migrations
+-- Copy all migration files from server/src/database/migrations to this directory

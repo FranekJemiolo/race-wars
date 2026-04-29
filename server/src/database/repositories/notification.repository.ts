@@ -27,7 +27,7 @@ export class NotificationRepository {
   async create(notification: Omit<Notification, 'id'>): Promise<Notification> {
     const result = await query(
       `INSERT INTO notifications (id, user_id, type, title, message, data, priority, read, created_at, expires_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING *`,
       [
         crypto.randomUUID(),
