@@ -6,7 +6,8 @@
 import { logger } from '../utils/logger'
 import { trackService } from './track.service'
 import { participationService } from './participation.service'
-import { EventRepository, Event } from '../database/repositories/event.repository'
+import { EventRepository } from './repositories/event.repository';
+import { query } from '../database/connection.simple';
 
 export interface Race {
   id: string
@@ -356,10 +357,51 @@ export class RaceService {
         return 'in-progress'
       case 'COMPLETED':
         return 'finished'
-      case 'STARTING':
-        return 'starting'
+      // Note: STARTING status mapped to waiting for now
       default:
         return 'waiting'
+    }
+  }
+
+  /**
+   * Get available tracks
+   */
+  async getAvailableTracks(): Promise<any[]> {
+    try {
+      const result = await query('SELECT * FROM tracks ORDER BY name');
+      return result;
+    } catch (error) {
+      logger.error('Failed to get available tracks:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get track details by name
+   */
+  async getTrackDetails(trackName: string): Promise<any> {
+    try {
+      const result = await query('SELECT * FROM tracks WHERE name = $1', [trackName]);
+      return result[0] || null;
+    } catch (error) {
+      logger.error('Failed to get track details:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update race status
+   */
+  async updateRaceStatus(raceId: string, status: string): Promise<any> {
+    try {
+      const result = await query(
+        'UPDATE events SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+        [status, raceId]
+      );
+      return result[0];
+    } catch (error) {
+      logger.error('Failed to update race status:', error);
+      throw error;
     }
   }
 }

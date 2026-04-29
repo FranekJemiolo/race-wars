@@ -20,7 +20,7 @@ export default function App() {
     setupMessageHandlers()
 
     // Connect to server
-    connect("ws://localhost:8080")
+    connect()
 
     // Subscribe to connection state changes
     const checkConnection = setInterval(() => {

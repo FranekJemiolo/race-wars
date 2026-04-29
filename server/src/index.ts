@@ -4,20 +4,24 @@ import { startWebSocket } from "./network/websocket"
 import { startTick } from "./engine/tick"
 import { initializeDatabase } from './database/connection.simple'
 import { log } from "./utils/logger"
-import raceRoutes from './routes/race.routes'
+// import raceRoutes from './routes/race.routes'
 import authRoutes from './routes/auth.routes'
-import participationRoutes from './routes/participation.routes'
-import routeRoutes from './routes/route.routes'
-import notificationRoutes from './routes/notification.routes'
-import enforcementRoutes from './routes/enforcement.routes'
-import sectorFlagRoutes from './routes/sectorFlag.routes'
-import proximityRoutes from './routes/proximity.routes'
-import incidentRoutes from './routes/incident.routes'
-import carProfileRoutes from './routes/carProfile.routes'
-import { raceController } from './controllers/race.controller'
+// import participationRoutes from './routes/participation.routes'
+// import routeRoutes from './routes/route.routes'
+// import notificationRoutes from './routes/notification.routes'
+// import enforcementRoutes from './routes/enforcement.routes'
+// import sectorFlagRoutes from './routes/sectorFlag.routes'
+// import proximityRoutes from './routes/proximity.routes'
+// import incidentRoutes from './routes/incident.routes'
+// import carProfileRoutes from './routes/carProfile.routes'
+// import { raceController } from './controllers/race.controller'
+// import healthRoutes from './routes/health'
+import leaderboardRoutes from './routes/leaderboard.routes'
 
 const app = express()
 const server = createServer(app)
+
+export { app }
 
 // Middleware
 app.use(express.json())
@@ -34,20 +38,19 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/auth', authRoutes)
-app.use('/api/races', raceRoutes)
-app.use('/api/participation', participationRoutes)
-app.use('/api/routes', routeRoutes)
-app.use('/api/notifications', notificationRoutes)
-app.use('/api/enforcement', enforcementRoutes)
-app.use('/api/sector-flags', sectorFlagRoutes)
-app.use('/api/proximity', proximityRoutes)
-app.use('/api/incidents', incidentRoutes)
-app.use('/api/car-profiles', carProfileRoutes)
+// app.use('/api/races', raceRoutes)
+// app.use('/api/participation', participationRoutes)
+// app.use('/api/routes', routeRoutes)
+// app.use('/api/notifications', notificationRoutes)
+// app.use('/api/enforcement', enforcementRoutes)
+// app.use('/api/sector-flags', sectorFlagRoutes)
+// app.use('/api/proximity', proximityRoutes)
+// app.use('/api/incidents', incidentRoutes)
+// app.use('/api/car-profiles', carProfileRoutes)
+app.use('/api/leaderboard', leaderboardRoutes)
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
-})
+// Health check routes
+// app.use('/', healthRoutes)
 
 async function startServer() {
   try {
@@ -61,8 +64,9 @@ async function startServer() {
       log(`HTTP Server running on port ${PORT}`)
     })
     
-    // Start WebSocket server
-    startWebSocket()
+    // Start WebSocket server on different port
+    const WS_PORT = parseInt(process.env.WS_PORT || '8081')
+    startWebSocket(WS_PORT)
     
     // Start game engine
     startTick()

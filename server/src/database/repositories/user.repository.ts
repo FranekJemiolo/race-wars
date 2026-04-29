@@ -7,7 +7,7 @@
 
 import { query, transaction } from '../index'
 import { logger } from '../../utils/logger'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 export interface User {
   id: string

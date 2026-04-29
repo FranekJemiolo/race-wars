@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20
 
 WORKDIR /app
 
@@ -15,6 +15,12 @@ RUN npm ci
 COPY server/ ./server/
 COPY shared/ ./shared/
 COPY client/ ./client/
+
+# Copy TypeScript configuration
+COPY tsconfig.base.json ./
+
+# Install bcryptjs (pure JavaScript implementation)
+RUN npm install bcryptjs
 
 # Build shared package
 RUN npm run build:shared

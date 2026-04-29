@@ -108,11 +108,13 @@ services:
     container_name: race-wars-client-local
     environment:
       - NODE_ENV=development
-      - REACT_APP_API_URL=http://localhost/api
-      - REACT_APP_WS_URL=ws://localhost/ws
-      - REACT_APP_MAPBOX_TOKEN=${REACT_APP_MAPBOX_TOKEN}
+      - VITE_API_URL=http://localhost/api
+      - VITE_WS_URL=ws://localhost/ws
+      - VITE_MAPBOX_TOKEN=${VITE_MAPBOX_TOKEN}
     ports:
-      - "3000:3000"
+      - "3000:5173"
+    expose:
+      - "5173"
     volumes:
       - ./client:/app/client
       - /app/client/node_modules
@@ -169,7 +171,7 @@ services:
     image: dpage/pgadmin4:latest
     container_name: race-wars-pgadmin-local
     environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@racewars.local
+      - PGADMIN_DEFAULT_EMAIL=admin@racewars.dev
       - PGADMIN_DEFAULT_PASSWORD=admin
       - PGADMIN_CONFIG_SERVER_MODE=False
     ports:
