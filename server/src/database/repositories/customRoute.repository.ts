@@ -273,7 +273,7 @@ export class CustomRouteRepository {
   /**
    * Search custom routes
    */
-  async search(query: string, limit: number = 20, offset: number = 0): Promise<CustomRoute[]> {
+  async search(searchTerm: string, limit: number = 20, offset: number = 0): Promise<CustomRoute[]> {
     try {
       const sql = `
         SELECT * FROM custom_routes 
@@ -286,10 +286,10 @@ export class CustomRouteRepository {
         LIMIT $2 OFFSET $3
       `
 
-      const result = await query(sql, [`%${query}%`, limit, offset])
+      const result = await query(sql, [`%${searchTerm}%`, limit, offset])
       return result.rows.map((row: any) => this.mapRowToCustomRoute(row))
     } catch (error) {
-      logger.error('Failed to search custom routes', { query, error })
+      logger.error('Failed to search custom routes', { searchTerm, error })
       throw error
     }
   }

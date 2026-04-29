@@ -1,4 +1,4 @@
-import { pool } from '../index';
+import { pool, query } from '../index';
 
 export interface Notification {
   id: string;
@@ -25,7 +25,7 @@ export interface NotificationPreferences {
 
 export class NotificationRepository {
   async create(notification: Omit<Notification, 'id'>): Promise<Notification> {
-    const result = await pool.query(
+    const result = await query(
       `INSERT INTO notifications (id, user_id, type, title, message, data, priority, read, created_at, expires_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
@@ -47,7 +47,7 @@ export class NotificationRepository {
   }
 
   async findByUserId(userId: string, limit = 50, offset = 0): Promise<Notification[]> {
-    const result = await pool.query(
+    const result = await query(
       `SELECT * FROM notifications 
        WHERE user_id = $1 
        ORDER BY created_at DESC 
@@ -59,7 +59,7 @@ export class NotificationRepository {
   }
 
   async markAsRead(notificationId: string, userId: string): Promise<void> {
-    await pool.query(
+    await query(
       `UPDATE notifications 
        SET read = true 
        WHERE id = $1 AND user_id = $2`,
@@ -68,7 +68,7 @@ export class NotificationRepository {
   }
 
   async markAllAsRead(userId: string): Promise<void> {
-    await pool.query(
+    await query(
       `UPDATE notifications 
        SET read = true 
        WHERE user_id = $1 AND read = false`,
@@ -77,7 +77,7 @@ export class NotificationRepository {
   }
 
   async delete(notificationId: string, userId: string): Promise<void> {
-    await pool.query(
+    await query(
       `DELETE FROM notifications 
        WHERE id = $1 AND user_id = $2`,
       [notificationId, userId]
@@ -85,14 +85,14 @@ export class NotificationRepository {
   }
 
   async deleteExpired(): Promise<void> {
-    await pool.query(
+    await query(
       `DELETE FROM notifications 
        WHERE expires_at < NOW()`
     );
   }
 
   async findById(id: string): Promise<Notification | null> {
-    const result = await pool.query(
+    const result = await query(
       `SELECT * FROM notifications WHERE id = $1`,
       [id]
     );
@@ -101,7 +101,7 @@ export class NotificationRepository {
   }
 
   async getUnreadCount(userId: string): Promise<number> {
-    const result = await pool.query(
+    const result = await query(
       `SELECT COUNT(*) as count 
        FROM notifications 
        WHERE user_id = $1 AND read = false 

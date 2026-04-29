@@ -251,9 +251,9 @@ export class SessionParticipantRepository {
   }
 
   /**
-   * Update participant position
+   * Update participant race position
    */
-  async updatePosition(id: string, position: number): Promise<boolean> {
+  async updateRacePosition(id: string, position: number): Promise<boolean> {
     try {
       const sql = `
         UPDATE session_participants 

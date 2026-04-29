@@ -149,8 +149,10 @@ describe('Sector Flag Workflow E2E Tests', () => {
         expect(flag.flag).toBe('safety_car');
       });
       
-      // Step 3: Clear safety car flag
+      // Step 3: Clear safety car flag from all sectors
       sectorFlagService.setSectorFlag('sector-1', 'green', 'Safety car withdrawn');
+      sectorFlagService.setSectorFlag('sector-2', 'green', 'Safety car withdrawn');
+      sectorFlagService.setSectorFlag('sector-3', 'green', 'Safety car withdrawn');
       
       // Step 4: Verify all sectors return to green
       const flagsAfter = sectorFlagService.getAllSectorFlags();

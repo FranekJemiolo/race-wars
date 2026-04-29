@@ -124,17 +124,17 @@ class PushNotificationService {
   /**
    * Send push notification to a specific user
    */
-  async sendToUser(userId: string, payload: PushNotificationPayload): Promise<void> {
+  async sendToUser(userId: string, payload: PushNotificationPayload): Promise<string | null> {
     if (!this.isInitialized) {
       console.warn('Push notification service not initialized');
-      return;
+      return null;
     }
 
     const tokens = this.getActiveDeviceTokens(userId);
     
     if (tokens.length === 0) {
       console.log(`No active device tokens found for user ${userId}`);
-      return;
+      return null;
     }
 
     const message: admin.messaging.Message = {
@@ -165,6 +165,7 @@ class PushNotificationService {
     try {
       const response = await admin.messaging().send(message);
       console.log(`Push notification sent to user ${userId}:`, response);
+      return response;
     } catch (error) {
       console.error(`Failed to send push notification to user ${userId}:`, error);
       
@@ -172,6 +173,7 @@ class PushNotificationService {
       if (error instanceof Error && error.message.includes('registration-token-not-registered')) {
         this.deactivateDeviceToken(userId, tokens[0].token);
       }
+      return null;
     }
   }
 

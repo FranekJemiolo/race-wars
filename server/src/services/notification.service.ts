@@ -1,6 +1,5 @@
-import { pool } from '../database/connection.simple';
-import { notificationRepository } from '../repositories';
-import { sessionRepository } from '../repositories';
+import { pool, query } from '../database/index';
+import { notificationRepository, sessionRepository } from '../database/repositories';
 import { sectorFlagService } from './sectorFlag.service';
 import { enforcementService } from './enforcement.service';
 import { pushNotificationService } from './pushNotification.service';
@@ -104,7 +103,7 @@ class NotificationService {
   }
 
   async getUserNotificationPreferences(userId: string): Promise<NotificationPreferences> {
-    const preferences = await pool.query(
+    const preferences = await query(
       `SELECT * FROM notification_preferences WHERE user_id = $1`,
       [userId]
     );
@@ -118,7 +117,7 @@ class NotificationService {
   }
 
   async createUserNotificationPreferences(userId: string): Promise<NotificationPreferences> {
-    const result = await pool.query(
+    const result = await query(
       `INSERT INTO notification_preferences (user_id, enable_email, enable_push, enable_in_app, race_notifications, flag_notifications, penalty_notifications)
        VALUES ($1, true, true, true, true, true, true)
        RETURNING *`,
@@ -133,7 +132,7 @@ class NotificationService {
       `${key} = $${index + 2}`
     ).join(', ');
 
-    const result = await pool.query(
+    const result = await query(
       `UPDATE notification_preferences 
        SET ${setClause}
        WHERE user_id = $1
@@ -223,7 +222,7 @@ class NotificationService {
 
   async createRaceNotifications(raceId: string, type: 'starting' | 'started' | 'finished'): Promise<void> {
     // Get all participants for the race
-    const participants = await pool.query(
+    const participants = await query(
       `SELECT user_id FROM session_participants WHERE session_id = $1`,
       [raceId]
     );
@@ -266,7 +265,7 @@ class NotificationService {
 
   async createSessionNotifications(sessionId: string, type: 'starting' | 'started' | 'ended'): Promise<void> {
     // Get all participants for the session
-    const participants = await pool.query(
+    const participants = await query(
       `SELECT user_id FROM session_participants WHERE session_id = $1`,
       [sessionId]
     );
@@ -309,7 +308,7 @@ class NotificationService {
 
   async createFlagNotification(sessionId: string, flagType: string, message: string): Promise<void> {
     // Get all participants for the session
-    const participants = await pool.query(
+    const participants = await query(
       `SELECT user_id FROM session_participants WHERE session_id = $1`,
       [sessionId]
     );
@@ -329,7 +328,7 @@ class NotificationService {
 
   async createFlagChangeNotification(sessionId: string, flagChange: FlagChange): Promise<void> {
     // Get all participants for the session
-    const participants = await pool.query(
+    const participants = await query(
       `SELECT user_id FROM session_participants WHERE session_id = $1`,
       [sessionId]
     );
@@ -349,7 +348,7 @@ class NotificationService {
 
   async createSafetyCarNotification(sessionId: string, action: 'deployed' | 'recalled', message: string): Promise<void> {
     // Get all participants for the session
-    const participants = await pool.query(
+    const participants = await query(
       `SELECT user_id FROM session_participants WHERE session_id = $1`,
       [sessionId]
     );
@@ -394,7 +393,7 @@ class NotificationService {
 
   async createSpeedTrapAlert(sessionId: string, trigger: SpeedTrapTrigger): Promise<void> {
     // Get all participants for the session
-    const participants = await pool.query(
+    const participants = await query(
       `SELECT user_id FROM session_participants WHERE session_id = $1`,
       [sessionId]
     );
@@ -457,7 +456,7 @@ class NotificationService {
   }
 
   async getUnreadCount(userId: string): Promise<number> {
-    const result = await pool.query(
+    const result = await query(
       `SELECT COUNT(*) FROM notifications WHERE user_id = $1 AND read = false AND (expires_at IS NULL OR expires_at > NOW())`,
       [userId]
     );
@@ -466,7 +465,7 @@ class NotificationService {
   }
 
   async getNotificationStats(userId: string): Promise<any> {
-    const result = await pool.query(
+    const result = await query(
       `SELECT 
         COUNT(*) as total,
         COUNT(CASE WHEN read = false THEN 1 END) as unread,

@@ -49,7 +49,7 @@ class EmailNotificationService {
   initialize(config: EmailConfig): void {
     try {
       this.config = config;
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: config.host,
         port: config.port,
         secure: config.secure,
@@ -329,7 +329,7 @@ class EmailNotificationService {
    * Verify email configuration
    */
   async verifyConfiguration(): Promise<boolean> {
-    if (!this.isReady()) {
+    if (!this.isReady() || !this.transporter) {
       return false;
     }
 
