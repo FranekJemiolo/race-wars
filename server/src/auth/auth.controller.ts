@@ -15,7 +15,7 @@ export class AuthController {
    * Register a new user
    * POST /auth/register
    */
-  register = authRateLimit(3, 15 * 60 * 1000)(async (req: Request, res: Response, next: NextFunction) => {
+  register = authRateLimit(3, 15 * 60 * 1000)(async (req: Request, res: Response) => {
     try {
       const {
         email,
@@ -92,7 +92,7 @@ export class AuthController {
    * Authenticate user
    * POST /auth/login
    */
-  login = authRateLimit(5, 15 * 60 * 1000)(async (req: Request, res: Response, next: NextFunction) => {
+  login = authRateLimit(5, 15 * 60 * 1000)(async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body
 
@@ -205,7 +205,7 @@ export class AuthController {
    * Change password
    * PUT /auth/password
    */
-  changePassword = authRateLimit(3, 15 * 60 * 1000)(async (req: Request, res: Response, next: NextFunction) => {
+  changePassword = authRateLimit(3, 15 * 60 * 1000)(async (req: Request, res: Response) => {
     try {
       const { currentPassword, newPassword } = req.body
 
@@ -249,7 +249,7 @@ export class AuthController {
    * Reset password (would typically require email verification)
    * POST /auth/reset-password
    */
-  resetPassword = authRateLimit(3, 60 * 60 * 1000)(async (req: Request, res: Response, next: NextFunction) => {
+  resetPassword = authRateLimit(3, 60 * 60 * 1000)(async (req: Request, res: Response) => {
     try {
       const { email, newPassword, resetToken } = req.body
 
