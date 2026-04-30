@@ -97,10 +97,9 @@ describe('Critical System Scenarios Behavioral Tests', () => {
           type: 'Point',
           coordinates: [-122.4194, 37.7749]
         }),
-        track_type: 'CIRCUIT',
+        track_type: 'circuit' as const,
         difficulty_level: 'MODERATE',
-        created_by: 'test-user'
-      }
+              }
 
       // Step 1: Create track
       const createdTrack = await trackRepository.create(trackData)
@@ -135,10 +134,9 @@ describe('Critical System Scenarios Behavioral Tests', () => {
         centerline: 'invalid json',
         boundaries: 'invalid json',
         start_finish_point: 'invalid json',
-        track_type: 'CIRCUIT',
+        track_type: 'circuit' as const,
         difficulty_level: 'EASY',
-        created_by: 'test-user'
-      }
+              }
 
       try {
         await trackRepository.create(invalidTrackData)
@@ -157,13 +155,11 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       const eventData = {
         name: `Scenario Event ${timestamp}`,
         description: 'Event for scenario testing',
-        event_type: 'TRACK_DAY',
-        start_date: new Date('2024-12-01'),
+                start_date: new Date('2024-12-01'),
         end_date: new Date('2024-12-01'),
         location: 'Test Location',
         max_participants: 50,
-        created_by: 'test-user'
-      }
+              }
 
       const createdEvent = await eventRepository.create(eventData)
       expect(createdEvent.name).toBe(eventData.name)
@@ -174,12 +170,11 @@ describe('Critical System Scenarios Behavioral Tests', () => {
         event_id: createdEvent.id,
         name: 'Practice Session',
         description: 'Practice session for testing',
-        session_type: 'PRACTICE',
+        session_type: 'PRACTICE' as const,
         start_time: new Date('2024-12-01T09:00:00Z'),
         end_time: new Date('2024-12-01T10:00:00Z'),
         max_participants: 20,
-        created_by: 'test-user'
-      }
+              }
 
       const createdSession = await sessionRepository.create(sessionData)
       expect(createdSession.name).toBe(sessionData.name)
@@ -202,13 +197,11 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       const eventData = {
         name: `Conflict Event ${timestamp}`,
         description: 'Event for conflict testing',
-        event_type: 'TRACK_DAY',
-        start_date: new Date('2024-12-01'),
+                start_date: new Date('2024-12-01'),
         end_date: new Date('2024-12-01'),
         location: 'Test Location',
         max_participants: 50,
-        created_by: 'test-user'
-      }
+              }
 
       const createdEvent = await eventRepository.create(eventData)
 
@@ -217,23 +210,21 @@ describe('Critical System Scenarios Behavioral Tests', () => {
         event_id: createdEvent.id,
         name: 'Session 1',
         description: 'First session',
-        session_type: 'PRACTICE',
+        session_type: 'PRACTICE' as const,
         start_time: new Date('2024-12-01T09:00:00Z'),
         end_time: new Date('2024-12-01T11:00:00Z'),
         max_participants: 20,
-        created_by: 'test-user'
-      }
+              }
 
       const sessionData2 = {
         event_id: createdEvent.id,
         name: 'Session 2',
         description: 'Overlapping session',
-        session_type: 'PRACTICE',
+        session_type: 'PRACTICE' as const,
         start_time: new Date('2024-12-01T10:00:00Z'),
         end_time: new Date('2024-12-01T12:00:00Z'),
         max_participants: 20,
-        created_by: 'test-user'
-      }
+              }
 
       // Both sessions should be created (conflict handling would be business logic)
       const createdSession1 = await sessionRepository.create(sessionData1)
@@ -303,10 +294,9 @@ describe('Critical System Scenarios Behavioral Tests', () => {
           type: 'Point',
           coordinates: [-122.4194, 37.7749]
         }),
-        track_type: 'CIRCUIT',
+        track_type: 'circuit' as const,
         difficulty_level: 'EASY',
-        created_by: 'test-user'
-      }
+              }
 
       // Create tracks concurrently
       const createPromises = Array(concurrentCount).fill(0).map((_, index) => {
@@ -336,7 +326,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
 
       // Cleanup
       for (const track of createdTracks) {
-        await trackRepository.delete(track.id)
+        await trackRepository.deactivate(track.id)
       }
     })
   })
@@ -484,25 +474,22 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       const event = await eventRepository.create({
         name: `Integrity Event ${timestamp}`,
         description: 'Event for integrity testing',
-        event_type: 'TRACK_DAY',
-        start_date: new Date('2024-12-01'),
+                start_date: new Date('2024-12-01'),
         end_date: new Date('2024-12-01'),
         location: 'Test Location',
         max_participants: 50,
-        created_by: 'test-user'
-      })
+              })
 
       // Create session with valid event_id
       const session = await sessionRepository.create({
         event_id: event.id,
         name: 'Integrity Session',
         description: 'Session for integrity testing',
-        session_type: 'PRACTICE',
+        session_type: 'PRACTICE' as const,
         start_time: new Date('2024-12-01T09:00:00Z'),
         end_time: new Date('2024-12-01T10:00:00Z'),
         max_participants: 20,
-        created_by: 'test-user'
-      })
+              })
 
       // Verify relationship
       const foundSession = await sessionRepository.findById(session.id)
