@@ -180,7 +180,7 @@ export function requireEventOrganizer(eventIdParam: string = 'eventId') {
 export const authRateLimit = (maxAttempts: number = 5, windowMs: number = 15 * 60 * 1000) => {
   const attempts = new Map<string, { count: number; resetTime: number }>()
 
-  return (handler: (req: Request, res: Response) => Promise<void> | void) => {
+  return (handler: (req: Request, res: Response) => Promise<any> | any) => {
     return (req: Request, res: Response, next: NextFunction) => {
     const clientIp = req.ip || req.connection.remoteAddress || 'unknown'
     const now = Date.now()
