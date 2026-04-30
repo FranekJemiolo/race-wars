@@ -98,7 +98,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
           coordinates: [-122.4194, 37.7749]
         }),
         track_type: 'circuit' as const,
-        difficulty_level: 'MODERATE',
+        difficulty_level: 'intermediate' as const,
               }
 
       // Step 1: Create track
@@ -118,7 +118,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       expect(updatedTrack.description).toBe('Updated description')
 
       // Step 4: Delete track
-      const deleted = await trackRepository.delete(createdTrack.id)
+      const deleted = await trackRepository.deactivate(createdTrack.id)
       expect(deleted).toBe(true)
 
       // Step 5: Verify track is gone
@@ -135,7 +135,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
         boundaries: 'invalid json',
         start_finish_point: 'invalid json',
         track_type: 'circuit' as const,
-        difficulty_level: 'EASY',
+        difficulty_level: 'beginner' as const,
               }
 
       try {
@@ -155,8 +155,10 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       const eventData = {
         name: `Scenario Event ${timestamp}`,
         description: 'Event for scenario testing',
-                start_date: new Date('2024-12-01'),
-        end_date: new Date('2024-12-01'),
+        type: 'TRACK_DAY' as const,
+        organizer_id: 'test-organizer',
+        start_time: new Date('2024-12-01T09:00:00Z'),
+        end_time: new Date('2024-12-01T17:00:00Z'),
         location: 'Test Location',
         max_participants: 50,
               }
@@ -197,8 +199,10 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       const eventData = {
         name: `Conflict Event ${timestamp}`,
         description: 'Event for conflict testing',
-                start_date: new Date('2024-12-01'),
-        end_date: new Date('2024-12-01'),
+        type: 'TRACK_DAY' as const,
+        organizer_id: 'test-organizer',
+        start_time: new Date('2024-12-01T09:00:00Z'),
+        end_time: new Date('2024-12-01T17:00:00Z'),
         location: 'Test Location',
         max_participants: 50,
               }
@@ -295,7 +299,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
           coordinates: [-122.4194, 37.7749]
         }),
         track_type: 'circuit' as const,
-        difficulty_level: 'EASY',
+        difficulty_level: 'beginner' as const,
               }
 
       // Create tracks concurrently
@@ -474,8 +478,10 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       const event = await eventRepository.create({
         name: `Integrity Event ${timestamp}`,
         description: 'Event for integrity testing',
-                start_date: new Date('2024-12-01'),
-        end_date: new Date('2024-12-01'),
+        type: 'TRACK_DAY' as const,
+        organizer_id: 'test-organizer',
+        start_time: new Date('2024-12-01T09:00:00Z'),
+        end_time: new Date('2024-12-01T17:00:00Z'),
         location: 'Test Location',
         max_participants: 50,
               })
