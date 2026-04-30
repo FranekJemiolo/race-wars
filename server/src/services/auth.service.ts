@@ -6,6 +6,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { logger } from '../utils/logger'
+import { query } from '../database/connection.simple'
 
 export interface User {
   id: string
@@ -46,7 +47,6 @@ export interface AuthResponse {
 }
 
 export class AuthService {
-  private users: Map<string, User> = new Map()
   private readonly JWT_SECRET = process.env.JWT_SECRET || 'race-wars-secret-key'
   private readonly JWT_EXPIRES_IN = '24h'
   private readonly SALT_ROUNDS = 12
@@ -58,49 +58,60 @@ export class AuthService {
   /**
    * Initialize default users for development
    */
-  private initializeDefaultUsers(): void {
-    const defaultUsers: Omit<User, 'id' | 'createdAt' | 'updatedAt'>[] = [
+  private async initializeDefaultUsers(): Promise<void> {
+    const defaultUsers = [
       {
         username: 'admin',
         email: 'admin@racewars.local',
-        password: 'admin123', // will be hashed
+        password: 'admin123',
         displayName: 'Race Admin',
         role: 'admin',
-        isVerified: true,
-        stats: {
-          racesParticipated: 0,
-          racesWon: 0,
-          totalTimeRaced: 0
-        }
+        isVerified: true
       },
       {
         username: 'testdriver',
         email: 'driver@racewars.local',
-        password: 'driver123', // will be hashed
+        password: 'driver123',
         displayName: 'Test Driver',
         role: 'user',
-        isVerified: true,
-        stats: {
-          racesParticipated: 5,
-          racesWon: 2,
-          totalTimeRaced: 3600
-        }
+        isVerified: true
       }
     ]
 
-    defaultUsers.forEach(userData => {
-      const hashedPassword = bcrypt.hashSync(userData.password, this.SALT_ROUNDS)
-      const user: User = {
-        ...userData,
-        password: hashedPassword,
-        id: `user-${this.users.size + 1}`,
-        createdAt: new Date(),
-        updatedAt: new Date()
+    for (const userData of defaultUsers) {
+      try {
+        // Check if user already exists
+        const existingUser = await query(
+          'SELECT id FROM users WHERE username = $1',
+          [userData.username]
+        )
+        
+        const rows = Array.isArray(existingUser.rows) ? existingUser.rows : []
+        if (rows.length === 0) {
+          const hashedPassword = await bcrypt.hash(userData.password, this.SALT_ROUNDS)
+          await query(
+            `INSERT INTO users (id, username, email, password_hash, display_name, experience_level, is_active, created_at, updated_at) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+            [
+              `user-${userData.username}`,
+              userData.username,
+              userData.email,
+              hashedPassword,
+              userData.displayName,
+              'advanced',
+              true,
+              new Date(),
+              new Date()
+            ]
+          )
+          logger.info(`Created default user: ${userData.username}`)
+        }
+      } catch (error) {
+        logger.warn(`Failed to create default user ${userData.username}:`, error)
       }
-      this.users.set(user.username, user)
-    })
+    }
 
-    logger.info(`Initialized ${defaultUsers.length} default users`)
+    logger.info('Default users initialization complete')
   }
 
   /**
@@ -127,13 +138,21 @@ export class AuthService {
     }
 
     // Check if user already exists
-    const existingUserByUsername = Array.from(this.users.values()).find(u => u.username === username)
-    if (existingUserByUsername) {
+    const existingUserByUsername = await query(
+      'SELECT id FROM users WHERE username = $1',
+      [username]
+    )
+    const usernameRows = Array.isArray(existingUserByUsername.rows) ? existingUserByUsername.rows : []
+    if (usernameRows.length > 0) {
       throw new Error('Username already taken')
     }
 
-    const existingUserByEmail = Array.from(this.users.values()).find(u => u.email === email)
-    if (existingUserByEmail) {
+    const existingUserByEmail = await query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    )
+    const emailRows = Array.isArray(existingUserByEmail.rows) ? existingUserByEmail.rows : []
+    if (emailRows.length > 0) {
       throw new Error('Email already registered')
     }
 
@@ -141,31 +160,21 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS)
 
     // Create user
-    const user: User = {
-      id: `user-${Date.now()}`,
-      username,
-      email,
-      password: hashedPassword,
-      displayName,
-      role: 'user',
-      isVerified: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      stats: {
-        racesParticipated: 0,
-        racesWon: 0,
-        totalTimeRaced: 0
-      }
-    }
+    const userId = `user-${Date.now()}`
+    await query(
+      `INSERT INTO users (id, username, email, password_hash, display_name, experience_level, is_active, created_at, updated_at) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [userId, username, email, hashedPassword, displayName, 'beginner', true, new Date(), new Date()]
+    )
 
-    this.users.set(username, user)
     logger.info(`User registered: ${username}`)
 
     // Generate token
-    const token = this.generateToken(user)
+    const user = await this.getUserById(userId)
+    const token = this.generateToken(user!)
     
     return {
-      user: this.sanitizeUser(user),
+      user: user!,
       token,
       expiresIn: 24 * 60 * 60 // 24 hours in seconds
     }
@@ -181,23 +190,33 @@ export class AuthService {
       throw new Error('Username and password are required')
     }
 
-    // Find user
-    const user = this.users.get(username)
-    if (!user) {
+    // Find user in database
+    const result = await query(
+      'SELECT * FROM users WHERE username = $1 AND is_active = true',
+      [username]
+    )
+
+    const rows = Array.isArray(result.rows) ? result.rows : []
+    if (rows.length === 0) {
       throw new Error('Invalid credentials')
     }
 
+    const dbUser = rows[0]
+
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password)
+    const isPasswordValid = await bcrypt.compare(password, dbUser.password_hash)
     if (!isPasswordValid) {
       throw new Error('Invalid credentials')
     }
 
     // Update last login
-    user.lastLoginAt = new Date()
-    user.updatedAt = new Date()
+    await query(
+      'UPDATE users SET updated_at = $1 WHERE id = $2',
+      [new Date(), dbUser.id]
+    )
 
     // Generate token
+    const user = this.mapDbUserToUser(dbUser)
     const token = this.generateToken(user)
     
     logger.info(`User logged in: ${username}`)
@@ -215,12 +234,14 @@ export class AuthService {
   async verifyToken(token: string): Promise<Omit<User, 'password'> | null> {
     try {
       const decoded = jwt.verify(token, this.JWT_SECRET) as { userId: string }
-      const user = Array.from(this.users.values()).find(u => u.id === decoded.userId)
+      const result = await query('SELECT * FROM users WHERE id = $1', [decoded.userId])
       
-      if (!user) {
+      const rows = Array.isArray(result.rows) ? result.rows : []
+      if (rows.length === 0) {
         return null
       }
 
+      const user = this.mapDbUserToUser(rows[0])
       return this.sanitizeUser(user)
     } catch (error) {
       logger.warn('Invalid token verification attempt:', error)
@@ -232,33 +253,63 @@ export class AuthService {
    * Get user by ID
    */
   async getUserById(userId: string): Promise<Omit<User, 'password'> | null> {
-    const user = Array.from(this.users.values()).find(u => u.id === userId)
-    return user ? this.sanitizeUser(user) : null
+    const result = await query('SELECT * FROM users WHERE id = $1', [userId])
+    const rows = Array.isArray(result.rows) ? result.rows : []
+    if (rows.length === 0) {
+      return null
+    }
+    const user = this.mapDbUserToUser(rows[0])
+    return this.sanitizeUser(user)
   }
 
   /**
    * Get user by username
    */
   async getUserByUsername(username: string): Promise<Omit<User, 'password'> | null> {
-    const user = this.users.get(username)
-    return user ? this.sanitizeUser(user) : null
+    const result = await query('SELECT * FROM users WHERE username = $1', [username])
+    const rows = Array.isArray(result.rows) ? result.rows : []
+    if (rows.length === 0) {
+      return null
+    }
+    const user = this.mapDbUserToUser(rows[0])
+    return this.sanitizeUser(user)
+  }
+
+  /**
+   * Map database user row to User interface
+   */
+  private mapDbUserToUser(dbUser: any): User {
+    return {
+      id: dbUser.id,
+      username: dbUser.username,
+      email: dbUser.email,
+      password: dbUser.password_hash,
+      displayName: dbUser.display_name,
+      role: dbUser.role || 'user',
+      isVerified: dbUser.is_active || false,
+      createdAt: new Date(dbUser.created_at),
+      updatedAt: new Date(dbUser.updated_at),
+      stats: {
+        racesParticipated: 0,
+        racesWon: 0,
+        totalTimeRaced: 0
+      }
+    }
   }
 
   /**
    * Update user stats
    */
   async updateUserStats(userId: string, stats: Partial<User['stats']>): Promise<void> {
-    const user = Array.from(this.users.values()).find(u => u.id === userId)
-    if (user) {
-      user.stats = { ...user.stats, ...stats }
-      user.updatedAt = new Date()
-    }
+    // For now, stats are stored in memory or could be added to a separate table
+    // This is a placeholder for future implementation
+    logger.info(`User stats update requested for ${userId}:`, stats)
   }
 
   /**
    * Generate JWT token
    */
-  private generateToken(user: User): string {
+  private generateToken(user: Omit<User, 'password'>): string {
     return jwt.sign(
       { 
         userId: user.id,
@@ -290,19 +341,23 @@ export class AuthService {
    * Get all users (admin only)
    */
   async getAllUsers(): Promise<Omit<User, 'password'>[]> {
-    return Array.from(this.users.values()).map(user => this.sanitizeUser(user))
+    const result = await query('SELECT * FROM users WHERE is_active = true')
+    const users = Array.isArray(result.rows) ? result.rows : []
+    return users.map((dbUser: any) => {
+      const user = this.mapDbUserToUser(dbUser)
+      return this.sanitizeUser(user)
+    })
   }
 
   /**
    * Update user role (admin only)
    */
   async updateUserRole(userId: string, role: User['role']): Promise<void> {
-    const user = Array.from(this.users.values()).find(u => u.id === userId)
-    if (user) {
-      user.role = role
-      user.updatedAt = new Date()
-      logger.info(`User role updated: ${user.username} -> ${role}`)
-    }
+    await query(
+      'UPDATE users SET role = $1, updated_at = $2 WHERE id = $3',
+      [role, new Date(), userId]
+    )
+    logger.info(`User role updated: ${userId} -> ${role}`)
   }
 }
 
