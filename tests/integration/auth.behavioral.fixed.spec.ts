@@ -153,8 +153,8 @@ describe('Authentication Behavioral Tests', () => {
     test('should invalidate tokens on password change', async () => {
       // Login and get tokens
       const loginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
-      const oldAccessToken = loginResult.accessToken
-      const oldRefreshToken = loginResult.refreshToken
+      const oldAccessToken = loginResult.tokens.accessToken
+      const oldRefreshToken = loginResult.tokens.refreshToken
 
       // Verify old tokens work
       const oldPayload = jwtService.verifyAccessToken(oldAccessToken)
@@ -180,8 +180,8 @@ describe('Authentication Behavioral Tests', () => {
 
       // Verify new password works
       const newLoginResult = await authService.login({ email: testUser.email, password: 'newpassword123' })
-      expect(newLoginResult.accessToken).toBeDefined()
-      expect(newLoginResult.refreshToken).toBeDefined()
+      expect(newLoginResult.tokens.accessToken).toBeDefined()
+      expect(newLoginResult.tokens.refreshToken).toBeDefined()
 
       // Restore original password for cleanup
       await authService.changePassword(testUser.id, 'newpassword123', 'testpassword123')
@@ -214,7 +214,7 @@ describe('Authentication Behavioral Tests', () => {
     test('should handle concurrent token refresh requests', async () => {
       // Login to get initial token
       const loginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
-      const refreshToken = loginResult.refreshToken
+      const refreshToken = loginResult.tokens.refreshToken
 
       // Simulate concurrent refresh requests
       const refreshPromises = Array(5).fill(0).map(() => 
@@ -237,7 +237,7 @@ describe('Authentication Behavioral Tests', () => {
     test('should prevent token reuse after refresh', async () => {
       // Login to get initial token
       const loginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
-      const refreshToken = loginResult.refreshToken
+      const refreshToken = loginResult.tokens.refreshToken
 
       // Refresh token once
       const refreshResult = await authService.refreshToken({ refreshToken })
@@ -273,12 +273,12 @@ describe('Authentication Behavioral Tests', () => {
       try {
         // Test admin privileges
         const adminLogin = await authService.login({ email: adminUser.email, password: 'adminpassword123' })
-        const adminPayload = jwtService.verifyAccessToken(adminLogin.accessToken)
+        const adminPayload = jwtService.verifyAccessToken(adminLogin.tokens.accessToken)
         expect(adminPayload.role).toBe('USER') // Default role
 
         // Test regular user privileges
         const userLogin = await authService.login({ email: testUser.email, password: 'testpassword123' })
-        const userPayload = jwtService.verifyAccessToken(userLogin.accessToken)
+        const userPayload = jwtService.verifyAccessToken(userLogin.tokens.accessToken)
         expect(userPayload.role).toBe('USER')
 
         // Verify role-based permissions (this would be tested in middleware)
@@ -292,7 +292,7 @@ describe('Authentication Behavioral Tests', () => {
     test('should handle role changes with token invalidation', async () => {
       // Login as regular user
       const loginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
-      const accessToken = loginResult.accessToken
+      const accessToken = loginResult.tokens.accessToken
 
       // Verify current role
       const payload = jwtService.verifyAccessToken(accessToken)
@@ -307,7 +307,7 @@ describe('Authentication Behavioral Tests', () => {
 
       // New login should reflect new data
       const newLoginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
-      const newPayload = jwtService.verifyAccessToken(newLoginResult.accessToken)
+      const newPayload = jwtService.verifyAccessToken(newLoginResult.tokens.accessToken)
       expect(newPayload.role).toBe('USER') // Role stays same
 
       // Restore original experience level
