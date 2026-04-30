@@ -38,5 +38,9 @@ temp/
 coverage/
 .nyc_output/
 
+# Test results
+test-results/
+playwright-report/
+
 # Asset generation (AI-generated files will be added manually)
 assets/generated/
