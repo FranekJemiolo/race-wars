@@ -43,6 +43,8 @@ async function seedDatabase() {
       password_hash TEXT NOT NULL,
       display_name TEXT,
       experience_level TEXT DEFAULT 'beginner',
+      role TEXT DEFAULT 'racer',
+      is_verified BOOLEAN DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       is_active BOOLEAN DEFAULT 1
@@ -96,10 +98,10 @@ async function seedDatabase() {
     )`);
     
     // Insert users
-    const insertUser = db.prepare(`INSERT OR REPLACE INTO users (id, username, email, password_hash, display_name, experience_level, created_at, updated_at, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-    insertUser.run(userId1, 'screenshot_user', 'screenshot@test.com', passwordHash, 'Screenshot User', 'advanced', now, now, 1);
-    insertUser.run(userId2, 'racer_one', 'racer1@test.com', passwordHash, 'Racer One', 'intermediate', now, now, 1);
-    insertUser.run(userId3, 'racer_two', 'racer2@test.com', passwordHash, 'Racer Two', 'beginner', now, now, 1);
+    const insertUser = db.prepare(`INSERT OR REPLACE INTO users (id, username, email, password_hash, display_name, experience_level, role, is_verified, created_at, updated_at, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+    insertUser.run(userId1, 'screenshot_user', 'screenshot@test.com', passwordHash, 'Screenshot User', 'advanced', 'admin', 1, now, now, 1);
+    insertUser.run(userId2, 'racer_one', 'racer1@test.com', passwordHash, 'Racer One', 'intermediate', 'racer', 1, now, now, 1);
+    insertUser.run(userId3, 'racer_two', 'racer2@test.com', passwordHash, 'Racer Two', 'beginner', 'racer', 0, now, now, 1);
     
     // Insert teams
     const insertTeam = db.prepare(`INSERT OR REPLACE INTO teams (id, name, description, captain_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`);

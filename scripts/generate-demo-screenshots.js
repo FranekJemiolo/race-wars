@@ -44,6 +44,31 @@ async function clickButtonByText(page, buttonText) {
   return clicked;
 }
 
+// Helper function to click server card by name
+async function clickServerCard(page, serverName) {
+  console.log(`Looking for server card: ${serverName}`);
+  
+  const clicked = await page.evaluate((name) => {
+    const elements = Array.from(document.querySelectorAll('*'));
+    for (const element of elements) {
+      const text = element.textContent || '';
+      if (text.includes(name) && element.style.cursor === 'pointer') {
+        element.click();
+        return true;
+      }
+    }
+    return false;
+  }, serverName);
+  
+  if (clicked) {
+    console.log(`Clicked server card: ${serverName}`);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  } else {
+    console.log(`Server card not found: ${serverName}`);
+  }
+  return clicked;
+}
+
 // Helper function to click element by selector
 async function clickElement(page, selector) {
   try {
@@ -98,64 +123,86 @@ async function generateAuthenticatedScreenshots() {
     
     console.log('Real authentication token set in localStorage');
     
-    // Connection Screen
-    console.log('Generating Connection screenshot...');
-    await page.goto(`${baseUrl}/?view=connection`);
+    // Reload page to apply authentication
+    await page.goto(baseUrl);
     await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    // Connection Screen (default view after auth)
+    console.log('Generating Connection screenshot...');
     await page.screenshot({ 
       path: 'docs/assets/connection-screen.png',
       fullPage: false 
     });
     console.log('✓ Connection screenshot generated');
     
-    // Race Selection
-    console.log('Generating Race Selection screenshot...');
-    await page.goto(`${baseUrl}/?view=race-selector`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await page.screenshot({ 
-      path: 'docs/assets/race-selection.png',
-      fullPage: true 
-    });
-    console.log('✓ Race selection screenshot generated');
+    // Navigate to Race Selection by clicking a server card
+    console.log('Navigating to Race Selection...');
+    const serverClicked = await clickServerCard(page, 'Local Development');
+    if (serverClicked) {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      console.log('Generating Race Selection screenshot...');
+      await page.screenshot({ 
+        path: 'docs/assets/race-selection.png',
+        fullPage: true 
+      });
+      console.log('✓ Race selection screenshot generated');
+    } else {
+      console.log('Could not navigate to race selection, skipping');
+    }
     
-    // Race Creation
-    console.log('Generating Race Creation screenshot...');
-    await page.goto(`${baseUrl}/?view=race-creator`);
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    await page.screenshot({ 
-      path: 'docs/assets/race-creation.png',
-      fullPage: false 
-    });
-    console.log('✓ Race creation screenshot generated');
+    // Navigate to Race Creation
+    console.log('Navigating to Race Creation...');
+    const createRaceClicked = await clickButtonByText(page, 'create race');
+    if (createRaceClicked) {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      console.log('Generating Race Creation screenshot...');
+      await page.screenshot({ 
+        path: 'docs/assets/race-creation.png',
+        fullPage: false 
+      });
+      console.log('✓ Race creation screenshot generated');
+      
+      // Go back to race selection
+      await clickButtonByText(page, 'cancel');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    } else {
+      console.log('Could not navigate to race creation, skipping');
+    }
     
-    // Admin Console
-    console.log('Generating Admin Console screenshot...');
-    await page.goto(`${baseUrl}/?view=admin`);
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    await page.screenshot({ 
-      path: 'docs/assets/admin-console.png',
-      fullPage: false 
-    });
-    console.log('✓ Admin console screenshot generated');
-    
-    // Racing View with Map
-    console.log('Generating Racing View screenshot...');
-    await page.goto(`${baseUrl}/?view=racing`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await page.screenshot({ 
-      path: 'docs/assets/racing-view-with-map.png',
-      fullPage: false 
-    });
-    console.log('✓ Racing view screenshot generated');
+    // Navigate to Admin Console
+    console.log('Navigating to Admin Console...');
+    const adminClicked = await clickButtonByText(page, 'admin console');
+    if (adminClicked) {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      console.log('Generating Admin Console screenshot...');
+      await page.screenshot({ 
+        path: 'docs/assets/admin-console.png',
+        fullPage: false 
+      });
+      console.log('✓ Admin console screenshot generated');
+      
+      // Go back
+      await clickButtonByText(page, 'back');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    } else {
+      console.log('Could not navigate to admin console, skipping');
+    }
     
     // Mobile screenshots
     console.log('Generating mobile screenshots...');
     await page.setViewport({ width: 375, height: 667 });
     
+    // Reload for mobile view
+    await page.goto(baseUrl);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
     // Mobile Race Selection
     console.log('Generating Mobile Race Selection screenshot...');
-    await page.goto(`${baseUrl}/?view=race-selector`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await clickServerCard(page, 'Local Development');
+    await new Promise(resolve => setTimeout(resolve, 3000));
     await page.screenshot({ 
       path: 'docs/assets/mobile-race-selection.png',
       fullPage: false 
@@ -166,8 +213,10 @@ async function generateAuthenticatedScreenshots() {
     await page.setViewport({ width: 1200, height: 800 });
     
     console.log('Generating Full App Showcase screenshot...');
-    await page.goto(`${baseUrl}/?view=race-selector`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.goto(baseUrl);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    await clickServerCard(page, 'Local Development');
+    await new Promise(resolve => setTimeout(resolve, 3000));
     await page.screenshot({ 
       path: 'docs/assets/showcase-main.png',
       fullPage: true 
