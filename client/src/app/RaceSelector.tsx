@@ -9,9 +9,13 @@ interface RaceSelectorProps {
   onCreateRace: () => void
   onBackToConnection: () => void
   onAdminAccess?: () => void
+  onLeaderboardView?: () => void
+  onTeamManagementView?: () => void
+  onRouteBuilderView?: () => void
+  onRaceReplayView?: () => void
 }
 
-export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, onBackToConnection, onAdminAccess }: RaceSelectorProps) {
+export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, onBackToConnection, onAdminAccess, onLeaderboardView, onTeamManagementView, onRouteBuilderView, onRaceReplayView }: RaceSelectorProps) {
   const [races, setRaces] = useState<Race[]>([])
   const [filter, setFilter] = useState<'all' | 'circuit' | 'custom' | 'duel'>('all')
   const [searchTerm, setSearchTerm] = useState('')
@@ -171,13 +175,81 @@ export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, o
             </button>
             <h1 style={{ color: '#fff', fontSize: '2rem', margin: 0 }}>Race Selection</h1>
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            {onLeaderboardView && (
+              <button
+                onClick={onLeaderboardView}
+                style={{
+                  padding: '12px 24px',
+                  background: 'rgba(241, 196, 15, 0.8)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }}
+              >
+                🏆 Leaderboard
+              </button>
+            )}
+            {onTeamManagementView && (
+              <button
+                onClick={onTeamManagementView}
+                style={{
+                  padding: '12px 24px',
+                  background: 'rgba(52, 152, 219, 0.8)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }}
+              >
+                👥 Teams
+              </button>
+            )}
+            {onRouteBuilderView && (
+              <button
+                onClick={onRouteBuilderView}
+                style={{
+                  padding: '12px 24px',
+                  background: 'rgba(230, 126, 34, 0.8)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }}
+              >
+                🗺️ Route Builder
+              </button>
+            )}
+            {onRaceReplayView && (
+              <button
+                onClick={onRaceReplayView}
+                style={{
+                  padding: '12px 24px',
+                  background: 'rgba(155, 89, 182, 0.8)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }}
+              >
+                🎬 Race Replay
+              </button>
+            )}
             {onAdminAccess && currentUser?.role === 'admin' && (
               <button
                 onClick={onAdminAccess}
                 style={{
                   padding: '12px 24px',
-                  background: 'rgba(155, 89, 182, 0.8)',
+                  background: 'rgba(231, 76, 60, 0.8)',
                   border: 'none',
                   borderRadius: '8px',
                   color: '#fff',

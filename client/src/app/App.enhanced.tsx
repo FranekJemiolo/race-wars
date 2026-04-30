@@ -12,9 +12,12 @@ import RaceSelector from "./RaceSelector"
 import RaceCreator from "./RaceCreator"
 import AdminConsole from "./AdminConsole"
 import AuthScreen from "./AuthScreen"
+import { TeamManager } from "../components/TeamManager"
+import RouteBuilder from "../components/RouteBuilder"
+import { RaceReplayPlayer } from "../components/RaceReplayPlayer"
 import { authService, User } from "../network/authService"
 
-type ViewState = 'connection' | 'race-selection' | 'race-creation' | 'racing' | 'spectating' | 'admin' | 'auth'
+type ViewState = 'connection' | 'race-selection' | 'race-creation' | 'racing' | 'spectating' | 'admin' | 'auth' | 'leaderboard' | 'team-management' | 'route-builder' | 'race-replay'
 
 export default function EnhancedApp() {
   const [viewState, setViewState] = useState<ViewState>('connection')
@@ -156,6 +159,22 @@ export default function EnhancedApp() {
     setCurrentRace(null)
   }
 
+  const handleLeaderboardView = () => {
+    setViewState('leaderboard')
+  }
+
+  const handleTeamManagementView = () => {
+    setViewState('team-management')
+  }
+
+  const handleRouteBuilderView = () => {
+    setViewState('route-builder')
+  }
+
+  const handleRaceReplayView = () => {
+    setViewState('race-replay')
+  }
+
   // Authentication Screen
   if (viewState === 'auth') {
     return (
@@ -247,7 +266,156 @@ export default function EnhancedApp() {
           onCreateRace={handleCreateRace}
           onBackToConnection={handleBackToConnection}
           onAdminAccess={() => setViewState('admin')}
+          onLeaderboardView={handleLeaderboardView}
+          onTeamManagementView={handleTeamManagementView}
+          onRouteBuilderView={handleRouteBuilderView}
+          onRaceReplayView={handleRaceReplayView}
         />
+      </div>
+    )
+  }
+
+  // Leaderboard Screen
+  if (viewState === 'leaderboard') {
+    return (
+      <div style={{ 
+        width: '100vw',
+        height: '100vh',
+        background: '#1a1a2e',
+        color: '#ffffff',
+        fontFamily: 'sans-serif',
+        position: 'relative',
+        overflow: 'auto'
+      }}>
+        <div style={{ padding: '20px' }}>
+          <button
+            onClick={handleBackToSelection}
+            style={{
+              padding: '8px 16px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              marginBottom: '20px'
+            }}
+          >
+            ← Back
+          </button>
+          <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '20px' }}>🏆 Live Leaderboard</h1>
+          <Leaderboard />
+        </div>
+      </div>
+    )
+  }
+
+  // Team Management Screen
+  if (viewState === 'team-management') {
+    return (
+      <div style={{ 
+        width: '100vw',
+        height: '100vh',
+        background: '#1a1a2e',
+        color: '#ffffff',
+        fontFamily: 'sans-serif',
+        position: 'relative',
+        overflow: 'auto'
+      }}>
+        <div style={{ padding: '20px' }}>
+          <button
+            onClick={handleBackToSelection}
+            style={{
+              padding: '8px 16px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              marginBottom: '20px'
+            }}
+          >
+            ← Back
+          </button>
+          <TeamManager userId={currentUser?.id || 'demo-user'} />
+        </div>
+      </div>
+    )
+  }
+
+  // Route Builder Screen
+  if (viewState === 'route-builder') {
+    return (
+      <div style={{ 
+        width: '100vw',
+        height: '100vh',
+        background: '#1a1a2e',
+        color: '#ffffff',
+        fontFamily: 'sans-serif',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ padding: '20px' }}>
+          <button
+            onClick={handleBackToSelection}
+            style={{
+              padding: '8px 16px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              marginBottom: '20px'
+            }}
+          >
+            ← Back
+          </button>
+          <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '20px' }}>🗺️ Route Builder</h1>
+          <RouteBuilder 
+            onRouteCreated={(route) => {
+              console.log('Route created:', route)
+              handleBackToSelection()
+            }}
+            onCancel={handleBackToSelection}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  // Race Replay Screen
+  if (viewState === 'race-replay') {
+    return (
+      <div style={{ 
+        width: '100vw',
+        height: '100vh',
+        background: '#1a1a2e',
+        color: '#ffffff',
+        fontFamily: 'sans-serif',
+        position: 'relative',
+        overflow: 'auto'
+      }}>
+        <div style={{ padding: '20px' }}>
+          <button
+            onClick={handleBackToSelection}
+            style={{
+              padding: '8px 16px',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              marginBottom: '20px'
+            }}
+          >
+            ← Back
+          </button>
+          <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '20px' }}>🎬 Race Replay</h1>
+          <RaceReplayPlayer showMap={true} showAnalysis={true} />
+        </div>
       </div>
     )
   }

@@ -71,7 +71,7 @@ async function clickButtonByEmojiOrText(page, searchText) {
   return clicked;
 }
 
-// Helper function to click button containing specific emoji
+// Helper function to click button by specific emoji
 async function clickButtonByEmoji(page, emoji) {
   console.log(`Looking for button with emoji: ${emoji}`);
   
@@ -207,48 +207,132 @@ async function generateAuthenticatedScreenshots() {
         fullPage: false 
       });
       console.log('✓ Race selection screenshot generated');
-    } else {
-      console.log('Could not navigate to race selection, skipping');
-    }
-    
-    // Navigate to Race Creation
-    console.log('Navigating to Race Creation...');
-    const createRaceClicked = await clickButtonByText(page, 'create race');
-    if (createRaceClicked) {
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
       
-      console.log('Generating Race Creation screenshot...');
-      await page.screenshot({ 
-        path: 'docs/assets/race-creation.png',
-        fullPage: false 
-      });
-      console.log('✓ Race creation screenshot generated');
+      // Navigate to Race Creation
+      console.log('Navigating to Race Creation...');
+      const createRaceClicked = await clickButtonByText(page, 'create race');
+      if (createRaceClicked) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
+        
+        console.log('Generating Race Creation screenshot...');
+        await page.screenshot({ 
+          path: 'docs/assets/race-creation.png',
+          fullPage: false 
+        });
+        console.log('✓ Race creation screenshot generated');
+        
+        // Go back to race selection
+        await clickButtonByText(page, 'cancel');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        console.log('Could not navigate to race creation, skipping');
+      }
       
-      // Go back to race selection
-      await clickButtonByText(page, 'cancel');
-      await new Promise(resolve => setTimeout(resolve, 3000));
-    } else {
-      console.log('Could not navigate to race creation, skipping');
-    }
-    
-    // Navigate to Admin Console
-    console.log('Navigating to Admin Console...');
-    const adminClicked = await clickButtonByEmoji(page, '🛠️');
-    if (adminClicked) {
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
+      // Navigate to Leaderboard (from race selection)
+      console.log('Navigating to Leaderboard...');
+      const leaderboardClicked = await clickButtonByEmoji(page, '🏆');
+      if (leaderboardClicked) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
+        
+        console.log('Generating Leaderboard screenshot...');
+        await page.screenshot({ 
+          path: 'docs/assets/leaderboard.png',
+          fullPage: false 
+        });
+        console.log('✓ Leaderboard screenshot generated');
+        
+        // Go back to race selection
+        await clickButtonByText(page, 'back');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        console.log('Could not navigate to leaderboard, skipping');
+      }
       
-      console.log('Generating Admin Console screenshot...');
-      await page.screenshot({ 
-        path: 'docs/assets/admin-console.png',
-        fullPage: false 
-      });
-      console.log('✓ Admin console screenshot generated');
+      // Navigate to Team Management (from race selection)
+      console.log('Navigating to Team Management...');
+      const teamClicked = await clickButtonByEmoji(page, '👥');
+      if (teamClicked) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
+        
+        console.log('Generating Team Dashboard screenshot...');
+        await page.screenshot({ 
+          path: 'docs/assets/team-dashboard.png',
+          fullPage: false 
+        });
+        console.log('✓ Team dashboard screenshot generated');
+        
+        // Go back to race selection
+        await clickButtonByText(page, 'back');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        console.log('Could not navigate to team management, skipping');
+      }
       
-      // Go back
+      // Navigate to Route Builder (from race selection)
+      console.log('Navigating to Route Builder...');
+      const routeClicked = await clickButtonByEmoji(page, '🗺️');
+      if (routeClicked) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
+        
+        console.log('Generating Route Builder screenshot...');
+        await page.screenshot({ 
+          path: 'docs/assets/route-builder.png',
+          fullPage: false 
+        });
+        console.log('✓ Route builder screenshot generated');
+        
+        // Go back to race selection
+        await clickButtonByText(page, 'back');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        console.log('Could not navigate to route builder, skipping');
+      }
+      
+      // Navigate to Race Replay (from race selection)
+      console.log('Navigating to Race Replay...');
+      const replayClicked = await clickButtonByEmoji(page, '🎬');
+      if (replayClicked) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
+        
+        console.log('Generating Race Replay System screenshot...');
+        await page.screenshot({ 
+          path: 'docs/assets/race-replay-system.png',
+          fullPage: false 
+        });
+        console.log('✓ Race replay system screenshot generated');
+        
+        // Go back to race selection
+        await clickButtonByText(page, 'back');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        console.log('Could not navigate to race replay, skipping');
+      }
+      
+      // Navigate to Admin Console (from race selection)
+      console.log('Navigating to Admin Console...');
+      const adminClicked = await clickButtonByEmoji(page, '🛠️');
+      if (adminClicked) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
+        
+        console.log('Generating Admin Console screenshot...');
+        await page.screenshot({ 
+          path: 'docs/assets/admin-console.png',
+          fullPage: false 
+        });
+        console.log('✓ Admin console screenshot generated');
+        
+        // Go back to race selection
+        await clickButtonByText(page, 'back');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      } else {
+        console.log('Could not navigate to admin console, skipping');
+      }
+      
+      // Go back to connection screen
       await clickButtonByText(page, 'back');
       await new Promise(resolve => setTimeout(resolve, 3000));
     } else {
-      console.log('Could not navigate to admin console, skipping');
+      console.log('Could not navigate to race selection, skipping all race selection features');
     }
     
     // Mobile screenshots
@@ -268,6 +352,20 @@ async function generateAuthenticatedScreenshots() {
       fullPage: false 
     });
     console.log('✓ Mobile race selection screenshot generated');
+    
+    // Mobile Team Management
+    console.log('Generating Mobile Team Management screenshot...');
+    const mobileTeamClicked = await clickButtonByText(page, 'teams');
+    if (mobileTeamClicked) {
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      await page.screenshot({ 
+        path: 'docs/assets/mobile-team-management.png',
+        fullPage: false 
+      });
+      console.log('✓ Mobile team management screenshot generated');
+      await clickButtonByText(page, 'back');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
     
     // Full page showcase - show connection screen with full background
     await page.setViewport({ width: 1200, height: 800 });
@@ -290,125 +388,4 @@ async function generateAuthenticatedScreenshots() {
   }
 }
 
-async function generateDemoPageScreenshots() {
-  const browser = await puppeteer.launch({ headless: false });
-  const page = await browser.newPage();
-
-  try {
-    const baseUrl = 'http://localhost:5177';
-    
-    console.log('Generating demo page screenshots...');
-    
-    // Leaderboard Demo
-    console.log('Generating Leaderboard screenshot...');
-    await page.setViewport({ width: 1200, height: 800 });
-    await page.goto(`${baseUrl}/leaderboard-demo`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await page.screenshot({ 
-      path: 'docs/assets/leaderboard.png',
-      fullPage: false 
-    });
-    console.log('✓ Leaderboard screenshot generated');
-    
-    // Mobile Demo
-    console.log('Generating Mobile Racing Interface screenshot...');
-    await page.setViewport({ width: 375, height: 667 });
-    await page.goto(`${baseUrl}/mobile-demo`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await page.screenshot({ 
-      path: 'docs/assets/mobile-racing-interface.png',
-      fullPage: false 
-    });
-    console.log('✓ Mobile racing interface screenshot generated');
-    
-    // Mobile Team Management (switch to team view)
-    console.log('Generating Mobile Team Management screenshot...');
-    await page.evaluate(() => {
-      const buttons = Array.from(document.querySelectorAll('button'));
-      for (const button of buttons) {
-        if (button.textContent.includes('Race Organizer')) {
-          button.click();
-          break;
-        }
-      }
-    });
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    await page.screenshot({ 
-      path: 'docs/assets/mobile-team-management.png',
-      fullPage: false 
-    });
-    console.log('✓ Mobile team management screenshot generated');
-    
-    // Race Replay Demo
-    console.log('Generating Race Replay System screenshot...');
-    await page.setViewport({ width: 1200, height: 800 });
-    await page.goto(`${baseUrl}/race-replay-demo`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await page.screenshot({ 
-      path: 'docs/assets/race-replay-system.png',
-      fullPage: false 
-    });
-    console.log('✓ Race replay system screenshot generated');
-    
-    // Route Selection Demo
-    console.log('Generating Route Builder screenshot...');
-    await page.goto(`${baseUrl}/route-selection-demo`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await page.screenshot({ 
-      path: 'docs/assets/route-builder.png',
-      fullPage: false 
-    });
-    console.log('✓ Route builder screenshot generated');
-    
-    // Live Racing Interface (navigate to racing view)
-    console.log('Generating Live Racing Interface screenshot...');
-    await page.goto(baseUrl);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    // Set auth
-    const fetch = (await import('node-fetch')).default;
-    const authResponse = await fetch('http://localhost:8080/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: 'screenshot_user', password: 'screenshot123' })
-    });
-    const authData = await authResponse.json();
-    await page.evaluate((userData, authToken) => {
-      localStorage.setItem('race_wars_token', authToken);
-      localStorage.setItem('race_wars_user', JSON.stringify(userData));
-      localStorage.setItem('race_wars_token_expiry', (Date.now() + 86400000).toString());
-    }, authData.data.user, authData.data.token);
-    await page.goto(baseUrl);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await clickServerCard(page, 'Local Development');
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await page.screenshot({ 
-      path: 'docs/assets/live-racing-interface.png',
-      fullPage: false 
-    });
-    console.log('✓ Live racing interface screenshot generated');
-    
-    // Team Dashboard
-    console.log('Generating Team Dashboard screenshot...');
-    await page.goto(`${baseUrl}/leaderboard-demo`);
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    await page.screenshot({ 
-      path: 'docs/assets/team-dashboard.png',
-      fullPage: false 
-    });
-    console.log('✓ Team dashboard screenshot generated');
-
-    console.log('All demo page screenshots generated successfully!');
-
-  } catch (error) {
-    console.error('Error generating demo page screenshots:', error);
-  } finally {
-    await browser.close();
-  }
-}
-
-async function runAll() {
-  await generateAuthenticatedScreenshots();
-  await generateDemoPageScreenshots();
-}
-
-runAll();
+generateAuthenticatedScreenshots();
