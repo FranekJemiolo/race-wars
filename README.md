@@ -53,7 +53,15 @@ Race Wars is a comprehensive web-based racing platform that transforms GPS data 
 
 **Race Selection (Mobile)**
 ![Mobile Race Selection](docs/assets/mobile-race-selection.png)
-*Mobile race selection screen displaying available races with mock data*
+*Mobile race selection screen displaying available races*
+
+**Mobile Racing Interface**
+![Mobile Racing Interface](docs/assets/mobile-racing-interface.png)
+*Live racing view optimized for mobile devices*
+
+**Mobile Team Management**
+![Mobile Team Management](docs/assets/mobile-team-management.png)
+*Team management interface on mobile*
 
 ### 💻 Desktop Interface
 
@@ -73,9 +81,41 @@ Race Wars is a comprehensive web-based racing platform that transforms GPS data 
 ![Admin Console](docs/assets/admin-console.png)
 *Administrative panel for managing races, users, and system settings*
 
+**Admin Panel**
+![Admin Panel](docs/assets/admin-panel.png)
+*Advanced admin controls for race management*
+
+**Leaderboard**
+![Leaderboard](docs/assets/leaderboard.png)
+*Real-time leaderboard showing race rankings*
+
+**Live Racing Interface**
+![Live Racing Interface](docs/assets/live-racing-interface.png)
+*Live racing view with GPS tracking and real-time updates*
+
+**Racing View**
+![Racing View](docs/assets/racing-view.png)
+*Desktop racing interface with map and participant tracking*
+
+**Route Builder**
+![Route Builder](docs/assets/route-builder.png)
+*Custom route builder for creating race tracks*
+
+**Race Replay System**
+![Race Replay System](docs/assets/race-replay-system.png)
+*Race replay system for analyzing past races*
+
+**Spectating View**
+![Spectating View](docs/assets/spectating-view.png)
+*Spectator mode for watching live races*
+
+**Team Dashboard**
+![Team Dashboard](docs/assets/team-dashboard.png)
+*Team management dashboard with analytics*
+
 **App Showcase**
 ![App Showcase](docs/assets/showcase-main.png)
-*Full application showcase demonstrating the race selection interface with mock race data*
+*Full application showcase demonstrating the race selection interface*
 
 ---
 
