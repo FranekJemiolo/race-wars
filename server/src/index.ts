@@ -1,9 +1,14 @@
+import path from 'path'
+import dotenv from 'dotenv'
 import express from 'express'
 import { createServer } from 'http'
 import { startWebSocket } from "./network/websocket"
 import { startTick } from "./engine/tick"
 import { initializeDatabase } from './database/connection.simple'
 import { log } from "./utils/logger"
+
+// Load .env from root directory
+dotenv.config({ path: path.join(__dirname, '../../.env') })
 // import raceRoutes from './routes/race.routes'
 import authRoutes from './routes/auth.routes'
 // import participationRoutes from './routes/participation.routes'

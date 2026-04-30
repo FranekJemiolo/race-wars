@@ -209,11 +209,26 @@ export class UserRepository {
         return null
       }
 
-      const isValid = await bcrypt.compare(password, user.password_hash)
-      
-      if (!isValid) {
-        logger.warn('Invalid password attempt', { email })
+      // Handle case where password_hash might be undefined (simple DB)
+      if (!user.password_hash) {
+        logger.warn('User has no password hash', { email })
         return null
+      }
+
+      // Check if we're using simple database (hashed_ prefix)
+      if (user.password_hash.startsWith('hashed_')) {
+        const isValid = user.password_hash === `hashed_${password}`
+        if (!isValid) {
+          logger.warn('Invalid password attempt', { email })
+          return null
+        }
+      } else {
+        // Use bcrypt for real database
+        const isValid = await bcrypt.compare(password, user.password_hash)
+        if (!isValid) {
+          logger.warn('Invalid password attempt', { email })
+          return null
+        }
       }
 
       logger.info('User authenticated successfully', { userId: user.id, email })

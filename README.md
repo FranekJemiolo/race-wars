@@ -51,31 +51,31 @@ Race Wars is a comprehensive web-based racing platform that transforms GPS data 
 
 ### 📱 Mobile Interface
 
-**Team Management**
-![Mobile Team Management](docs/assets/mobile-view.png)
-*Touch-friendly team management with real-time stats and member coordination*
-
-**Live Racing Interface**  
-![Main Racing App](docs/assets/main-app.png)
-*Real-time GPS racing with live position tracking and interactive leaderboard*
-
-**Interactive Features**
-![App Showcase](docs/assets/showcase-page.png)
-*Comprehensive feature demonstration with mobile-optimized interface*
+**Race Selection (Mobile)**
+![Mobile Race Selection](docs/assets/mobile-race-selection.png)
+*Mobile race selection screen displaying available races with mock data*
 
 ### 💻 Desktop Interface
 
-**Team Dashboard**
-![Desktop Team Management](docs/assets/button-0.png)
-*Comprehensive team management with analytics, statistics, and member oversight*
+**Connection Screen**
+![Connection Screen](docs/assets/connection-screen.png)
+*Server connection interface with available servers and quick connect options*
 
-**Race Replay System**
-![Race Replay](docs/assets/button-1.png)
-*Advanced race replay with video-like controls and detailed performance analysis*
+**Race Selection**
+![Race Selection](docs/assets/race-selection.png)
+*Race selection screen displaying available races with filters, search, and sorting options*
 
-**Admin Event Panel**
-![Admin Panel](docs/assets/button-2.png)
-*Real-time race management with event broadcasting and safety controls*
+**Race Creation**
+![Race Creation](docs/assets/race-creation.png)
+*Race creation interface for configuring new races with track and participant settings*
+
+**Admin Console**
+![Admin Console](docs/assets/admin-console.png)
+*Administrative panel for managing races, users, and system settings*
+
+**App Showcase**
+![App Showcase](docs/assets/showcase-main.png)
+*Full application showcase demonstrating the race selection interface with mock race data*
 
 ---
 

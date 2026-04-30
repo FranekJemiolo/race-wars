@@ -1,36 +1,58 @@
 /**
  * Database connection and configuration
  * 
- * This module sets up the PostgreSQL connection pool and provides
+ * This module sets up the database connection and provides
  * database access utilities for the entire application.
+ * Supports both PostgreSQL and SQLite for testing.
  */
 
 import { Pool, PoolConfig } from 'pg'
 import { logger } from '../utils/logger'
 
-// Database configuration
-const config: PoolConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'race_wars',
-  user: process.env.DB_USER || 'race_wars',
-  password: process.env.DB_PASSWORD || 'race_wars_dev',
-  max: 20, // Maximum number of connections in the pool
-  idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
-  connectionTimeoutMillis: 2000, // How long to wait when connecting a new client
+// Check if we should use SQLite (for testing)
+const isTestEnvironment = process.env.NODE_ENV === 'test'
+const databaseUrl = process.env.DATABASE_URL || ''
+const isSqlite = databaseUrl.startsWith('sqlite:')
+
+let pool: Pool | null = null
+
+if (!isSqlite) {
+  // PostgreSQL configuration
+  const config: PoolConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    database: process.env.DB_NAME || 'race_wars',
+    user: process.env.DB_USER || 'race_wars',
+    password: process.env.DB_PASSWORD || 'race_wars_dev',
+    max: 20, // Maximum number of connections in the pool
+    idleTimeoutMillis: 30000, // How long a client is allowed to remain idle before being closed
+    connectionTimeoutMillis: 2000, // How long to wait when connecting a new client
+  }
+
+  // Create connection pool
+  pool = new Pool(config)
+
+  // Handle pool errors
+  pool.on('error', (err) => {
+    logger.error('Unexpected error on idle client', err)
+    process.exit(-1)
+  })
+} else {
+  logger.info('Using SQLite database for testing')
 }
-
-// Create connection pool
-const pool = new Pool(config)
-
-// Handle pool errors
-pool.on('error', (err) => {
-  logger.error('Unexpected error on idle client', err)
-  process.exit(-1)
-})
 
 // Test database connection
 export async function testConnection(): Promise<boolean> {
+  if (isSqlite) {
+    logger.info('SQLite database connection test skipped (using in-memory DB)')
+    return true
+  }
+  
+  if (!pool) {
+    logger.error('Database pool not initialized')
+    return false
+  }
+  
   try {
     const client = await pool.connect()
     await client.query('SELECT NOW()')
@@ -46,16 +68,27 @@ export async function testConnection(): Promise<boolean> {
 // Database helper functions
 export async function query(text: string, params?: any[]): Promise<any> {
   const start = Date.now()
+  
+  if (isSqlite) {
+    // Use simple in-memory database for testing
+    const { query: simpleQuery } = await import('./connection.simple')
+    logger.debug('SQLite query executed', { text })
+    return simpleQuery(text, params)
+  }
+  
+  if (!pool) {
+    throw new Error('Database pool not initialized')
+  }
+  
   try {
     const client = await pool.connect()
     const result = await client.query(text, params)
     client.release()
     const duration = Date.now() - start
-    logger.debug('Executed query', { text, duration, rows: result.rowCount })
+    logger.debug('Query executed', { text, duration, rows: result.rowCount })
     return result
   } catch (error) {
-    const duration = Date.now() - start
-    logger.error('Query error', { text, duration, error })
+    logger.error('Query error', { text, duration: Date.now() - start, error })
     throw error
   }
 }
@@ -64,6 +97,16 @@ export async function query(text: string, params?: any[]): Promise<any> {
 export async function transaction<T>(
   callback: (client: any) => Promise<T>
 ): Promise<T> {
+  if (isSqlite) {
+    // For SQLite, just execute the callback directly (simplified transaction)
+    logger.debug('SQLite transaction executed')
+    return callback(null)
+  }
+  
+  if (!pool) {
+    throw new Error('Database pool not initialized')
+  }
+  
   const client = await pool.connect()
   try {
     await client.query('BEGIN')

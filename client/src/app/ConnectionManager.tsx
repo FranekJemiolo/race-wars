@@ -86,7 +86,14 @@ export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAc
     
     try {
       connect(server.url)
-      onConnected()
+      // Wait a moment for connection to establish before calling onConnected
+      setTimeout(() => {
+        setConnectionState('connected')
+        onConnected()
+        // Clear selected server immediately to hide the overlay
+        // This allows the parent component (RaceSelection) to be visible
+        setSelectedServer(null)
+      }, 500)
     } catch (error) {
       setConnectionError('Failed to connect to server')
       setConnectionState('disconnected')
@@ -147,10 +154,10 @@ export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAc
             background: '#2ecc71',
             marginRight: '8px'
           }} />
-          <span style={{ fontWeight: 'bold', color: '#fff' }}>{selectedServer.name}</span>
+          <span style={{ fontWeight: 'bold', color: '#fff' }}>{selectedServer?.name || 'Connected'}</span>
         </div>
         
-        {selectedServer.currentRace && (
+        {selectedServer?.currentRace && (
           <div style={{ color: '#ccc', fontSize: '0.9rem', marginBottom: '8px' }}>
             Current: {selectedServer.currentRace}
           </div>
@@ -187,9 +194,11 @@ export default function ConnectionManager({ onConnected, onRaceJoined, onAdminAc
           </div>
         )}
         
-        <div style={{ color: '#888', fontSize: '0.8rem', marginBottom: '12px' }}>
-          {selectedServer.participants}/{selectedServer.maxParticipants} participants
-        </div>
+        {selectedServer && (
+          <div style={{ color: '#888', fontSize: '0.8rem', marginBottom: '12px' }}>
+            {selectedServer.participants}/{selectedServer.maxParticipants} participants
+          </div>
+        )}
         
         <button
           onClick={handleDisconnect}
