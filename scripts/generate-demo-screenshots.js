@@ -166,7 +166,7 @@ async function generateAuthenticatedScreenshots() {
     
     // Set authentication in localStorage before navigating
     await page.goto(baseUrl);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
     
     await page.evaluate((userData, authToken) => {
       localStorage.setItem('race_wars_token', authToken);
@@ -185,7 +185,7 @@ async function generateAuthenticatedScreenshots() {
     
     // Reload page to apply authentication
     await page.goto(baseUrl);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
     
     // Connection Screen (default view after auth)
     console.log('Generating Connection screenshot...');
@@ -199,12 +199,12 @@ async function generateAuthenticatedScreenshots() {
     console.log('Navigating to Race Selection...');
     const serverClicked = await clickServerCard(page, 'Local Development');
     if (serverClicked) {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
       
       console.log('Generating Race Selection screenshot...');
       await page.screenshot({ 
         path: 'docs/assets/race-selection.png',
-        fullPage: true 
+        fullPage: false 
       });
       console.log('✓ Race selection screenshot generated');
     } else {
@@ -215,7 +215,7 @@ async function generateAuthenticatedScreenshots() {
     console.log('Navigating to Race Creation...');
     const createRaceClicked = await clickButtonByText(page, 'create race');
     if (createRaceClicked) {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
       
       console.log('Generating Race Creation screenshot...');
       await page.screenshot({ 
@@ -226,7 +226,7 @@ async function generateAuthenticatedScreenshots() {
       
       // Go back to race selection
       await clickButtonByText(page, 'cancel');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
     } else {
       console.log('Could not navigate to race creation, skipping');
     }
@@ -235,7 +235,7 @@ async function generateAuthenticatedScreenshots() {
     console.log('Navigating to Admin Console...');
     const adminClicked = await clickButtonByEmoji(page, '🛠️');
     if (adminClicked) {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
       
       console.log('Generating Admin Console screenshot...');
       await page.screenshot({ 
@@ -246,7 +246,7 @@ async function generateAuthenticatedScreenshots() {
       
       // Go back
       await clickButtonByText(page, 'back');
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
     } else {
       console.log('Could not navigate to admin console, skipping');
     }
@@ -257,29 +257,27 @@ async function generateAuthenticatedScreenshots() {
     
     // Reload for mobile view
     await page.goto(baseUrl);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
     
     // Mobile Race Selection
     console.log('Generating Mobile Race Selection screenshot...');
     await clickServerCard(page, 'Local Development');
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
     await page.screenshot({ 
       path: 'docs/assets/mobile-race-selection.png',
       fullPage: false 
     });
     console.log('✓ Mobile race selection screenshot generated');
     
-    // Full page showcase
+    // Full page showcase - show connection screen with full background
     await page.setViewport({ width: 1200, height: 800 });
     
     console.log('Generating Full App Showcase screenshot...');
     await page.goto(baseUrl);
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    await clickServerCard(page, 'Local Development');
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for full CSS to load
     await page.screenshot({ 
       path: 'docs/assets/showcase-main.png',
-      fullPage: true 
+      fullPage: false 
     });
     console.log('✓ Full app showcase screenshot generated');
 
