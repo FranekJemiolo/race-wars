@@ -111,78 +111,66 @@ export default function AdminConsole({ onBack }: AdminConsoleProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Loading admin console...</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16rem' }}>
+        <div style={{ fontSize: '1.125rem' }}>Loading admin console...</div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '1.5rem' }}>
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Race Admin Console</h1>
-          <p className="text-gray-600 mt-1">Manage races, tracks, and system settings</p>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827' }}>Race Admin Console</h1>
+          <p style={{ color: '#4b5563', marginTop: '0.25rem' }}>Manage races, tracks, and system settings</p>
         </div>
         <button
           onClick={onBack}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          style={{ padding: '0.5rem 1rem', backgroundColor: '#e5e7eb', color: '#374151', borderRadius: '0.5rem', border: 'none', cursor: 'pointer' }}
         >
           ← Back to Main
         </button>
       </div>
 
       {/* System Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow border">
-          <div className="text-2xl font-bold text-blue-600">{systemStats.totalRaces}</div>
-          <div className="text-gray-600 text-sm">Total Races</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', border: '1px solid #e5e7eb' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2563eb' }}>{systemStats.totalRaces}</div>
+          <div style={{ color: '#4b5563', fontSize: '0.875rem' }}>Total Races</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow border">
-          <div className="text-2xl font-bold text-green-600">{systemStats.activeRaces}</div>
-          <div className="text-gray-600 text-sm">Active Races</div>
+        <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', border: '1px solid #e5e7eb' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#16a34a' }}>{systemStats.activeRaces}</div>
+          <div style={{ color: '#4b5563', fontSize: '0.875rem' }}>Active Races</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow border">
-          <div className="text-2xl font-bold text-purple-600">{systemStats.totalParticipants}</div>
-          <div className="text-gray-600 text-sm">Total Participants</div>
+        <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', border: '1px solid #e5e7eb' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#9333ea' }}>{systemStats.totalParticipants}</div>
+          <div style={{ color: '#4b5563', fontSize: '0.875rem' }}>Total Participants</div>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow border">
-          <div className="text-2xl font-bold text-gray-600">{systemStats.systemUptime}</div>
-          <div className="text-gray-600 text-sm">System Uptime</div>
+        <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', border: '1px solid #e5e7eb' }}>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#4b5563' }}>{systemStats.systemUptime}</div>
+          <div style={{ color: '#4b5563', fontSize: '0.875rem' }}>System Uptime</div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="flex space-x-8">
+      <div style={{ borderBottom: '1px solid #e5e7eb', marginBottom: '1.5rem' }}>
+        <nav style={{ display: 'flex', gap: '2rem' }}>
           <button
             onClick={() => setActiveTab('races')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'races'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+            style={{ padding: '0.5rem 0.25rem', borderBottom: activeTab === 'races' ? '2px solid #2563eb' : '2px solid transparent', fontWeight: '500', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'races' ? '#2563eb' : '#6b7280', paddingBottom: '0.5rem' }}
           >
             Race Management
           </button>
           <button
             onClick={() => setActiveTab('tracks')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'tracks'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+            style={{ padding: '0.5rem 0.25rem', borderBottom: activeTab === 'tracks' ? '2px solid #2563eb' : '2px solid transparent', fontWeight: '500', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'tracks' ? '#2563eb' : '#6b7280', paddingBottom: '0.5rem' }}
           >
             Track Management
           </button>
           <button
             onClick={() => setActiveTab('system')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'system'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+            style={{ padding: '0.5rem 0.25rem', borderBottom: activeTab === 'system' ? '2px solid #2563eb' : '2px solid transparent', fontWeight: '500', fontSize: '0.875rem', background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'system' ? '#2563eb' : '#6b7280', paddingBottom: '0.5rem' }}
           >
             System Settings
           </button>
@@ -191,30 +179,32 @@ export default function AdminConsole({ onBack }: AdminConsoleProps) {
 
       {/* Tab Content */}
       {activeTab === 'races' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
           {/* Race List */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">All Races</h2>
+          <div>
+            <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+              <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb' }}>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827' }}>All Races</h2>
               </div>
-              <div className="divide-y divide-gray-200">
+              <div>
                 {races.map((race) => (
                   <div
                     key={race.id}
-                    className="p-4 hover:bg-gray-50 cursor-pointer"
+                    style={{ padding: '1rem', cursor: 'pointer', borderBottom: '1px solid #e5e7eb' }}
                     onClick={() => setSelectedRace(race)}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <span className="text-lg">{getStatusIcon(race.status)}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <span style={{ fontSize: '1.125rem' }}>{getStatusIcon(race.status)}</span>
                           <div>
-                            <h3 className="font-medium text-gray-900">{race.name}</h3>
-                            <p className="text-sm text-gray-500">{race.trackName} • {race.type}</p>
+                            <h3 style={{ fontWeight: '500', color: '#111827' }}>{race.name}</h3>
+                            <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>{race.trackName} • {race.type}</p>
                           </div>
                         </div>
-                        <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                        <div style={{ marginTop: '0.5rem', display: 'flex', gap: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
                           <span>{race.participants}/{race.maxParticipants} participants</span>
                           <span>{race.difficulty}</span>
                           {race.startTime && (
@@ -222,8 +212,15 @@ export default function AdminConsole({ onBack }: AdminConsoleProps) {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(race.status)}`}>
+                      <div>
+                        <span style={{ 
+                          padding: '0.25rem 0.5rem', 
+                          fontSize: '0.75rem', 
+                          fontWeight: '500', 
+                          borderRadius: '9999px',
+                          backgroundColor: race.status === 'waiting' ? '#fef3c7' : race.status === 'starting' ? '#dbeafe' : race.status === 'in-progress' ? '#dcfce7' : '#f3f4f6',
+                          color: race.status === 'waiting' ? '#92400e' : race.status === 'starting' ? '#1e40af' : race.status === 'in-progress' ? '#166534' : '#374151'
+                        }}>
                           {race.status}
                         </span>
                       </div>
@@ -235,60 +232,58 @@ export default function AdminConsole({ onBack }: AdminConsoleProps) {
           </div>
 
           {/* Race Details */}
-          <div className="lg:col-span-1">
+          <div>
             {selectedRace ? (
-              <div className="bg-white rounded-lg shadow">
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">Race Details</h2>
+              <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb' }}>
+                  <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827' }}>Race Details</h2>
                 </div>
-                <div className="p-6 space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Name</label>
-                    <p className="text-gray-900">{selectedRace.name}</p>
+                <div style={{ padding: '1.5rem' }}>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Name</label>
+                    <p style={{ color: '#111827' }}>{selectedRace.name}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Status</label>
-                    <div className="mt-1">
-                      <select
-                        value={selectedRace.status}
-                        onChange={(e) => updateRaceStatus(selectedRace.id, e.target.value as Race['status'])}
-                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="waiting">Waiting</option>
-                        <option value="starting">Starting</option>
-                        <option value="in-progress">In Progress</option>
-                        <option value="finished">Finished</option>
-                      </select>
-                    </div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Status</label>
+                    <select
+                      value={selectedRace.status}
+                      onChange={(e) => updateRaceStatus(selectedRace.id, e.target.value as Race['status'])}
+                      style={{ display: 'block', width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem', marginTop: '0.25rem' }}
+                    >
+                      <option value="waiting">Waiting</option>
+                      <option value="starting">Starting</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="finished">Finished</option>
+                    </select>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Track</label>
-                    <p className="text-gray-900">{selectedRace.trackName}</p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Track</label>
+                    <p style={{ color: '#111827' }}>{selectedRace.trackName}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Participants</label>
-                    <p className="text-gray-900">{selectedRace.participants}/{selectedRace.maxParticipants}</p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Participants</label>
+                    <p style={{ color: '#111827' }}>{selectedRace.participants}/{selectedRace.maxParticipants}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Difficulty</label>
-                    <p className="text-gray-900">{selectedRace.difficulty}</p>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Difficulty</label>
+                    <p style={{ color: '#111827' }}>{selectedRace.difficulty}</p>
                   </div>
                   {selectedRace.startTime && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">Start Time</label>
-                      <p className="text-gray-900">{new Date(selectedRace.startTime).toLocaleString()}</p>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Start Time</label>
+                      <p style={{ color: '#111827' }}>{new Date(selectedRace.startTime).toLocaleString()}</p>
                     </div>
                   )}
                   {selectedRace.description && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-700">Description</label>
-                      <p className="text-gray-900">{selectedRace.description}</p>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Description</label>
+                      <p style={{ color: '#111827' }}>{selectedRace.description}</p>
                     </div>
                   )}
-                  <div className="pt-4 border-t border-gray-200">
+                  <div style={{ paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
                     <button
                       onClick={() => deleteRace(selectedRace.id)}
-                      className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                      style={{ width: '100%', padding: '0.5rem 1rem', backgroundColor: '#dc2626', color: 'white', borderRadius: '0.5rem', border: 'none', cursor: 'pointer' }}
                     >
                       Delete Race
                     </button>
@@ -296,8 +291,8 @@ export default function AdminConsole({ onBack }: AdminConsoleProps) {
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow p-6 text-center">
-                <div className="text-gray-500">Select a race to view details</div>
+              <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)', padding: '1.5rem', textAlign: 'center', color: '#6b7280' }}>
+                Select a race to view details
               </div>
             )}
           </div>
@@ -305,29 +300,25 @@ export default function AdminConsole({ onBack }: AdminConsoleProps) {
       )}
 
       {activeTab === 'tracks' && (
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Track Management</h2>
+        <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb' }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827' }}>Track Management</h2>
           </div>
-          <div className="p-6">
-            <div className="text-center text-gray-500">
-              <p>Track management interface coming soon...</p>
-              <p className="mt-2">This will allow you to configure checkpoints, track layouts, and more.</p>
-            </div>
+          <div style={{ padding: '1.5rem', textAlign: 'center', color: '#6b7280' }}>
+            <p>Track management interface coming soon...</p>
+            <p style={{ marginTop: '0.5rem' }}>This will allow you to configure checkpoints, track layouts, and more.</p>
           </div>
         </div>
       )}
 
       {activeTab === 'system' && (
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">System Settings</h2>
+        <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ padding: '1.5rem', borderBottom: '1px solid #e5e7eb' }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827' }}>System Settings</h2>
           </div>
-          <div className="p-6">
-            <div className="text-center text-gray-500">
-              <p>System settings interface coming soon...</p>
-              <p className="mt-2">This will allow you to configure server settings, database connections, and more.</p>
-            </div>
+          <div style={{ padding: '1.5rem', textAlign: 'center', color: '#6b7280' }}>
+            <p>System settings interface coming soon...</p>
+            <p style={{ marginTop: '0.5rem' }}>This will allow you to configure server settings, database connections, and more.</p>
           </div>
         </div>
       )}
