@@ -37,12 +37,12 @@ describe('Authentication Behavioral Tests', () => {
     test('should handle concurrent registrations gracefully', async () => {
       const timestamp = Date.now()
       const userData = {
-        first_name: 'Concurrent',
-        last_name: 'Test User',
-        display_name: 'Concurrent Test User',
+        firstName: 'Concurrent',
+        lastName: 'Test User',
+        displayName: 'Concurrent Test User',
         email: `concurrent-${timestamp}@test.com`,
         password: 'testpassword123',
-        experience_level: 'intermediate'
+        experienceLevel: 'intermediate'
       }
 
       // Simulate concurrent registration attempts
@@ -86,12 +86,12 @@ describe('Authentication Behavioral Tests', () => {
       for (const email of invalidEmails) {
         try {
           await authService.register({
-            first_name: 'Invalid',
-            last_name: 'Email Test',
-            display_name: 'Invalid Email Test',
+            firstName: 'Invalid',
+            lastName: 'Email Test',
+            displayName: 'Invalid Email Test',
             email,
             password: 'testpassword123',
-            experience_level: 'beginner',
+            experienceLevel: 'beginner',
             role: 'USER' as const
           })
           fail(`Should have rejected invalid email: ${email}`)
@@ -114,12 +114,12 @@ describe('Authentication Behavioral Tests', () => {
       for (const password of weakPasswords) {
         try {
           await authService.register({
-            first_name: 'Weak',
-            last_name: 'Password Test',
-            display_name: 'Weak Password Test',
+            firstName: 'Weak',
+            lastName: 'Password Test',
+            displayName: 'Weak Password Test',
             email: `weak-${password.length}@test.com`,
             password,
-            experience_level: 'beginner',
+            experienceLevel: 'beginner',
             role: 'USER' as const
           })
           fail(`Should have rejected weak password: ${password}`)
@@ -356,12 +356,12 @@ describe('Authentication Behavioral Tests', () => {
       for (const userData of edgeCases) {
         try {
           await authService.register({
-            first_name: 'Test',
-            last_name: 'User',
-            display_name: 'Test User',
+            firstName: 'Test',
+            lastName: 'User',
+            displayName: 'Test User',
             email: userData.email,
             password: userData.password,
-            experience_level: 'beginner'
+            experienceLevel: 'beginner'
           })
           fail(`Should have rejected invalid user data: ${JSON.stringify(userData)}`)
         } catch (error) {
@@ -378,12 +378,12 @@ describe('Authentication Behavioral Tests', () => {
 
       const registrationPromises = Array(concurrentRequests).fill(0).map((_, index) => 
         authService.register({
-          first_name: `Concurrent${index}`,
-          last_name: 'User',
-          display_name: `Concurrent User ${index}`,
+          firstName: `Concurrent${index}`,
+          lastName: 'User',
+          displayName: `Concurrent User ${index}`,
           email: `concurrent-${timestamp}-${index}@test.com`,
           password: 'testpassword123',
-          experience_level: 'beginner'
+          experienceLevel: 'beginner'
         })
       )
 

@@ -5,7 +5,7 @@
  * for user authentication and authorization.
  */
 
-import jwt, { SignOptions } from 'jsonwebtoken'
+import * as jwt from 'jsonwebtoken'
 import { logger } from '../utils/logger'
 
 export interface JwtPayload {
