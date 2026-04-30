@@ -91,8 +91,7 @@ describe('Authentication Behavioral Tests', () => {
             displayName: 'Invalid Email Test',
             email,
             password: 'testpassword123',
-            experienceLevel: 'beginner',
-            role: 'USER' as const
+            experienceLevel: 'beginner'
           })
           fail(`Should have rejected invalid email: ${email}`)
         } catch (error) {
@@ -119,8 +118,7 @@ describe('Authentication Behavioral Tests', () => {
             displayName: 'Weak Password Test',
             email: `weak-${password.length}@test.com`,
             password,
-            experienceLevel: 'beginner',
-            role: 'USER' as const
+            experienceLevel: 'beginner'
           })
           fail(`Should have rejected weak password: ${password}`)
         } catch (error) {

@@ -47,7 +47,7 @@ export class JwtService {
         expiresIn: this.accessTokenExpiry,
         issuer: 'race-wars',
         audience: 'race-wars-users'
-      })
+      } as jwt.SignOptions)
     } catch (error) {
       logger.error('Failed to generate access token', { payload, error })
       throw new Error('Token generation failed')
@@ -63,7 +63,7 @@ export class JwtService {
         expiresIn: this.refreshTokenExpiry,
         issuer: 'race-wars',
         audience: 'race-wars-users'
-      })
+      } as jwt.SignOptions)
     } catch (error) {
       logger.error('Failed to generate refresh token', { payload, error })
       throw new Error('Token generation failed')
