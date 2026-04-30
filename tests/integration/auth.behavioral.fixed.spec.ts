@@ -229,7 +229,7 @@ describe('Authentication Behavioral Tests', () => {
 
       // All should return the same user data
       const userIds = successful.map(r => 
-        r.status === 'fulfilled' ? r.value.user.id : null
+        r.status === 'fulfilled' ? (r.value as any).user.id : null
       )
       expect(userIds.every(id => id === testUser.id)).toBe(true)
     })

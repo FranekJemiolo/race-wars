@@ -17,19 +17,19 @@ describe('Authentication Behavioral Tests', () => {
     // Create test user for behavioral tests
     const timestamp = Date.now()
     testUser = await userRepository.create({
-      firstName: 'Behavioral',
-      lastName: 'Test User',
-      displayName: 'Behavioral Test User',
+      first_name: 'Behavioral',
+      last_name: 'Test User',
+      display_name: 'Behavioral Test User',
       email: `behavioral-${timestamp}@test.com`,
       password: 'testpassword123',
-      experienceLevel: 'beginner'
+      experience_level: 'beginner'
     })
   })
 
   afterAll(async () => {
     // Cleanup test user
     if (testUser) {
-      await userRepository.delete(testUser.id)
+      await userRepository.deactivate(testUser.id)
     }
   })
 
@@ -37,12 +37,12 @@ describe('Authentication Behavioral Tests', () => {
     test('should handle concurrent registrations gracefully', async () => {
       const timestamp = Date.now()
       const userData = {
-        firstName: 'Concurrent',
-        lastName: 'Test User',
-        displayName: 'Concurrent Test User',
+        first_name: 'Concurrent',
+        last_name: 'Test User',
+        display_name: 'Concurrent Test User',
         email: `concurrent-${timestamp}@test.com`,
         password: 'testpassword123',
-        experienceLevel: 'intermediate'
+        experience_level: 'intermediate'
       }
 
       // Simulate concurrent registration attempts
@@ -86,10 +86,12 @@ describe('Authentication Behavioral Tests', () => {
       for (const email of invalidEmails) {
         try {
           await authService.register({
-            name: 'Invalid Email Test',
+            first_name: 'Invalid',
+            last_name: 'Email Test',
+            display_name: 'Invalid Email Test',
             email,
             password: 'testpassword123',
-            experienceLevel: 'beginner',
+            experience_level: 'beginner',
             role: 'USER' as const
           })
           fail(`Should have rejected invalid email: ${email}`)
@@ -112,10 +114,12 @@ describe('Authentication Behavioral Tests', () => {
       for (const password of weakPasswords) {
         try {
           await authService.register({
-            name: 'Weak Password Test',
+            first_name: 'Weak',
+            last_name: 'Password Test',
+            display_name: 'Weak Password Test',
             email: `weak-${password.length}@test.com`,
             password,
-            experienceLevel: 'beginner',
+            experience_level: 'beginner',
             role: 'USER' as const
           })
           fail(`Should have rejected weak password: ${password}`)
@@ -170,7 +174,7 @@ describe('Authentication Behavioral Tests', () => {
       }
 
       try {
-        await authService.refreshToken(oldRefreshToken)
+        await authService.refreshToken({ refreshToken: oldRefreshToken })
         fail('Old refresh token should be invalid after password change')
       } catch (error) {
         expect(error.message).toContain('invalid')
@@ -263,7 +267,7 @@ describe('Authentication Behavioral Tests', () => {
         display_name: 'Admin Test User',
         email: `admin-${Date.now()}@test.com`,
         password: 'adminpassword123',
-        experience_level: 'expert'
+        experience_level: 'advanced'
       })
 
       try {
@@ -352,12 +356,12 @@ describe('Authentication Behavioral Tests', () => {
       for (const userData of edgeCases) {
         try {
           await authService.register({
-            firstName: 'Test',
-            lastName: 'User',
-            displayName: 'Test User',
+            first_name: 'Test',
+            last_name: 'User',
+            display_name: 'Test User',
             email: userData.email,
             password: userData.password,
-            experienceLevel: 'beginner'
+            experience_level: 'beginner'
           })
           fail(`Should have rejected invalid user data: ${JSON.stringify(userData)}`)
         } catch (error) {
@@ -374,12 +378,12 @@ describe('Authentication Behavioral Tests', () => {
 
       const registrationPromises = Array(concurrentRequests).fill(0).map((_, index) => 
         authService.register({
-          firstName: `Concurrent${index}`,
-          lastName: 'User',
-          displayName: `Concurrent User ${index}`,
+          first_name: `Concurrent${index}`,
+          last_name: 'User',
+          display_name: `Concurrent User ${index}`,
           email: `concurrent-${timestamp}-${index}@test.com`,
           password: 'testpassword123',
-          experienceLevel: 'beginner'
+          experience_level: 'beginner'
         })
       )
 
