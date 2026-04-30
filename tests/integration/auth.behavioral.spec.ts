@@ -177,9 +177,9 @@ describe('Authentication Behavioral Tests', () => {
       }
 
       // Verify new password works
-      const newLoginResult = await authService.login(testUser.email, 'newpassword123')
-      expect(newLoginResult.accessToken).toBeDefined()
-      expect(newLoginResult.refreshToken).toBeDefined()
+      const newLoginResult = await authService.login({ email: testUser.email, password: 'newpassword123' })
+      expect(newLoginResult.tokens.accessToken).toBeDefined()
+      expect(newLoginResult.tokens.refreshToken).toBeDefined()
 
       // Restore original password for cleanup
       await authService.changePassword(testUser.id, 'newpassword123', 'testpassword123')
@@ -211,12 +211,12 @@ describe('Authentication Behavioral Tests', () => {
   describe('Session Management Behavior', () => {
     test('should handle concurrent token refresh requests', async () => {
       // Login to get initial token
-      const loginResult = await authService.login(testUser.email, 'testpassword123')
-      const refreshToken = loginResult.refreshToken
+      const loginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
+      const refreshToken = loginResult.tokens.refreshToken
 
       // Simulate concurrent refresh requests
       const refreshPromises = Array(5).fill(0).map(() => 
-        authService.refreshToken(refreshToken)
+        authService.refreshToken({ refreshToken })
       )
 
       const results = await Promise.allSettled(refreshPromises)
@@ -227,30 +227,30 @@ describe('Authentication Behavioral Tests', () => {
 
       // All should return the same user data
       const userIds = successful.map(r => 
-        r.status === 'fulfilled' ? r.value.user.id : null
+        r.status === 'fulfilled' ? r.value.user?.id : null
       )
       expect(userIds.every(id => id === testUser.id)).toBe(true)
     })
 
     test('should prevent token reuse after refresh', async () => {
       // Login to get initial token
-      const loginResult = await authService.login(testUser.email, 'testpassword123')
-      const refreshToken = loginResult.refreshToken
+      const loginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
+      const refreshToken = loginResult.tokens.refreshToken
 
       // Refresh token once
-      const refreshResult = await authService.refreshToken(refreshToken)
+      const refreshResult = await authService.refreshToken({ refreshToken })
       
       // Try to use the same refresh token again
       try {
-        await authService.refreshToken(refreshToken)
+        await authService.refreshToken({ refreshToken })
         fail('Should not allow reuse of refresh token')
       } catch (error) {
         expect(error.message).toContain('invalid')
       }
 
       // New refresh token should work
-      const newRefreshResult = await authService.refreshToken(refreshResult.refreshToken)
-      expect(newRefreshResult.accessToken).toBeDefined()
+      const newRefreshResult = await authService.refreshToken({ refreshToken: refreshResult.refreshToken })
+      expect(newRefreshResult.tokens.accessToken).toBeDefined()
     })
   })
 
@@ -258,11 +258,12 @@ describe('Authentication Behavioral Tests', () => {
     test('should enforce role-based access control', async () => {
       // Create admin user
       const adminUser = await userRepository.create({
-        name: 'Admin Test User',
+        firstName: 'Admin',
+        lastName: 'Test User',
+        displayName: 'Admin Test User',
         email: `admin-${Date.now()}@test.com`,
         password: 'adminpassword123',
-        experienceLevel: 'EXPERT',
-        role: 'ADMIN'
+        experienceLevel: 'expert'
       })
 
       try {
@@ -417,12 +418,12 @@ describe('Authentication Behavioral Tests', () => {
         // Create users
         for (let i = 0; i < userCount; i++) {
           const user = await userRepository.create({
-            firstName: `Performance${i}`,
-            lastName: 'User',
-            displayName: `Performance User ${i}`,
+            first_name: `Performance${i}`,
+            last_name: 'User',
+            display_name: `Performance User ${i}`,
             email: `perf-${timestamp}-${i}@test.com`,
             password: 'testpassword123',
-            experienceLevel: 'beginner'
+            experience_level: 'beginner'
           })
           createdUsers.push(user)
         }
