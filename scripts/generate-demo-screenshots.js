@@ -138,6 +138,16 @@ async function generateAuthenticatedScreenshots() {
     });
     console.log('✓ Admin console screenshot generated');
     
+    // Racing View with Map
+    console.log('Generating Racing View screenshot...');
+    await page.goto(`${baseUrl}/?view=racing`);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.screenshot({ 
+      path: 'docs/assets/racing-view-with-map.png',
+      fullPage: false 
+    });
+    console.log('✓ Racing view screenshot generated');
+    
     // Mobile screenshots
     console.log('Generating mobile screenshots...');
     await page.setViewport({ width: 375, height: 667 });

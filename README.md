@@ -97,6 +97,10 @@ Race Wars is a comprehensive web-based racing platform that transforms GPS data 
 ![Racing View](docs/assets/racing-view.png)
 *Desktop racing interface with map and participant tracking*
 
+**Racing View with Map**
+![Racing View with Map](docs/assets/racing-view-with-map.png)
+*Live race map showing driver positions on track with real-time leaderboard*
+
 **Route Builder**
 ![Route Builder](docs/assets/route-builder.png)
 *Custom route builder for creating race tracks*

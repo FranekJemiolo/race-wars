@@ -5,6 +5,7 @@ import ConnectionManager from "./app/ConnectionManager"
 import RaceSelector from "./app/RaceSelector"
 import RaceCreator from "./app/RaceCreator"
 import AdminConsole from "./app/AdminConsole"
+import RacingView from "./app/RacingView"
 import "leaflet/dist/leaflet.css"
 import "./index.css"
 
@@ -23,6 +24,8 @@ if (viewMode === 'connection') {
   root.render(<RaceCreator onRaceCreated={async () => {}} onCancel={() => {}} />)
 } else if (viewMode === 'admin') {
   root.render(<AdminConsole onBack={() => {}} />)
+} else if (viewMode === 'racing') {
+  root.render(<RacingView onLeaveRace={() => {}} onSpectate={() => {}} />)
 } else {
   root.render(<EnhancedApp />)
 }
