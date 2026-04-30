@@ -42,7 +42,7 @@ describe('Authentication Behavioral Tests', () => {
         displayName: 'Concurrent Test User',
         email: `concurrent-${timestamp}@test.com`,
         password: 'testpassword123',
-        experienceLevel: 'intermediate'
+        experienceLevel: 'intermediate' as const
       }
 
       // Simulate concurrent registration attempts
