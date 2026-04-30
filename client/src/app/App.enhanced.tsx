@@ -241,51 +241,12 @@ export default function EnhancedApp() {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Connection Status Indicator */}
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          background: 'rgba(26, 26, 46, 0.95)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          borderRadius: '12px',
-          padding: '12px 16px',
-          backdropFilter: 'blur(10px)',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: connectionState === 'connected' ? '#2ecc71' : connectionState === 'connecting' ? '#f39c12' : '#e74c3c'
-          }} />
-          <span style={{ color: '#fff', fontSize: '0.9rem' }}>
-            {connectionState === 'connected' ? 'Connected' : connectionState === 'connecting' ? 'Connecting...' : 'Disconnected'}
-          </span>
-          <button
-            onClick={handleDisconnect}
-            style={{
-              padding: '4px 12px',
-              background: 'rgba(231, 76, 60, 0.8)',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '0.8rem'
-            }}
-          >
-            Disconnect
-          </button>
-        </div>
-
         <RaceSelector 
           onRaceJoined={handleRaceJoined}
           onSpectate={handleSpectate}
           onCreateRace={handleCreateRace}
-          onBackToConnection={() => setViewState('connection')}
+          onBackToConnection={handleBackToConnection}
+          onAdminAccess={() => setViewState('admin')}
         />
       </div>
     )

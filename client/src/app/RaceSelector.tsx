@@ -1,19 +1,28 @@
 import { useState, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { raceService, Race } from '../network/raceService'
+import { authService, User } from '../network/authService'
 
 interface RaceSelectorProps {
   onRaceJoined: (raceId: string) => void
   onSpectate: (raceId: string) => void
   onCreateRace: () => void
   onBackToConnection: () => void
+  onAdminAccess?: () => void
 }
 
-export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, onBackToConnection }: RaceSelectorProps) {
+export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, onBackToConnection, onAdminAccess }: RaceSelectorProps) {
   const [races, setRaces] = useState<Race[]>([])
   const [filter, setFilter] = useState<'all' | 'circuit' | 'custom' | 'duel'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'starting-soon' | 'most-popular' | 'newest' | 'difficulty'>('starting-soon')
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+
+  // Get current user
+  useEffect(() => {
+    const user = authService.getCurrentUser()
+    setCurrentUser(user)
+  }, [])
 
   // Fetch real race data from server
   useEffect(() => {
@@ -162,21 +171,40 @@ export default function RaceSelector({ onRaceJoined, onSpectate, onCreateRace, o
             </button>
             <h1 style={{ color: '#fff', fontSize: '2rem', margin: 0 }}>Race Selection</h1>
           </div>
-          <button
-            onClick={onCreateRace}
-            style={{
-              padding: '12px 24px',
-              background: 'rgba(46, 204, 113, 0.8)',
-              border: 'none',
-              borderRadius: '8px',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '1rem',
-              fontWeight: 'bold'
-            }}
-          >
-            + Create Race
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {onAdminAccess && currentUser?.role === 'admin' && (
+              <button
+                onClick={onAdminAccess}
+                style={{
+                  padding: '12px 24px',
+                  background: 'rgba(155, 89, 182, 0.8)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }}
+              >
+                🛠️ Admin Console
+              </button>
+            )}
+            <button
+              onClick={onCreateRace}
+              style={{
+                padding: '12px 24px',
+                background: 'rgba(46, 204, 113, 0.8)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: 'bold'
+              }}
+            >
+              + Create Race
+            </button>
+          </div>
         </div>
 
         {/* Search and Filters */}

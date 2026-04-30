@@ -44,6 +44,59 @@ async function clickButtonByText(page, buttonText) {
   return clicked;
 }
 
+// Helper function to click button by emoji or text
+async function clickButtonByEmojiOrText(page, searchText) {
+  console.log(`Looking for button with emoji or text: ${searchText}`);
+  
+  const clicked = await page.evaluate((text) => {
+    const buttons = Array.from(document.querySelectorAll('button, [role="button"]'));
+    for (const button of buttons) {
+      const btnText = button.textContent || '';
+      console.log('Found button:', btnText);
+      // Check if button contains the search text (case insensitive) or emoji
+      if (btnText.toLowerCase().includes(text.toLowerCase()) || btnText.includes('🛠️')) {
+        button.click();
+        return true;
+      }
+    }
+    return false;
+  }, searchText);
+  
+  if (clicked) {
+    console.log(`Clicked button with emoji or text: ${searchText}`);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  } else {
+    console.log(`Button with emoji or text not found: ${searchText}`);
+  }
+  return clicked;
+}
+
+// Helper function to click button containing specific emoji
+async function clickButtonByEmoji(page, emoji) {
+  console.log(`Looking for button with emoji: ${emoji}`);
+  
+  const clicked = await page.evaluate((targetEmoji) => {
+    const buttons = Array.from(document.querySelectorAll('button, [role="button"]'));
+    for (const button of buttons) {
+      const btnText = button.textContent || '';
+      console.log('Found button:', btnText);
+      if (btnText.includes(targetEmoji)) {
+        button.click();
+        return true;
+      }
+    }
+    return false;
+  }, emoji);
+  
+  if (clicked) {
+    console.log(`Clicked button with emoji: ${emoji}`);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  } else {
+    console.log(`Button with emoji not found: ${emoji}`);
+  }
+  return clicked;
+}
+
 // Helper function to click server card by name
 async function clickServerCard(page, serverName) {
   console.log(`Looking for server card: ${serverName}`);
@@ -121,6 +174,13 @@ async function generateAuthenticatedScreenshots() {
       localStorage.setItem('race_wars_token_expiry', (Date.now() + 86400000).toString());
     }, user, token);
     
+    // Force admin role for screenshot generation
+    await page.evaluate(() => {
+      const user = JSON.parse(localStorage.getItem('race_wars_user') || '{}');
+      user.role = 'admin';
+      localStorage.setItem('race_wars_user', JSON.stringify(user));
+    });
+    
     console.log('Real authentication token set in localStorage');
     
     // Reload page to apply authentication
@@ -173,7 +233,7 @@ async function generateAuthenticatedScreenshots() {
     
     // Navigate to Admin Console
     console.log('Navigating to Admin Console...');
-    const adminClicked = await clickButtonByText(page, 'admin console');
+    const adminClicked = await clickButtonByEmoji(page, '🛠️');
     if (adminClicked) {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
