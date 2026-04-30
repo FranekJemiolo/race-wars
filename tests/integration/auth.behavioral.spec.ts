@@ -267,20 +267,20 @@ describe('Authentication Behavioral Tests', () => {
 
       try {
         // Test admin privileges
-        const adminLogin = await authService.login(adminUser.email, 'adminpassword123')
-        const adminPayload = jwtService.verifyAccessToken(adminLogin.accessToken)
+        const adminLogin = await authService.login({ email: adminUser.email, password: 'adminpassword123' })
+        const adminPayload = jwtService.verifyAccessToken(adminLogin.tokens.accessToken)
         expect(adminPayload.role).toBe('ADMIN')
 
         // Test regular user privileges
-        const userLogin = await authService.login(testUser.email, 'testpassword123')
-        const userPayload = jwtService.verifyAccessToken(userLogin.accessToken)
+        const userLogin = await authService.login({ email: testUser.email, password: 'testpassword123' })
+        const userPayload = jwtService.verifyAccessToken(userLogin.tokens.accessToken)
         expect(userPayload.role).toBe('USER')
 
         // Verify role-based permissions (this would be tested in middleware)
         expect(adminPayload.role).not.toBe(userPayload.role)
       } finally {
         // Cleanup admin user
-        await userRepository.delete(adminUser.id)
+        await userRepository.deactivate(adminUser.id)
       }
     })
 
@@ -351,9 +351,9 @@ describe('Authentication Behavioral Tests', () => {
       for (const userData of edgeCases) {
         try {
           await authService.register({
-            firstName: userData.firstName || 'Test',
-            lastName: userData.lastName || 'User',
-            displayName: userData.displayName || 'Test User',
+            firstName: 'Test',
+            lastName: 'User',
+            displayName: 'Test User',
             email: userData.email,
             password: userData.password,
             experienceLevel: 'beginner'
@@ -398,7 +398,7 @@ describe('Authentication Behavioral Tests', () => {
         if (result.status === 'fulfilled') {
           // Note: delete method may not be available, using alternative cleanup
           try {
-            await userRepository.delete(result.value.user.id)
+            await userRepository.deactivate(result.value.user.id)
           } catch (error) {
             // If delete doesn't exist, we'll skip cleanup for this test
             console.log('Cleanup skipped:', error.message)
@@ -451,7 +451,7 @@ describe('Authentication Behavioral Tests', () => {
         // Cleanup
         for (const user of createdUsers) {
           try {
-            await userRepository.delete(user.id)
+            await userRepository.deactivate(user.id)
           } catch (error) {
             // Skip cleanup if delete method doesn't exist
             console.log('Cleanup skipped:', error.message)
