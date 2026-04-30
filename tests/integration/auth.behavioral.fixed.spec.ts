@@ -131,7 +131,7 @@ describe('Authentication Behavioral Tests', () => {
   describe('Login Security Behavior', () => {
     test('should handle rate limiting on failed login attempts', async () => {
       const loginAttempts = Array(10).fill(0).map(() => 
-        authService.login(testUser.email, 'wrongpassword')
+        authService.login({ email: testUser.email, password: 'wrongpassword' })
       )
 
       const results = await Promise.allSettled(loginAttempts)
@@ -179,7 +179,7 @@ describe('Authentication Behavioral Tests', () => {
       }
 
       // Verify new password works
-      const newLoginResult = await authService.login(testUser.email, 'newpassword123')
+      const newLoginResult = await authService.login({ email: testUser.email, password: 'newpassword123' })
       expect(newLoginResult.tokens.accessToken).toBeDefined()
       expect(newLoginResult.tokens.refreshToken).toBeDefined()
 
@@ -267,17 +267,17 @@ describe('Authentication Behavioral Tests', () => {
         displayName: 'Admin Test User',
         email: `admin-${Date.now()}@test.com`,
         password: 'adminpassword123',
-        experienceLevel: 'expert'
+        experienceLevel: 'advanced'
       })
 
       try {
         // Test admin privileges
-        const adminLogin = await authService.login(adminUser.email, 'adminpassword123')
+        const adminLogin = await authService.login({ email: adminUser.email, password: 'adminpassword123' })
         const adminPayload = jwtService.verifyAccessToken(adminLogin.tokens.accessToken)
         expect(adminPayload.role).toBe('USER') // Default role
 
         // Test regular user privileges
-        const userLogin = await authService.login(testUser.email, 'testpassword123')
+        const userLogin = await authService.login({ email: testUser.email, password: 'testpassword123' })
         const userPayload = jwtService.verifyAccessToken(userLogin.tokens.accessToken)
         expect(userPayload.role).toBe('USER')
 
@@ -291,7 +291,7 @@ describe('Authentication Behavioral Tests', () => {
 
     test('should handle role changes with token invalidation', async () => {
       // Login as regular user
-      const loginResult = await authService.login(testUser.email, 'testpassword123')
+      const loginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
       const accessToken = loginResult.tokens.accessToken
 
       // Verify current role
@@ -306,7 +306,7 @@ describe('Authentication Behavioral Tests', () => {
       expect(oldPayload.role).toBe('USER') // Still old role in token
 
       // New login should reflect new data
-      const newLoginResult = await authService.login(testUser.email, 'testpassword123')
+      const newLoginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
       const newPayload = jwtService.verifyAccessToken(newLoginResult.tokens.accessToken)
       expect(newPayload.role).toBe('USER') // Role stays same
 
@@ -437,7 +437,7 @@ describe('Authentication Behavioral Tests', () => {
         // Test login performance
         const loginStartTime = Date.now()
         const loginPromises = createdUsers.slice(0, 10).map(user => 
-          authService.login(user.email, 'testpassword123')
+          authService.login({ email: user.email, password: 'testpassword123' })
         )
         await Promise.all(loginPromises)
         const loginEndTime = Date.now()

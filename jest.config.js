@@ -8,7 +8,13 @@ module.exports = {
   roots: ['<rootDir>/tests'],
   testMatch: [
     '**/__tests__/**/*.+(ts|tsx|js)',
-    '**/*.(test|spec).+(ts|tsx|js)'
+    '**/integration/**/*.+(ts|tsx|js)',
+    '**/unit/**/*.+(ts|tsx|js)'
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/tests/playwright',
+    '<rootDir>/tests/e2e',
+    '<rootDir>/screenshots'
   ],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest'
