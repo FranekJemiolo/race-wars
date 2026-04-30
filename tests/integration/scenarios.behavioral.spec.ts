@@ -28,7 +28,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       expect(registrationResult.tokens.accessToken).toBeDefined()
 
       // Step 2: Login with same credentials
-      const loginResult = await authService.login(userData.email, userData.password)
+      const loginResult = await authService.login({ email: userData.email, password: userData.password })
       expect(loginResult.user.email).toBe(userData.email)
       expect(loginResult.tokens.accessToken).toBeDefined()
 
@@ -57,7 +57,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
 
       // Try login with wrong password
       try {
-        await authService.login(userData.email, 'wrongpassword123')
+        await authService.login({ email: userData.email, password: 'wrongpassword123' })
         fail('Should have rejected incorrect password')
       } catch (error) {
         expect(error.message).toContain('Invalid credentials')
@@ -482,7 +482,6 @@ describe('Critical System Scenarios Behavioral Tests', () => {
         organizer_id: 'test-organizer',
         start_time: new Date('2024-12-01T09:00:00Z'),
         end_time: new Date('2024-12-01T17:00:00Z'),
-        location: 'Test Location',
         max_participants: 50,
               })
 
