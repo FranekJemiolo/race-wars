@@ -97,6 +97,10 @@ Race Wars is a comprehensive web-based racing platform that transforms GPS data 
 ![Racing View](docs/assets/racing-view.png)
 *Desktop racing interface with map and participant tracking*
 
+**Racing View with Map**
+![Racing View with Map](docs/assets/racing-view-with-map.png)
+*Live race map showing driver positions on track with real-time leaderboard*
+
 **Route Builder**
 ![Route Builder](docs/assets/route-builder.png)
 *Custom route builder for creating race tracks*
@@ -135,10 +139,11 @@ All screenshots are generated using Playwright automation to showcase the actual
 ## 🛠️ Tech Stack
 
 - **Server**: TypeScript (Node.js) + Turf.js + WebSockets
-- **Client**: React + Vite + Leaflet + TypeScript
+- **Client**: React + Vite + Leaflet + TypeScript + Tailwind CSS
 - **Shared**: TypeScript types and protocol definitions
 - **Testing**: Comprehensive E2E test suite with 45+ tests
 - **Mobile**: PWA with offline capabilities and touch optimization
+- **Database**: PostgreSQL (production) with SQLite fallback (local dev)
 
 ## 🏗️ Architecture
 
@@ -161,6 +166,7 @@ The system uses a monorepo structure:
 
 - Node.js 18+
 - npm or yarn
+- PostgreSQL 15+ (optional - falls back to SQLite for local dev)
 
 ### Installation
 
@@ -173,14 +179,46 @@ cd race-wars
 npm install
 ```
 
+### Client Configuration
+
+The client uses Vite with Tailwind CSS for styling. Configuration files:
+
+- **`client/vite.config.ts`** - Vite build configuration with PostCSS support
+- **`client/tailwind.config.js`** - Tailwind CSS configuration
+- **`client/postcss.config.js`** - PostCSS configuration for Tailwind and autoprefixer
+- **`client/package.json`** - Client dependencies and scripts
+
+The client runs on port 5177 by default and proxies API requests to the server on port 8080.
+
+### Database Configuration
+
+The project supports two database options:
+
+**SQLite (Default for Local Development)**
+- Location: `data/race_wars.db`
+- Automatically created if not present
+- Perfect for quick development and testing
+- No additional setup required
+
+**PostgreSQL (Production-like)**
+- Requires PostgreSQL 15+ with PostGIS extension
+- Set `DATABASE_URL` environment variable
+- Example: `postgresql://race_wars:password@localhost:5432/race_wars`
+- Supports spatial queries and advanced features
+
+The application automatically falls back to SQLite if PostgreSQL is not available.
+
 ### Development
 
 ```bash
 # Start the server (port 8080)
 npm run dev:server
 
-# Start the client (port 5173)
+# Start the client (port 5177)
 npm run dev:client
+
+# Or start both at once
+npm run dev
 ```
 
 ### Build
