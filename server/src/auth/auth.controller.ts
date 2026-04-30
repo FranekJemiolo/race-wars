@@ -5,7 +5,7 @@
  * Handles login, logout, registration, password changes, and token refresh.
  */
 
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { authService } from './auth.service'
 import { authRateLimit } from './auth.middleware'
 import { logger } from '../utils/logger'
@@ -15,7 +15,7 @@ export class AuthController {
    * Register a new user
    * POST /auth/register
    */
-  register = authRateLimit(3, 15 * 60 * 1000)(async (req: Request, res: Response) => {
+  register = authRateLimit(3, 15 * 60 * 1000)(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const {
         email,
@@ -92,7 +92,7 @@ export class AuthController {
    * Authenticate user
    * POST /auth/login
    */
-  login = authRateLimit(5, 15 * 60 * 1000)(async (req: Request, res: Response) => {
+  login = authRateLimit(5, 15 * 60 * 1000)(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body
 
@@ -205,7 +205,7 @@ export class AuthController {
    * Change password
    * PUT /auth/password
    */
-  changePassword = authRateLimit(3, 15 * 60 * 1000)(async (req: Request, res: Response) => {
+  changePassword = authRateLimit(3, 15 * 60 * 1000)(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { currentPassword, newPassword } = req.body
 
@@ -249,7 +249,7 @@ export class AuthController {
    * Reset password (would typically require email verification)
    * POST /auth/reset-password
    */
-  resetPassword = authRateLimit(3, 60 * 60 * 1000)(async (req: Request, res: Response) => {
+  resetPassword = authRateLimit(3, 60 * 60 * 1000)(async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, newPassword, resetToken } = req.body
 
