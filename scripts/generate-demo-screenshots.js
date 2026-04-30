@@ -274,7 +274,7 @@ async function generateAuthenticatedScreenshots() {
     
     console.log('Generating Full App Showcase screenshot...');
     await page.goto(baseUrl);
-    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for full CSS to load
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Wait for CSS to load
     await page.screenshot({ 
       path: 'docs/assets/showcase-main.png',
       fullPage: false 
@@ -290,4 +290,125 @@ async function generateAuthenticatedScreenshots() {
   }
 }
 
-generateAuthenticatedScreenshots();
+async function generateDemoPageScreenshots() {
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
+
+  try {
+    const baseUrl = 'http://localhost:5177';
+    
+    console.log('Generating demo page screenshots...');
+    
+    // Leaderboard Demo
+    console.log('Generating Leaderboard screenshot...');
+    await page.setViewport({ width: 1200, height: 800 });
+    await page.goto(`${baseUrl}/leaderboard-demo`);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.screenshot({ 
+      path: 'docs/assets/leaderboard.png',
+      fullPage: false 
+    });
+    console.log('✓ Leaderboard screenshot generated');
+    
+    // Mobile Demo
+    console.log('Generating Mobile Racing Interface screenshot...');
+    await page.setViewport({ width: 375, height: 667 });
+    await page.goto(`${baseUrl}/mobile-demo`);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.screenshot({ 
+      path: 'docs/assets/mobile-racing-interface.png',
+      fullPage: false 
+    });
+    console.log('✓ Mobile racing interface screenshot generated');
+    
+    // Mobile Team Management (switch to team view)
+    console.log('Generating Mobile Team Management screenshot...');
+    await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll('button'));
+      for (const button of buttons) {
+        if (button.textContent.includes('Race Organizer')) {
+          button.click();
+          break;
+        }
+      }
+    });
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    await page.screenshot({ 
+      path: 'docs/assets/mobile-team-management.png',
+      fullPage: false 
+    });
+    console.log('✓ Mobile team management screenshot generated');
+    
+    // Race Replay Demo
+    console.log('Generating Race Replay System screenshot...');
+    await page.setViewport({ width: 1200, height: 800 });
+    await page.goto(`${baseUrl}/race-replay-demo`);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.screenshot({ 
+      path: 'docs/assets/race-replay-system.png',
+      fullPage: false 
+    });
+    console.log('✓ Race replay system screenshot generated');
+    
+    // Route Selection Demo
+    console.log('Generating Route Builder screenshot...');
+    await page.goto(`${baseUrl}/route-selection-demo`);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.screenshot({ 
+      path: 'docs/assets/route-builder.png',
+      fullPage: false 
+    });
+    console.log('✓ Route builder screenshot generated');
+    
+    // Live Racing Interface (navigate to racing view)
+    console.log('Generating Live Racing Interface screenshot...');
+    await page.goto(baseUrl);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    // Set auth
+    const fetch = (await import('node-fetch')).default;
+    const authResponse = await fetch('http://localhost:8080/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'screenshot_user', password: 'screenshot123' })
+    });
+    const authData = await authResponse.json();
+    await page.evaluate((userData, authToken) => {
+      localStorage.setItem('race_wars_token', authToken);
+      localStorage.setItem('race_wars_user', JSON.stringify(userData));
+      localStorage.setItem('race_wars_token_expiry', (Date.now() + 86400000).toString());
+    }, authData.data.user, authData.data.token);
+    await page.goto(baseUrl);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await clickServerCard(page, 'Local Development');
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.screenshot({ 
+      path: 'docs/assets/live-racing-interface.png',
+      fullPage: false 
+    });
+    console.log('✓ Live racing interface screenshot generated');
+    
+    // Team Dashboard
+    console.log('Generating Team Dashboard screenshot...');
+    await page.goto(`${baseUrl}/leaderboard-demo`);
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    await page.screenshot({ 
+      path: 'docs/assets/team-dashboard.png',
+      fullPage: false 
+    });
+    console.log('✓ Team dashboard screenshot generated');
+
+    console.log('All demo page screenshots generated successfully!');
+
+  } catch (error) {
+    console.error('Error generating demo page screenshots:', error);
+  } finally {
+    await browser.close();
+  }
+}
+
+async function runAll() {
+  await generateAuthenticatedScreenshots();
+  await generateDemoPageScreenshots();
+}
+
+runAll();
