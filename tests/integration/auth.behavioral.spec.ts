@@ -68,7 +68,7 @@ describe('Authentication Behavioral Tests', () => {
 
       // Cleanup
       if (successful[0] && successful[0].status === 'fulfilled') {
-        await userRepository.delete(successful[0].value.user.id)
+        await userRepository.deactivate(successful[0].value.user?.id)
       }
     })
 
@@ -89,7 +89,7 @@ describe('Authentication Behavioral Tests', () => {
             name: 'Invalid Email Test',
             email,
             password: 'testpassword123',
-            experienceLevel: 'BEGINNER' as const,
+            experienceLevel: 'beginner',
             role: 'USER' as const
           })
           fail(`Should have rejected invalid email: ${email}`)
@@ -115,7 +115,7 @@ describe('Authentication Behavioral Tests', () => {
             name: 'Weak Password Test',
             email: `weak-${password.length}@test.com`,
             password,
-            experienceLevel: 'BEGINNER' as const,
+            experienceLevel: 'beginner',
             role: 'USER' as const
           })
           fail(`Should have rejected weak password: ${password}`)
@@ -129,7 +129,7 @@ describe('Authentication Behavioral Tests', () => {
   describe('Login Security Behavior', () => {
     test('should handle rate limiting on failed login attempts', async () => {
       const loginAttempts = Array(10).fill(0).map(() => 
-        authService.login(testUser.email, 'wrongpassword')
+        authService.login({ email: testUser.email, password: 'wrongpassword' })
       )
 
       const results = await Promise.allSettled(loginAttempts)
@@ -150,9 +150,9 @@ describe('Authentication Behavioral Tests', () => {
 
     test('should invalidate tokens on password change', async () => {
       // Login and get tokens
-      const loginResult = await authService.login(testUser.email, 'testpassword123')
-      const oldAccessToken = loginResult.accessToken
-      const oldRefreshToken = loginResult.refreshToken
+      const loginResult = await authService.login({ email: testUser.email, password: 'testpassword123' })
+      const oldAccessToken = loginResult.tokens.accessToken
+      const oldRefreshToken = loginResult.tokens.refreshToken
 
       // Verify old tokens work
       const oldPayload = jwtService.verifyAccessToken(oldAccessToken)
@@ -227,7 +227,7 @@ describe('Authentication Behavioral Tests', () => {
 
       // All should return the same user data
       const userIds = successful.map(r => 
-        r.status === 'fulfilled' ? r.value.user?.id : null
+        r.status === 'fulfilled' ? (r.value as any).user?.id : null
       )
       expect(userIds.every(id => id === testUser.id)).toBe(true)
     })
@@ -250,7 +250,7 @@ describe('Authentication Behavioral Tests', () => {
 
       // New refresh token should work
       const newRefreshResult = await authService.refreshToken({ refreshToken: refreshResult.refreshToken })
-      expect(newRefreshResult.tokens.accessToken).toBeDefined()
+      expect(newRefreshResult.accessToken).toBeDefined()
     })
   })
 
@@ -258,12 +258,12 @@ describe('Authentication Behavioral Tests', () => {
     test('should enforce role-based access control', async () => {
       // Create admin user
       const adminUser = await userRepository.create({
-        firstName: 'Admin',
-        lastName: 'Test User',
-        displayName: 'Admin Test User',
+        first_name: 'Admin',
+        last_name: 'Test User',
+        display_name: 'Admin Test User',
         email: `admin-${Date.now()}@test.com`,
         password: 'adminpassword123',
-        experienceLevel: 'expert'
+        experience_level: 'expert'
       })
 
       try {
