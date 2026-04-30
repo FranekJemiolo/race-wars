@@ -167,7 +167,7 @@ export class AuthController {
         message: 'Failed to refresh token'
       })
     }
-  })
+  }
 
   /**
    * Get current user info
