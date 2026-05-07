@@ -160,6 +160,112 @@ The system uses a monorepo structure:
   /journal     # Implementation journal
 ```
 
+### Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph "Monorepo Structure"
+        A[Shared Types] --> B[Server]
+        A --> C[Client]
+        D[Test Suite] --> B
+        D --> C
+    end
+    
+    subgraph "Server (Node.js)"
+        B --> E[WebSocket Server]
+        B --> F[GPS Engine]
+        B --> G[Team Manager]
+        B --> H[Race Manager]
+        B --> I[Database Layer]
+        
+        E --> J[Real-time Sync]
+        F --> K[GPS Projection]
+        F --> L[Route Builder]
+        G --> M[Team System]
+        G --> N[Chat System]
+        H --> O[Race Events]
+        H --> P[Leaderboard]
+        I --> Q[PostgreSQL]
+        I --> R[SQLite Fallback]
+    end
+    
+    subgraph "Client (React)"
+        C --> S[Mobile App]
+        C --> T[Desktop App]
+        C --> U[PWA Features]
+        
+        S --> V[GPS Tracking]
+        S --> W[Touch Interface]
+        S --> X[Offline Maps]
+        T --> Y[Admin Console]
+        T --> Z[Route Builder]
+        T --> AA[Analytics]
+        U --> BB[Push Notifications]
+        U --> CC[Cache Management]
+    end
+    
+    subgraph "GPS Processing Pipeline"
+        K --> DD[Raw GPS Data]
+        DD --> EE[Smoothing Filter]
+        EE --> FF[Turf.js Projection]
+        FF --> GG[Route Progress]
+        GG --> HH[Position Calculation]
+        HH --> II[Ranking Update]
+    end
+    
+    subgraph "Team System"
+        M --> JJ[Team Creation]
+        M --> KK[Member Management]
+        M --> LL[Permissions]
+        M --> MM[Team Chat]
+        N --> NN[Real-time Messages]
+        N --> OO[Reactions]
+        N --> PP[File Sharing]
+    end
+    
+    subgraph "Race Management"
+        O --> QQ[Race Creation]
+        O --> RR[Route Setup]
+        O --> SS[Participant Management]
+        P --> TT[Live Leaderboard]
+        P --> UU[Progress Tracking]
+        P --> VV[Ranking Algorithm]
+    end
+    
+    subgraph "Advanced Features"
+        WW[Race Replay] --> XX[Session Recording]
+        WW --> YY[Playback Engine]
+        WW --> ZZ[Analysis Tools]
+        AAA[Anti-Cheat] --> BBB[GPS Validation]
+        AAA --> CCC[Pattern Analysis]
+        AAA --> DDD[Anomaly Detection]
+    end
+    
+    subgraph "Testing Infrastructure"
+        D --> EE[E2E Tests]
+        D --> FF[Mobile Tests]
+        D --> GG[Desktop Tests]
+        D --> HH[API Tests]
+        EE --> II[Playwright]
+        FF --> JJ[Touch Simulation]
+        GG --> KK[Browser Automation]
+        HH --> LL[WebSocket Testing]
+    end
+    
+    subgraph "Data Flow"
+        MM --> NN
+        NN --> E
+        E --> J
+        J --> S
+        J --> T
+        V --> DD
+        DD --> II
+        II --> P
+        P --> TT
+        TT --> S
+    end
+```
+
 ## Getting Started
 
 ### Prerequisites
