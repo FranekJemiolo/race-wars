@@ -1,6 +1,6 @@
 {
   "name": "race-wars",
-  "description": "Race against friends using GPS. Create teams, compete on real roads, and see live leaderboards during races.",
+  "description": "Real-time GPS racing platform with team competitions and live leaderboards.",
   "private": true,
   "workspaces": [
     "shared",
