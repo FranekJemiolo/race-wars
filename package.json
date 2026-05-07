@@ -1,5 +1,6 @@
 {
   "name": "race-wars",
+  "description": "Race against friends using GPS. Create teams, compete on real roads, and see live leaderboards during races.",
   "private": true,
   "workspaces": [
     "shared",
