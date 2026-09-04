@@ -84,6 +84,12 @@
 
 ### On-Track Features
 
+#### Live Racing Cockpit Interface
+![Desktop Live Racing](assets/desktop-racing.png)
+<p align="center">
+  <img src="assets/mobile-racing.png" alt="Mobile Live Racing" width="360" />
+</p>
+
 1. **Real-Time Positioning**
    - Your position is tracked in real-time
    - View your position on the track map
@@ -121,6 +127,12 @@
 ## Post-Session
 
 ### Reviewing Your Performance
+
+#### Race Replay & Telemetry Analysis
+![Desktop Race Replay](assets/desktop-race-replay.png)
+<p align="center">
+  <img src="assets/mobile-race-replay.png" alt="Mobile Race Replay" width="360" />
+</p>
 
 1. **Session Results**
    - View your finishing position
