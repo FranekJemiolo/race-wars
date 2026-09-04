@@ -3,8 +3,8 @@
 
 -- Create race_leaderboards table
 CREATE TABLE IF NOT EXISTS race_leaderboards (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    race_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    race_id VARCHAR(255) NOT NULL UNIQUE,
     race_name VARCHAR(255) NOT NULL,
     status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'finished', 'paused', 'cancelled')),
     start_time TIMESTAMP WITH TIME ZONE,
@@ -14,17 +14,15 @@ CREATE TABLE IF NOT EXISTS race_leaderboards (
     entries JSONB DEFAULT '[]',
     last_update TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    
-    UNIQUE(race_id)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create leaderboard_entries table
 CREATE TABLE IF NOT EXISTS leaderboard_entries (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    race_id UUID NOT NULL REFERENCES race_leaderboards(race_id) ON DELETE CASCADE,
-    participant_id UUID NOT NULL REFERENCES session_participants(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    race_id VARCHAR(255) NOT NULL REFERENCES race_leaderboards(race_id) ON DELETE CASCADE,
+    participant_id VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     current_position INTEGER NOT NULL DEFAULT 1,
     previous_position INTEGER NOT NULL DEFAULT 1,
     current_lap INTEGER NOT NULL DEFAULT 1,
@@ -47,9 +45,9 @@ CREATE TABLE IF NOT EXISTS leaderboard_entries (
 
 -- Create position_updates table for detailed tracking
 CREATE TABLE IF NOT EXISTS position_updates (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    race_id UUID NOT NULL REFERENCES race_leaderboards(race_id) ON DELETE CASCADE,
-    participant_id UUID NOT NULL REFERENCES session_participants(id) ON DELETE CASCADE,
+    id VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    race_id VARCHAR(255) NOT NULL REFERENCES race_leaderboards(race_id) ON DELETE CASCADE,
+    participant_id VARCHAR(255) NOT NULL,
     position INTEGER NOT NULL,
     lap INTEGER NOT NULL,
     checkpoint_index INTEGER NOT NULL,
@@ -78,105 +76,10 @@ CREATE INDEX IF NOT EXISTS idx_position_updates_race_id ON position_updates(race
 CREATE INDEX IF NOT EXISTS idx_position_updates_participant_id ON position_updates(participant_id);
 CREATE INDEX IF NOT EXISTS idx_position_updates_timestamp ON position_updates(timestamp);
 CREATE INDEX IF NOT EXISTS idx_position_updates_race_participant ON position_updates(race_id, participant_id);
-CREATE INDEX IF NOT EXISTS idx_position_updates_coordinates ON position_updates USING GIST(ST_Point(coordinates_lng, coordinates_lat));
-
--- Add triggers to update updated_at timestamps
-CREATE TRIGGER update_race_leaderboards_updated_at 
-    BEFORE UPDATE ON race_leaderboards 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_leaderboard_entries_updated_at 
-    BEFORE UPDATE ON leaderboard_entries 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Add RLS policies for race_leaderboards
-ALTER TABLE race_leaderboards ENABLE ROW LEVEL SECURITY;
-
--- Policy: Users can view leaderboards for public races
-CREATE POLICY race_leaderboards_public_read ON race_leaderboards
-    FOR SELECT
-    TO public
-    USING (race_id IN (
-        SELECT id FROM events WHERE is_public = true
-    ));
-
--- Policy: Race participants can view their race leaderboard
-CREATE POLICY race_leaderboards_participant_read ON race_leaderboards
-    FOR SELECT
-    TO authenticated
-    USING (race_id IN (
-        SELECT race_id FROM session_participants 
-        WHERE user_id = current_setting('app.current_user_id')::uuid
-    ));
-
--- Policy: Admins can manage all leaderboards
-CREATE POLICY race_leaderboards_admin_all ON race_leaderboards
-    FOR ALL
-    TO admin
-    USING (true);
-
--- Add RLS policies for leaderboard_entries
-ALTER TABLE leaderboard_entries ENABLE ROW LEVEL SECURITY;
-
--- Policy: Users can view entries for public races
-CREATE POLICY leaderboard_entries_public_read ON leaderboard_entries
-    FOR SELECT
-    TO public
-    USING (race_id IN (
-        SELECT id FROM events WHERE is_public = true
-    ));
-
--- Policy: Users can view their own entries
-CREATE POLICY leaderboard_entries_user_read ON leaderboard_entries
-    FOR SELECT
-    TO authenticated
-    USING (user_id = current_setting('app.current_user_id')::uuid);
-
--- Policy: Race participants can view all entries in their race
-CREATE POLICY leaderboard_entries_participant_read ON leaderboard_entries
-    FOR SELECT
-    TO authenticated
-    USING (race_id IN (
-        SELECT race_id FROM session_participants 
-        WHERE user_id = current_setting('app.current_user_id')::uuid
-    ));
-
--- Policy: Admins can manage all entries
-CREATE POLICY leaderboard_entries_admin_all ON leaderboard_entries
-    FOR ALL
-    TO admin
-    USING (true);
-
--- Add RLS policies for position_updates
-ALTER TABLE position_updates ENABLE ROW LEVEL SECURITY;
-
--- Policy: Users can view position updates for public races
-CREATE POLICY position_updates_public_read ON position_updates
-    FOR SELECT
-    TO public
-    USING (race_id IN (
-        SELECT id FROM events WHERE is_public = true
-    ));
-
--- Policy: Users can view their own position updates
-CREATE POLICY position_updates_user_read ON position_updates
-    FOR SELECT
-    TO authenticated
-    USING (participant_id IN (
-        SELECT id FROM session_participants 
-        WHERE user_id = current_setting('app.current_user_id')::uuid
-    ));
-
--- Policy: Admins can manage all position updates
-CREATE POLICY position_updates_admin_all ON position_updates
-    FOR ALL
-    TO admin
-    USING (true);
+CREATE INDEX IF NOT EXISTS idx_position_updates_coordinates ON position_updates(coordinates_lng, coordinates_lat);
 
 -- Create function to update leaderboard positions
-CREATE OR REPLACE FUNCTION update_leaderboard_positions(p_race_id UUID)
+CREATE OR REPLACE FUNCTION update_leaderboard_positions(p_race_id VARCHAR)
 RETURNS void AS $$
 DECLARE
     entry_record RECORD;
@@ -242,8 +145,8 @@ $$ LANGUAGE plpgsql;
 
 -- Create function to add position update
 CREATE OR REPLACE FUNCTION add_position_update(
-    p_race_id UUID,
-    p_participant_id UUID,
+    p_race_id VARCHAR,
+    p_participant_id VARCHAR,
     p_position INTEGER,
     p_lap INTEGER,
     p_checkpoint_index INTEGER,
@@ -281,13 +184,11 @@ $$ LANGUAGE plpgsql;
 
 -- Create function to finish participant
 CREATE OR REPLACE FUNCTION finish_participant(
-    p_race_id UUID,
-    p_participant_id UUID,
+    p_race_id VARCHAR,
+    p_participant_id VARCHAR,
     p_total_time BIGINT
 )
 RETURNS void AS $$
-DECLARE
-    current_finished_count INTEGER;
 BEGIN
     -- Update participant entry
     UPDATE leaderboard_entries 

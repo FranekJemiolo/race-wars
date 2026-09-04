@@ -10,6 +10,9 @@
  *   npm run migrate create <name> <description> - Create new migration
  */
 
+import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config({ path: path.join(__dirname, '../../../.env') });
 import { migrationRunner } from '../database/migration-runner';
 import { logger } from '../utils/logger';
 

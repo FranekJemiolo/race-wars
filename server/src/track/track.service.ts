@@ -327,11 +327,14 @@ export class TrackService {
         return null
       }
 
-      const centerline = JSON.parse(track.centerline) as Feature<LineString>
+      const parsedCenterline = JSON.parse(track.centerline)
+      const centerline: Feature<LineString> = parsedCenterline.type === 'Feature'
+        ? parsedCenterline
+        : lineString(parsedCenterline.coordinates)
       const trackPoint = point([lng, lat])
 
       // Find nearest point on centerline
-      const nearest = turf.nearestPointOnLine(centerline, trackPoint)
+      const nearest = turf.nearestPointOnLine(centerline, trackPoint, { units: 'meters' })
       
       if (!nearest) {
         return null
@@ -339,8 +342,8 @@ export class TrackService {
 
       // Calculate progress along track (0-1)
       const totalLength = turf.length(centerline, { units: 'meters' })
-      const distanceFromStart = nearest.properties!.distance || 0
-      const progress = distanceFromStart / totalLength
+      const distanceFromStart = (nearest.properties as any)?.location ?? (nearest.properties as any)?.distance ?? 0
+      const progress = totalLength > 0 ? distanceFromStart / totalLength : 0
 
       // Calculate heading at nearest point
       const heading = this.calculateHeadingAtPoint(centerline, nearest.properties!.index!)
@@ -350,7 +353,10 @@ export class TrackService {
       let deviationMeters = 0
 
       if (track.boundaries) {
-        const boundaries = JSON.parse(track.boundaries) as Feature<Polygon>
+        const parsedBoundaries = JSON.parse(track.boundaries)
+        const boundaries: Feature<Polygon> = parsedBoundaries.type === 'Feature'
+          ? parsedBoundaries
+          : polygon(parsedBoundaries.coordinates)
         isOnTrack = turf.booleanPointInPolygon(trackPoint, boundaries)
         
         if (!isOnTrack) {

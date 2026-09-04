@@ -256,9 +256,7 @@ export async function query(sql: string, params?: any[]) {
   
   if (!pgPool && !sqliteDb && !inMemoryDb) {
     await initializeDatabase()
-    if (sqliteDb) {
-      return query(sql, params)
-    }
+    return query(sql, params)
   }
   if (inMemoryDb) {
     return inMemoryDb.query(sql, params)

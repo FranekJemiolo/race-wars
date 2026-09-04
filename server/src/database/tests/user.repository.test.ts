@@ -297,7 +297,7 @@ describe('UserRepository', () => {
       jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(mockUser as any)
       
       // Mock bcrypt.compare to return true
-      const bcrypt = require('bcrypt')
+      const bcrypt = require('bcryptjs')
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(true)
 
       // Act
@@ -336,7 +336,7 @@ describe('UserRepository', () => {
 
       jest.spyOn(userRepository, 'findByEmail').mockResolvedValue(mockUser as any)
       
-      const bcrypt = require('bcrypt')
+      const bcrypt = require('bcryptjs')
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(false)
 
       // Act
