@@ -1,7 +1,6 @@
 # 🏁 Race Wars
 
 <div align="center">
-  <img src="docs/assets/logo.png" alt="Race Wars Logo" width="200"/>
   
   **Real-time multiplayer GPS racing engine for closed-road/track racing events**
   
@@ -47,94 +46,69 @@ Race Wars is a comprehensive web-based racing platform that transforms GPS data 
 - **Anti-Cheat Detection**: Advanced GPS validation and pattern analysis
 - **Comprehensive Testing**: 45+ E2E tests covering all functionality
 
-## 📸 App Screenshots
+## 📸 App Screenshots & Interface Showcase
 
-### 📱 Mobile Interface
+Race Wars features a modern dark cockpit telemetry design system with high-contrast neon accents, built for real-time tracking, sub-second leaderboards, and seamless desktop and mobile workflows.
 
-**Race Selection (Mobile)**
-![Mobile Race Selection](docs/assets/mobile-race-selection.png)
-*Mobile race selection screen displaying available races*
+> 📖 **Full Visual Guide**: Explore the complete [Visual Interface & Screenshots Guide](docs/screenshots.md), the [Interactive Web Showcase](https://franekjemiolo.github.io/race-wars/), the [Driver Cockpit Guide](docs/DRIVER_GUIDE.md), and the [Admin & Stewards Guide](docs/ADMIN_GUIDE.md).
 
-**Mobile Racing Interface**
-![Mobile Racing Interface](docs/assets/mobile-racing-interface.png)
-*Live racing view optimized for mobile devices*
+### 🏎️ Live Racing Cockpit HUD
+*Real-time GPS tracking with 10Hz interpolation, live delta timing, sector pace indicators, and dynamic leaderboards.*
 
-**Mobile Team Management**
-![Mobile Team Management](docs/assets/mobile-team-management.png)
-*Team management interface on mobile*
+| Desktop Cockpit View | Mobile Cockpit View |
+| :---: | :---: |
+| ![Desktop Live Racing](docs/assets/desktop-racing.png) | <img src="docs/assets/mobile-racing.png" alt="Mobile Live Racing" width="300" /> |
 
-### 💻 Desktop Interface
+---
 
-**Connection Screen**
-![Connection Screen](docs/assets/connection-screen.png)
-*Server connection interface with available servers and quick connect options*
+### 🎬 Race Replay & Telemetry Playback
+*Multi-angle synchronized GPS playback with timeline scrubbing, variable speeds (0.5x–4x), vector circuit map, and lap analysis.*
 
-**Race Selection**
-![Race Selection](docs/assets/race-selection.png)
-*Race selection screen displaying available races with filters, search, and sorting options*
+| Desktop Replay View | Mobile Replay View |
+| :---: | :---: |
+| ![Desktop Race Replay](docs/assets/desktop-race-replay.png) | <img src="docs/assets/mobile-race-replay.png" alt="Mobile Race Replay" width="300" /> |
 
-**Race Creation**
-![Race Creation](docs/assets/race-creation.png)
-*Race creation interface for configuring new races with track and participant settings*
+---
 
-**Admin Console**
-![Admin Console](docs/assets/admin-console.png)
-*Administrative panel for managing races, users, and system settings*
+### 📢 Race Admin & Stewards Control Panel
+*Session control room for race directors: instant flag dispatch (Green, FCY, Safety Car, Red), penalty management, and steward incident feed.*
 
-**Admin Panel**
-![Admin Panel](docs/assets/admin-panel.png)
-*Advanced admin controls for race management*
+| Desktop Admin Console | Mobile Marshal View |
+| :---: | :---: |
+| ![Desktop Admin Panel](docs/assets/desktop-admin-panel.png) | <img src="docs/assets/mobile-admin-panel.png" alt="Mobile Admin Panel" width="300" /> |
 
-**Leaderboard**
-![Leaderboard](docs/assets/leaderboard.png)
-*Real-time leaderboard showing race rankings*
+---
 
-**Live Racing Interface**
-![Live Racing Interface](docs/assets/live-racing-interface.png)
-*Live racing view with GPS tracking and real-time updates*
+### 🏢 Team Management & Telemetry Hub
+*Strategic headquarters for racing teams: driver rosters, seasonal standings, skill ratings, car setup specs, and competition statistics.*
 
-**Racing View**
-![Racing View](docs/assets/racing-view.png)
-*Desktop racing interface with map and participant tracking*
+| Desktop Team Dashboard | Mobile Team View |
+| :---: | :---: |
+| ![Desktop Team Management](docs/assets/desktop-team-management.png) | <img src="docs/assets/mobile-team-management.png" alt="Mobile Team Management" width="300" /> |
 
-**Racing View with Map**
-![Racing View with Map](docs/assets/racing-view-with-map.png)
-*Live race map showing driver positions on track with real-time leaderboard*
+---
 
-**Route Builder**
-![Route Builder](docs/assets/route-builder.png)
-*Custom route builder for creating race tracks*
+### 💬 Team Pitwall Chat & Radio
+*Encrypted real-time pitwall strategy messaging, driver reactions, automated race control alerts, and telemetry updates.*
 
-**Race Replay System**
-![Race Replay System](docs/assets/race-replay-system.png)
-*Race replay system for analyzing past races*
-
-**Spectating View**
-![Spectating View](docs/assets/spectating-view.png)
-*Spectator mode for watching live races*
-
-**Team Dashboard**
-![Team Dashboard](docs/assets/team-dashboard.png)
-*Team management dashboard with analytics*
-
-**App Showcase**
-![App Showcase](docs/assets/showcase-main.png)
-*Full application showcase demonstrating the race selection interface*
+| Desktop Team Chat | Mobile Team Chat |
+| :---: | :---: |
+| ![Desktop Team Chat](docs/assets/desktop-team-chat.png) | <img src="docs/assets/mobile-team-chat.png" alt="Mobile Team Chat" width="300" /> |
 
 ---
 
 ### 🎯 Key Interface Features
 
-- **📱 Mobile-First Design**: Touch-optimized interfaces for on-the-go racing
-- **💻 Desktop Dashboard**: Comprehensive management and analytics tools
-- **🗺️ Interactive Maps**: Real-time GPS tracking with OpenStreetMap integration
-- **📊 Live Leaderboards**: Sub-second updates with advanced statistics
-- **💬 Team Communication**: Real-time chat with reactions and achievements
-- **🎬 Race Replay**: Video-like playback with detailed analysis tools
-- **📢 Admin Controls**: Real-time event management and broadcasting
-- **🏆 Team Management**: Create, join, and manage racing teams
+- **📱 Mobile-First Responsive Design**: Touch-optimized telemetry HUD and cockpit controls built for on-track mounting
+- **💻 Desktop Strategy Dashboard**: Multi-panel command center for telemetry, race control, and roster management
+- **🗺️ Interactive Circuit Maps**: High-precision vector circuit overlays with dynamic driver positions and speed apex markers
+- **📊 Live Leaderboard & Deltas**: Sub-second timing updates with color-coded sector pace (Green = PB, Purple = Session Best)
+- **💬 Pitwall Strategy Chat**: Instant WebSocket messaging with reaction matrix and race control broadcast integration
+- **🎬 Telemetry Replay Engine**: Video-like timeline scrubbing with variable playback speeds and incident breakdown
+- **📢 Real-Time Flag Dispatch**: Single-tap flag broadcasting and steward incident adjudication
+- **🏆 Team System**: Roster management, skill metrics, and seasonal championship tracking
 
-All screenshots are generated using Playwright automation to showcase the actual application interface and user experience.
+All screenshots are generated using automated Playwright sessions capturing the active telemetry application interface and cockpit design system.
 
 ## 🛠️ Tech Stack
 
