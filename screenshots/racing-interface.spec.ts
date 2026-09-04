@@ -8,12 +8,13 @@ test.describe('Racing Interface Screenshots', () => {
     await page.waitForSelector('text=Race Wars App Showcase');
   });
 
-  test('desktop racing interface screenshot', async ({ page }) => {
+  test('desktop racing interface screenshot', async ({ page, isMobile }) => {
+    test.skip(isMobile);
     // Navigate to racing interface
-    await page.click('[data-testid="mockup-button-4"]');
+    await page.click('[data-testid="mockup-button-1"]');
     
     // Wait for the interface to load
-    await page.waitForSelector('[data-testid="desktop-mockup"]');
+    await page.waitForSelector('[data-testid="mobile-mockup"]');
     
     // Take a brief moment for animations to complete
     await page.waitForTimeout(500);
@@ -25,7 +26,8 @@ test.describe('Racing Interface Screenshots', () => {
     });
   });
 
-  test('mobile racing interface screenshot', async ({ page }) => {
+  test('mobile racing interface screenshot', async ({ page, isMobile }) => {
+    test.skip(!isMobile);
     // Click on mobile racing interface
     await page.click('[data-testid="mockup-button-1"]');
     

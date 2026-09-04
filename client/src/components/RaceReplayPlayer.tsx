@@ -148,41 +148,89 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
     setShowRecordingsList(false);
   };
 
+  const loadDemoRecording = () => {
+    const demoRecording: RaceRecording = {
+      id: 'demo-laguna-seca',
+      name: 'Laguna Seca Pro Championship Final',
+      date: Date.now() - 3600000,
+      duration: 180000, // 3 minutes demo
+      trackInfo: {
+        name: 'Laguna Seca Raceway',
+        totalDistance: 3602,
+        totalLaps: 3,
+        centerLat: 36.584,
+        centerLng: -121.753
+      },
+      participants: [
+        { id: 'driver-77', name: 'Marcus Kane #77', vehicle: 'Apex GT3', finalPosition: 1, finalTime: 178210, status: 'finished' },
+        { id: 'driver-44', name: 'Lewis Vance #44', vehicle: 'Vortex V8', finalPosition: 2, finalTime: 178630, status: 'finished' },
+        { id: 'driver-12', name: 'Max Stone #12', vehicle: 'Kronos RS', finalPosition: 3, finalTime: 179400, status: 'finished' }
+      ],
+      dataPoints: [
+        { timestamp: 0, participantId: 'driver-77', position: { lat: 36.584, lng: -121.753 }, speed: 180, heading: 90, accuracy: 1, status: 'active', lap: 1, lapTime: 0, totalDistance: 0 },
+        { timestamp: 50000, participantId: 'driver-77', position: { lat: 36.586, lng: -121.750 }, speed: 245, heading: 95, accuracy: 1, status: 'active', lap: 1, lapTime: 50000, totalDistance: 1200 },
+        { timestamp: 110000, participantId: 'driver-77', position: { lat: 36.588, lng: -121.748 }, speed: 260, heading: 100, accuracy: 1, status: 'active', lap: 2, lapTime: 58000, totalDistance: 2400 },
+        { timestamp: 178210, participantId: 'driver-77', position: { lat: 36.584, lng: -121.753 }, speed: 210, heading: 90, accuracy: 1, status: 'finished', lap: 3, lapTime: 59210, totalDistance: 3602 }
+      ],
+      metadata: { recordedBy: 'Steward GPS telemetry', version: '2.0', compression: false }
+    };
+
+    replayService.importRecording(JSON.stringify(demoRecording));
+    replayService.loadRecording(demoRecording.id);
+    setRecording(demoRecording);
+    setShowRecordingsList(false);
+  };
+
   // Get controls
   const controls = replayService.getControls();
 
   if (!recording) {
     return (
-      <div className={`race-replay-player bg-gray-900 text-white p-6 rounded-lg ${className}`}>
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Race Replay Player</h2>
-          <p className="text-gray-400 mb-6">Select a race recording to replay</p>
+      <div className={`cockpit-card p-6 md:p-10 shadow-2xl text-center ${className}`}>
+        <div className="max-w-xl mx-auto">
+          <div className="text-4xl mb-3">🎬</div>
+          <h2 className="text-2xl font-bold font-orbitron text-white mb-2 tracking-wide">
+            Race Replay & Telemetry Hub
+          </h2>
+          <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+            Synchronized multi-vector telemetry playback with timeline scrubbers, GPS delta analysis, and steward event markers.
+          </p>
           
-          <button
-            onClick={() => setShowRecordingsList(!showRecordingsList)}
-            className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-medium transition-colors"
-          >
-            {showRecordingsList ? 'Hide' : 'Show'} Recordings ({recordings.length})
-          </button>
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
+            <button
+              onClick={() => setShowRecordingsList(!showRecordingsList)}
+              className="cockpit-btn cockpit-btn-cyan w-full sm:w-auto"
+            >
+              📁 {showRecordingsList ? 'Hide Archive' : 'Browse Recordings'} ({recordings.length})
+            </button>
+            <button
+              onClick={loadDemoRecording}
+              className="cockpit-btn cockpit-btn-green w-full sm:w-auto"
+            >
+              ▶ Load Laguna Seca Telemetry Replay
+            </button>
+          </div>
           
           {showRecordingsList && (
-            <div className="mt-6 bg-gray-800 rounded-lg p-4 max-h-96 overflow-y-auto">
+            <div className="mt-6 bg-black/40 border border-white/10 rounded-xl p-4 max-h-96 overflow-y-auto text-left">
               {recordings.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No recordings available</p>
+                <div className="text-gray-400 text-center py-6 text-sm">
+                  No local session telemetry recordings found.
+                </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {recordings.map((rec) => (
                     <div
                       key={rec.id}
                       onClick={() => loadRecording(rec.id)}
-                      className="bg-gray-700 hover:bg-gray-600 p-3 rounded cursor-pointer transition-colors"
+                      className="cockpit-card-interactive p-4 cursor-pointer"
                     >
-                      <div className="font-medium">{rec.name}</div>
-                      <div className="text-sm text-gray-400">
-                        {new Date(rec.date).toLocaleDateString()} • {formatTime(rec.duration)}
+                      <div className="font-bold text-white font-orbitron text-sm">{rec.name}</div>
+                      <div className="text-xs text-cyan-400 font-mono-numbers mt-1">
+                        {new Date(rec.date).toLocaleDateString()} • Duration: {formatTime(rec.duration)}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {rec.participants.length} participants • {rec.trackInfo.name}
+                      <div className="text-xs text-gray-400 mt-0.5">
+                        {rec.participants.length} Drivers on Grid • {rec.trackInfo.name}
                       </div>
                     </div>
                   ))}
@@ -196,59 +244,62 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
   }
 
   return (
-    <div className={`race-replay-player bg-gray-900 text-white rounded-lg overflow-hidden ${className}`}>
+    <div className={`cockpit-card shadow-2xl overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="bg-gray-800 p-4 border-b border-gray-700">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold">{recording.name}</h2>
-            <div className="text-sm text-gray-400">
-              {new Date(recording.date).toLocaleDateString()} • {recording.trackInfo.name}
-            </div>
+      <div className="p-4 md:p-5 border-b border-white/10 bg-black/20 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <span className="text-xl">🎬</span>
+            <h2 className="text-lg md:text-xl font-bold font-orbitron text-white">{recording.name}</h2>
           </div>
-          
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowRecordingsList(!showRecordingsList)}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              📁 Recordings ({recordings.length})
-            </button>
+          <div className="text-xs text-gray-400 mt-1 flex items-center gap-3 font-mono-numbers">
+            <span>{new Date(recording.date).toLocaleDateString()}</span>
+            <span>•</span>
+            <span className="text-cyan-400">{recording.trackInfo.name}</span>
           </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowRecordingsList(!showRecordingsList)}
+            className="cockpit-btn text-xs py-2 px-3"
+          >
+            📁 Select Session ({recordings.length})
+          </button>
         </div>
       </div>
 
       {/* Video-like Controls */}
-      <div className="bg-gray-800 p-4">
+      <div className="p-4 bg-black/40 border-b border-white/10">
         {/* Progress Bar */}
         <div className="mb-4">
           <div
             ref={progressBarRef}
             onClick={handleProgressClick}
-            className="relative h-2 bg-gray-700 rounded-full cursor-pointer overflow-hidden"
+            className="relative h-2.5 bg-gray-800 rounded-full cursor-pointer overflow-hidden border border-white/10"
           >
             <div
-              className="absolute h-full bg-blue-500 transition-all duration-100"
+              className="absolute h-full bg-gradient-to-r from-[#00ff88] to-[#00d4ff] transition-all duration-100"
               style={{ width: `${(playbackState.currentTime / playbackState.duration) * 100}%` }}
             />
             <div
-              className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-100"
+              className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_8px_#00ff88] transition-all duration-100"
               style={{ left: `${(playbackState.currentTime / playbackState.duration) * 100}%` }}
             />
           </div>
           
           {/* Time Display */}
-          <div className="flex justify-between text-xs text-gray-400 mt-1">
-            <span>{formatReplayTime(playbackState.currentTime)}</span>
+          <div className="flex justify-between text-xs font-mono-numbers text-gray-400 mt-1.5">
+            <span className="text-[#00ff88] font-bold">{formatReplayTime(playbackState.currentTime)}</span>
             <span>{formatReplayTime(playbackState.duration)}</span>
           </div>
         </div>
 
         {/* Control Buttons */}
-        <div className="flex items-center justify-center gap-4 mb-4">
+        <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
           <button
             onClick={() => controls.seek(Math.max(0, playbackState.currentTime - 10000))}
-            className="p-2 hover:bg-gray-700 rounded transition-colors"
+            className="cockpit-btn text-xs py-1.5 px-2.5"
             title="Skip back 10s"
           >
             ⏪ -10s
@@ -256,7 +307,7 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
           
           <button
             onClick={() => controls.seek(Math.max(0, playbackState.currentTime - 5000))}
-            className="p-2 hover:bg-gray-700 rounded transition-colors"
+            className="cockpit-btn text-xs py-1.5 px-2.5"
             title="Skip back 5s"
           >
             ⏪ -5s
@@ -264,86 +315,86 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
           
           <button
             onClick={() => controls.seek(Math.max(0, playbackState.currentTime - 1000))}
-            className="p-2 hover:bg-gray-700 rounded transition-colors"
+            className="cockpit-btn text-xs py-1.5 px-2"
             title="Skip back 1s"
           >
-            ◀◀
+            ◀
           </button>
           
           <button
             onClick={playbackState.isPlaying ? controls.pause : controls.play}
-            className="p-3 bg-blue-600 hover:bg-blue-700 rounded-full transition-colors"
+            className={`cockpit-btn px-4 py-2 text-sm font-bold ${playbackState.isPlaying ? 'cockpit-btn-amber' : 'cockpit-btn-green'}`}
             title={playbackState.isPlaying ? 'Pause' : 'Play'}
           >
-            {playbackState.isPlaying ? '⏸' : '▶'}
+            {playbackState.isPlaying ? '⏸ Pause' : '▶ Play'}
           </button>
           
           <button
             onClick={() => controls.seek(Math.min(playbackState.duration, playbackState.currentTime + 1000))}
-            className="p-2 hover:bg-gray-700 rounded transition-colors"
+            className="cockpit-btn text-xs py-1.5 px-2"
             title="Skip forward 1s"
           >
-            ▶▶
+            ▶
           </button>
           
           <button
             onClick={() => controls.seek(Math.min(playbackState.duration, playbackState.currentTime + 5000))}
-            className="p-2 hover:bg-gray-700 rounded transition-colors"
+            className="cockpit-btn text-xs py-1.5 px-2.5"
             title="Skip forward 5s"
           >
-            ⏩ +5s
+            +5s ⏩
           </button>
           
           <button
             onClick={() => controls.seek(Math.min(playbackState.duration, playbackState.currentTime + 10000))}
-            className="p-2 hover:bg-gray-700 rounded transition-colors"
+            className="cockpit-btn text-xs py-1.5 px-2.5"
             title="Skip forward 10s"
           >
-            ⏩ +10s
+            +10s ⏩
           </button>
           
           <button
             onClick={controls.stop}
-            className="p-2 hover:bg-gray-700 rounded transition-colors"
+            className="cockpit-btn text-xs py-1.5 px-2.5 hover:text-red-400"
             title="Stop"
           >
-            ⏹
+            ⏹ Stop
           </button>
         </div>
 
         {/* Additional Controls */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between flex-wrap gap-3 pt-2 border-t border-white/5">
+          <div className="flex items-center gap-3 flex-wrap">
             {/* Playback Speed */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">Speed:</span>
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <span>Speed:</span>
               <select
                 value={playbackState.playbackSpeed}
                 onChange={(e) => controls.setPlaybackSpeed(Number(e.target.value))}
-                className="bg-gray-700 text-white px-2 py-1 rounded text-sm"
+                className="cockpit-input py-1 px-2 text-xs w-auto"
               >
                 <option value={0.25}>0.25x</option>
                 <option value={0.5}>0.5x</option>
                 <option value={0.75}>0.75x</option>
-                <option value={1}>1x</option>
+                <option value={1}>1.0x</option>
                 <option value={1.25}>1.25x</option>
                 <option value={1.5}>1.5x</option>
-                <option value={2}>2x</option>
-                <option value={4}>4x</option>
+                <option value={2}>2.0x</option>
+                <option value={4}>4.0x</option>
               </select>
             </div>
 
             {/* Lap Selection */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">Lap:</span>
+            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+              <span>Lap:</span>
               <select
                 value={playbackState.currentLap}
                 onChange={(e) => controls.jumpToLap(Number(e.target.value))}
-                className="bg-gray-700 text-white px-2 py-1 rounded text-sm"
+                className="cockpit-input py-1 px-2 text-xs w-auto"
               >
                 {Array.from({ length: recording.trackInfo.totalLaps }, (_, i) => (
                   <option key={i + 1} value={i + 1}>
-                    Lap {i + 1}
+                    Lap {i + 1} / {recording.trackInfo.totalLaps}
                   </option>
                 ))}
               </select>
@@ -352,28 +403,30 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
             {/* Loop Toggle */}
             <button
               onClick={controls.toggleLoop}
-              className={`px-3 py-1 rounded text-sm transition-colors ${
+              className={`cockpit-btn text-xs py-1 px-2.5 ${
                 playbackState.isLooping 
-                  ? 'bg-blue-600 hover:bg-blue-700' 
-                  : 'bg-gray-700 hover:bg-gray-600'
+                  ? 'cockpit-btn-cyan' 
+                  : ''
               }`}
             >
               🔁 Loop
             </button>
           </div>
 
-          <div className="text-sm text-gray-400">
+          <div className="text-xs font-mono-numbers text-cyan-400 font-bold">
             {formatReplayTime(playbackState.currentTime)} / {formatReplayTime(playbackState.duration)}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
         {/* Map/Visualization */}
         {showMap && (
-          <div className="w-1/2 bg-gray-800 p-4 border-r border-gray-700">
-            <h3 className="text-lg font-semibold mb-4">Race View</h3>
+          <div className="w-full lg:w-1/2 p-5 border-b lg:border-b-0 lg:border-r border-white/10 bg-black/20">
+            <h3 className="text-sm font-bold font-orbitron text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+              <span>🏎️</span> Competitor Position Stream
+            </h3>
             
             {/* Participant Positions */}
             <div className="space-y-2">
@@ -384,19 +437,21 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
                 return (
                   <div
                     key={participantId}
-                    className={`p-2 rounded cursor-pointer transition-colors ${
-                      isFocused ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                    className={`p-3 rounded-xl cursor-pointer transition-all border ${
+                      isFocused 
+                        ? 'bg-cyan-500/20 border-cyan-400 shadow-[0_0_12px_rgba(0,212,255,0.25)]' 
+                        : 'cockpit-card-interactive'
                     }`}
                     onClick={() => isFocused ? controls.clearFocus() : controls.focusParticipant(participantId)}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium">{participant?.name || participantId}</div>
-                        <div className="text-xs text-gray-400">
-                          Lap {position.lap} • {formatSpeed(position.speed)} • {formatDistance(position.totalDistance)}
+                        <div className="font-bold text-white text-sm">{participant?.name || participantId}</div>
+                        <div className="text-xs text-gray-400 font-mono-numbers mt-0.5">
+                          Lap {position.lap} • <span className="text-[#00ff88]">{formatSpeed(position.speed)}</span> • {formatDistance(position.totalDistance)}
                         </div>
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-cyan-400 font-mono-numbers font-bold">
                         {formatReplayTime(position.timestamp)}
                       </div>
                     </div>
@@ -409,63 +464,65 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
 
         {/* Analysis Panel */}
         {showAnalysis && (
-          <div className={`${showMap ? 'w-1/2' : 'w-full'} bg-gray-800 p-4`}>
+          <div className={`${showMap ? 'w-full lg:w-1/2' : 'w-full'} p-5 bg-black/30`}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Race Analysis</h3>
+              <h3 className="text-sm font-bold font-orbitron text-white uppercase tracking-wider flex items-center gap-2">
+                <span>📊</span> Telemetry Analysis
+              </h3>
               <button
                 onClick={() => {
                   const analysis = replayService.analyzeRace();
                   setAnalysis(analysis);
                 }}
-                className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm transition-colors"
+                className="cockpit-btn cockpit-btn-cyan text-xs py-1.5 px-3"
               >
-                Analyze
+                Run Diagnostics
               </button>
             </div>
 
             {analysis && (
               <div className="space-y-4">
                 {/* Race Statistics */}
-                <div>
-                  <h4 className="font-medium mb-2">Race Statistics</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="bg-black/30 border border-white/10 rounded-xl p-4">
+                  <h4 className="text-xs font-bold font-orbitron text-gray-300 uppercase tracking-wider mb-3">Race Statistics</h4>
+                  <div className="grid grid-cols-2 gap-3 text-xs font-mono-numbers">
                     <div>
                       <span className="text-gray-400">Total Overtakes:</span>
-                      <div className="font-medium">{analysis.raceStatistics.totalOvertakes}</div>
+                      <div className="font-bold text-cyan-400 text-sm">{analysis.raceStatistics.totalOvertakes}</div>
                     </div>
                     <div>
                       <span className="text-gray-400">Avg Speed:</span>
-                      <div className="font-medium">{formatSpeed(analysis.raceStatistics.avgSpeed)}</div>
+                      <div className="font-bold text-[#00ff88] text-sm">{formatSpeed(analysis.raceStatistics.avgSpeed)}</div>
                     </div>
                     <div>
                       <span className="text-gray-400">Fastest Lap:</span>
-                      <div className="font-medium">
+                      <div className="font-bold text-[#ffaa00] text-sm">
                         {recording.participants.find(p => p.id === analysis.raceStatistics.fastestLap.participantId)?.name} - 
                         {formatTime(analysis.raceStatistics.fastestLap.time)}
                       </div>
                     </div>
                     <div>
                       <span className="text-gray-400">Closest Finish:</span>
-                      <div className="font-medium">{formatTime(analysis.raceStatistics.closestFinish.gap)}</div>
+                      <div className="font-bold text-white text-sm">{formatTime(analysis.raceStatistics.closestFinish.gap)}</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Key Moments */}
-                <div>
-                  <h4 className="font-medium mb-2">Key Moments</h4>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                <div className="bg-black/30 border border-white/10 rounded-xl p-4">
+                  <h4 className="text-xs font-bold font-orbitron text-gray-300 uppercase tracking-wider mb-2">Key Incident Moments</h4>
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
                     {analysis.keyMoments.map((moment: any, index: number) => (
                       <div
                         key={index}
-                        className="text-sm p-2 bg-gray-700 rounded cursor-pointer hover:bg-gray-600"
+                        className="text-xs p-2.5 rounded-lg cursor-pointer cockpit-card-interactive"
                         onClick={() => {
                           controls.seek(moment.timestamp);
                           setSelectedKeyMoment(moment);
                         }}
                       >
-                        <div className="font-medium">{moment.description}</div>
-                        <div className="text-xs text-gray-400">
+                        <div className="font-semibold text-white">{moment.description}</div>
+                        <div className="text-[11px] text-cyan-400 font-mono-numbers mt-0.5">
                           {formatReplayTime(moment.timestamp)} • {moment.type}
                         </div>
                       </div>
@@ -474,18 +531,18 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
                 </div>
 
                 {/* Participant Stats */}
-                <div>
-                  <h4 className="font-medium mb-2">Participant Performance</h4>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                <div className="bg-black/30 border border-white/10 rounded-xl p-4">
+                  <h4 className="text-xs font-bold font-orbitron text-gray-300 uppercase tracking-wider mb-2">Driver Performance</h4>
+                  <div className="space-y-1.5 max-h-36 overflow-y-auto">
                     {Array.from(analysis.participantStats.entries()).map(([participantId, stats]: [string, any]) => {
                       const participant = recording.participants.find(p => p.id === participantId);
                       return (
-                        <div key={participantId} className="text-sm p-2 bg-gray-700 rounded">
-                          <div className="font-medium">{participant?.name || participantId}</div>
-                          <div className="text-xs text-gray-400">
-                            Best Lap: {formatTime(stats.bestLapTime)} • 
-                            Avg Speed: {formatSpeed(stats.avgSpeed)} • 
-                            Overtakes: {stats.overtakes}
+                        <div key={participantId} className="text-xs p-2.5 rounded-lg cockpit-card-interactive">
+                          <div className="font-bold text-white">{participant?.name || participantId}</div>
+                          <div className="text-[11px] text-gray-400 font-mono-numbers mt-0.5">
+                            Best Lap: <span className="text-[#00ff88]">{formatTime(stats.bestLapTime)}</span> • 
+                            Avg: {formatSpeed(stats.avgSpeed)} • 
+                            Passes: {stats.overtakes}
                           </div>
                         </div>
                       );
@@ -500,42 +557,43 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
 
       {/* Recordings List Modal */}
       {showRecordingsList && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full max-h-96 overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold">Race Recordings</h3>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="cockpit-card p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto border border-white/20 shadow-2xl">
+            <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+              <h3 className="text-lg font-bold font-orbitron text-white">Race Recordings Archive</h3>
               <button
                 onClick={() => setShowRecordingsList(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-white text-lg p-1"
               >
                 ✕
               </button>
             </div>
             
             {recordings.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No recordings available</p>
+              <div className="text-gray-400 text-center py-8 text-sm">
+                No telemetry recordings currently stored.
+              </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {recordings.map((rec) => (
                   <div
                     key={rec.id}
                     onClick={() => loadRecording(rec.id)}
-                    className="bg-gray-700 hover:bg-gray-600 p-4 rounded cursor-pointer transition-colors"
+                    className="cockpit-card-interactive p-4 cursor-pointer"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
                       <div>
-                        <div className="font-medium">{rec.name}</div>
-                        <div className="text-sm text-gray-400">
+                        <div className="font-bold font-orbitron text-white text-sm">{rec.name}</div>
+                        <div className="text-xs text-cyan-400 font-mono-numbers mt-0.5">
                           {new Date(rec.date).toLocaleDateString()} • {formatTime(rec.duration)}
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {rec.participants.length} participants • {rec.trackInfo.name}
+                        <div className="text-xs text-gray-400 mt-0.5">
+                          {rec.participants.length} Drivers • {rec.trackInfo.name}
                         </div>
                       </div>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Export functionality
                           const jsonData = replayService.exportRecording(rec.id);
                           if (jsonData) {
                             const blob = new Blob([jsonData], { type: 'application/json' });
@@ -547,10 +605,10 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
                             URL.revokeObjectURL(url);
                           }
                         }}
-                        className="text-gray-400 hover:text-white"
+                        className="cockpit-btn text-xs py-1 px-2.5"
                         title="Export recording"
                       >
-                        💾
+                        💾 Export JSON
                       </button>
                     </div>
                   </div>
@@ -562,9 +620,9 @@ export const RaceReplayPlayer: React.FC<RaceReplayPlayerProps> = ({
       )}
 
       {/* Keyboard Shortcuts Help */}
-      <div className="bg-gray-800 p-2 border-t border-gray-700">
-        <div className="text-xs text-gray-500 text-center">
-          Keyboard: Space (Play/Pause) | ←→ (Seek) | ↑↓ (Speed) | F (Loop) | M (Mute)
+      <div className="bg-black/40 p-2.5 border-t border-white/10">
+        <div className="text-[11px] font-mono-numbers text-gray-400 text-center">
+          Shortcuts: Space (Play/Pause) | ←→ (Seek) | ↑↓ (Speed) | F (Loop)
         </div>
       </div>
     </div>

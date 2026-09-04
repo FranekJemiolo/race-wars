@@ -274,53 +274,55 @@ export const RaceAdminEventPanel: React.FC<RaceAdminEventPanelProps> = ({
   });
 
   return (
-    <div className={`race-admin-event-panel bg-gray-900 text-white ${className}`}>
+    <div className={`cockpit-card shadow-2xl overflow-hidden ${className}`}>
       {/* Header */}
-      <div className="bg-gray-800 border-b border-gray-700 p-6">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-black/30 border-b border-white/10 p-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Race Admin Events</h1>
-            <p className="text-gray-400">Manage events and communications</p>
+            <h1 className="text-xl md:text-2xl font-bold font-orbitron text-white tracking-wide flex items-center gap-2">
+              <span>📢</span> Race Admin Event Control
+            </h1>
+            <p className="text-gray-400 text-xs mt-1">Steward event broadcasts, safety protocols, and driver notices</p>
           </div>
           
           {/* Quick Actions */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => handleQuickAction('safety_car')}
-              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-sm touch-manipulation"
+              className="cockpit-btn cockpit-btn-amber text-xs py-2 px-3"
             >
               🟡 Safety Car
             </button>
             <button
               onClick={() => handleQuickAction('red_flag')}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm touch-manipulation"
+              className="cockpit-btn cockpit-btn-red text-xs py-2 px-3"
             >
-              🔴 Red Flag
+              🛑 Red Flag
             </button>
             <button
               onClick={() => handleQuickAction('weather_warning')}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm touch-manipulation"
+              className="cockpit-btn cockpit-btn-cyan text-xs py-2 px-3"
             >
-              🌦️ Weather
+              🌦️ Weather Alert
             </button>
             <button
               onClick={() => handleQuickAction('race_start')}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm touch-manipulation"
+              className="cockpit-btn cockpit-btn-green text-xs py-2 px-3"
             >
-              🏁 Start Race
+              🏁 Start Session
             </button>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-6 border-b border-gray-600">
+        <div className="flex gap-4 border-b border-white/10 overflow-x-auto">
           {['create', 'templates', 'history', 'analytics'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`pb-3 px-1 border-b-2 font-medium text-sm capitalize transition-colors ${
+              className={`pb-3 px-2 border-b-2 font-bold font-orbitron text-xs uppercase tracking-wider transition-all whitespace-nowrap ${
                 activeTab === tab
-                  ? 'border-blue-500 text-blue-400'
+                  ? 'border-[#00ff88] text-[#00ff88]'
                   : 'border-transparent text-gray-400 hover:text-white'
               }`}
             >

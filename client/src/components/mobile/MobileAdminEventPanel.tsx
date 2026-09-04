@@ -238,68 +238,70 @@ export const MobileAdminEventPanel: React.FC<MobileAdminEventPanelProps> = ({
   };
 
   return (
-    <div className={`mobile-admin-event-panel bg-gray-900 text-white min-h-screen ${className}`}>
+    <div className={`mobile-admin-event-panel bg-[#090d16] text-white min-h-screen ${className}`}>
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-gray-800 border-b border-gray-700">
-        <div className="flex items-center justify-between p-4">
+      <div className="sticky top-0 z-40 bg-black/60 backdrop-blur-md border-b border-white/10">
+        <div className="flex items-center justify-between p-3.5">
           <div>
-            <h1 className="text-lg font-bold">Event Control</h1>
-            <p className="text-xs text-gray-400">Manage race events</p>
+            <h1 className="text-base font-bold font-orbitron text-white flex items-center gap-2">
+              <span>⚡</span> Event Control HUD
+            </h1>
+            <p className="text-[11px] text-gray-400 font-mono-numbers">RACE ID: {raceId}</p>
           </div>
           
           <button
             onClick={() => setShowQuickActions(!showQuickActions)}
-            className="p-2 bg-gray-700 rounded-lg touch-manipulation"
+            className="p-2 bg-white/10 hover:bg-white/20 rounded-lg touch-manipulation transition-colors"
           >
-            <span className="text-xl">⚡</span>
+            <span className="text-lg">⚡</span>
           </button>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions Dropdown */}
         {showQuickActions && (
-          <div className="absolute top-16 right-4 bg-gray-800 rounded-lg shadow-lg p-2 z-50">
+          <div className="absolute top-14 right-3 bg-[#111728] border border-white/15 rounded-xl shadow-2xl p-2 z-50 min-w-[200px] space-y-1.5 backdrop-blur-md">
             <button
               onClick={() => handleQuickAction('safety_car')}
-              className="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-left text-sm touch-manipulation"
+              className="w-full px-3 py-2 bg-amber-500/15 text-amber-400 border border-amber-500/30 rounded-lg text-left text-xs font-bold font-orbitron touch-manipulation flex items-center gap-2"
             >
-              🟡 Safety Car
+              <span>🟡</span> Safety Car
             </button>
             <button
               onClick={() => handleQuickAction('red_flag')}
-              className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-left text-sm touch-manipulation"
+              className="w-full px-3 py-2 bg-red-500/15 text-red-400 border border-red-500/30 rounded-lg text-left text-xs font-bold font-orbitron touch-manipulation flex items-center gap-2"
             >
-              🔴 Red Flag
+              <span>🔴</span> Red Flag
             </button>
             <button
               onClick={() => handleQuickAction('weather_warning')}
-              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-left text-sm touch-manipulation"
+              className="w-full px-3 py-2 bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 rounded-lg text-left text-xs font-bold font-orbitron touch-manipulation flex items-center gap-2"
             >
-              🌦️ Weather
+              <span>🌦️</span> Weather Alert
             </button>
             <button
               onClick={() => handleQuickAction('race_start')}
-              className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-left text-sm touch-manipulation"
+              className="w-full px-3 py-2 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded-lg text-left text-xs font-bold font-orbitron touch-manipulation flex items-center gap-2"
             >
-              🏁 Start Race
+              <span>🏁</span> Start Race
             </button>
             <button
               onClick={() => handleQuickAction('penalty_warning')}
-              className="w-full px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded text-left text-sm touch-manipulation"
+              className="w-full px-3 py-2 bg-orange-500/15 text-orange-400 border border-orange-500/30 rounded-lg text-left text-xs font-bold font-orbitron touch-manipulation flex items-center gap-2"
             >
-              ⚠️ Warning
+              <span>⚠️</span> Warning
             </button>
           </div>
         )}
 
         {/* Tab Navigation */}
-        <div className="flex border-t border-gray-700">
+        <div className="flex border-t border-white/10">
           {['quick', 'create', 'templates', 'history'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`flex-1 py-3 text-sm font-medium capitalize touch-manipulation ${
+              className={`flex-1 py-2.5 text-xs font-bold font-orbitron uppercase tracking-wider touch-manipulation transition-all ${
                 activeTab === tab
-                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  ? 'text-[#00ff88] border-b-2 border-[#00ff88] bg-white/5'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -313,60 +315,63 @@ export const MobileAdminEventPanel: React.FC<MobileAdminEventPanelProps> = ({
       <div className="p-4 pb-20">
         {activeTab === 'quick' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+            <h2 className="text-sm font-bold font-orbitron text-gray-300 uppercase tracking-wider mb-3">
+              One-Touch Flag Operations
+            </h2>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => handleQuickAction('safety_car')}
-                className="bg-gray-800 rounded-lg p-6 text-center touch-manipulation hover:bg-gray-700"
+                className="cockpit-card-interactive p-4 text-center touch-manipulation border-amber-500/30 hover:border-amber-500/60"
               >
-                <div className="text-3xl mb-2">🟡</div>
-                <p className="font-medium">Safety Car</p>
-                <p className="text-xs text-gray-400">Deploy safety car</p>
+                <div className="text-2xl mb-1">🟡</div>
+                <p className="font-bold text-xs font-orbitron text-amber-400">Safety Car</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Deploy safety car</p>
               </button>
               
               <button
                 onClick={() => handleQuickAction('red_flag')}
-                className="bg-gray-800 rounded-lg p-6 text-center touch-manipulation hover:bg-gray-700"
+                className="cockpit-card-interactive p-4 text-center touch-manipulation border-red-500/30 hover:border-red-500/60"
               >
-                <div className="text-3xl mb-2">🔴</div>
-                <p className="font-medium">Red Flag</p>
-                <p className="text-xs text-gray-400">Stop race</p>
+                <div className="text-2xl mb-1">🔴</div>
+                <p className="font-bold text-xs font-orbitron text-red-400">Red Flag</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Halt session</p>
               </button>
               
               <button
                 onClick={() => handleQuickAction('weather_warning')}
-                className="bg-gray-800 rounded-lg p-6 text-center touch-manipulation hover:bg-gray-700"
+                className="cockpit-card-interactive p-4 text-center touch-manipulation border-cyan-500/30 hover:border-cyan-500/60"
               >
-                <div className="text-3xl mb-2">🌦️</div>
-                <p className="font-medium">Weather</p>
-                <p className="text-xs text-gray-400">Weather alert</p>
+                <div className="text-2xl mb-1">🌦️</div>
+                <p className="font-bold text-xs font-orbitron text-cyan-400">Weather</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Rain alert</p>
               </button>
               
               <button
                 onClick={() => handleQuickAction('race_start')}
-                className="bg-gray-800 rounded-lg p-6 text-center touch-manipulation hover:bg-gray-700"
+                className="cockpit-card-interactive p-4 text-center touch-manipulation border-emerald-500/30 hover:border-emerald-500/60"
               >
-                <div className="text-3xl mb-2">🏁</div>
-                <p className="font-medium">Start Race</p>
-                <p className="text-xs text-gray-400">Begin race</p>
+                <div className="text-2xl mb-1">🏁</div>
+                <p className="font-bold text-xs font-orbitron text-emerald-400">Start Race</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Green light</p>
               </button>
               
               <button
                 onClick={() => handleQuickAction('penalty_warning')}
-                className="bg-gray-800 rounded-lg p-6 text-center touch-manipulation hover:bg-gray-700"
+                className="cockpit-card-interactive p-4 text-center touch-manipulation border-orange-500/30 hover:border-orange-500/60"
               >
-                <div className="text-3xl mb-2">⚠️</div>
-                <p className="font-medium">Warning</p>
-                <p className="text-xs text-gray-400">Track limits</p>
+                <div className="text-2xl mb-1">⚠️</div>
+                <p className="font-bold text-xs font-orbitron text-orange-400">Warning</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Track limits</p>
               </button>
               
               <button
-                className="bg-gray-800 rounded-lg p-6 text-center touch-manipulation hover:bg-gray-700"
+                onClick={() => setActiveTab('create')}
+                className="cockpit-card-interactive p-4 text-center touch-manipulation border-white/20 hover:border-white/40"
               >
-                <div className="text-3xl mb-2">📢</div>
-                <p className="font-medium">Custom</p>
-                <p className="text-xs text-gray-400">Create event</p>
+                <div className="text-2xl mb-1">📢</div>
+                <p className="font-bold text-xs font-orbitron text-white">Custom</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Compose notice</p>
               </button>
             </div>
 

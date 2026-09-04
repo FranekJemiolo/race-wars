@@ -8,7 +8,8 @@ test.describe('Admin Panel Screenshots', () => {
     await page.waitForSelector('text=Race Wars App Showcase');
   });
 
-  test('desktop admin panel screenshot', async ({ page }) => {
+  test('desktop admin panel screenshot', async ({ page, isMobile }) => {
+    test.skip(isMobile);
     // Navigate to admin panel interface
     await page.click('[data-testid="mockup-button-5"]');
     
@@ -25,7 +26,8 @@ test.describe('Admin Panel Screenshots', () => {
     });
   });
 
-  test('mobile admin panel screenshot', async ({ page }) => {
+  test('mobile admin panel screenshot', async ({ page, isMobile }) => {
+    test.skip(!isMobile);
     // Click on mobile admin panel
     await page.click('[data-testid="mockup-button-5"]');
     

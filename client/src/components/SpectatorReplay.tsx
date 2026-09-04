@@ -238,7 +238,12 @@ export const SpectatorReplay: React.FC<SpectatorReplayProps> = ({
   }
 
   if (!replayData) {
-    return <div className="p-6">No replay data available</div>;
+    return (
+      <div className="cockpit-card p-8 text-center">
+        <h2 className="text-xl font-bold font-orbitron text-white mb-2">No Replay Telemetry Available</h2>
+        <p className="text-gray-400 text-sm">Please select an active session recording to inspect.</p>
+      </div>
+    );
   }
 
   const currentPositions = getCurrentPositions();
@@ -246,30 +251,48 @@ export const SpectatorReplay: React.FC<SpectatorReplayProps> = ({
   const currentFlags = getCurrentFlags();
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Session Replay</h2>
+    <div className="cockpit-card p-6 shadow-2xl">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+        <div>
+          <h2 className="text-2xl font-bold font-orbitron text-white tracking-wide flex items-center gap-3">
+            <span>🎬</span> Session Replay Analysis
+          </h2>
+          <p className="text-xs text-gray-400 font-mono-numbers mt-1">
+            SESSION ID: {sessionId} • 60Hz MULTI-VECTOR PLAYBACK
+          </p>
+        </div>
         <button
           onClick={onExit}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          className="cockpit-btn"
         >
-          Exit Replay
+          ← Exit Replay
         </button>
       </div>
 
       {/* Map View */}
-      <div className="relative bg-gray-100 rounded-lg h-96 mb-4 overflow-hidden">
+      <div className="relative bg-[#090d16] border border-white/10 rounded-xl h-96 mb-6 overflow-hidden shadow-inner flex items-center justify-center">
         {/* Simple SVG-based map visualization */}
-        <svg className="w-full h-full">
-          {/* Track outline */}
+        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          {/* Track background glow */}
           <ellipse
-            cx="50%"
-            cy="50%"
-            rx="40%"
-            ry="30%"
+            cx="50"
+            cy="50"
+            rx="40"
+            ry="30"
             fill="none"
-            stroke="#ccc"
+            stroke="rgba(0, 212, 255, 0.15)"
+            strokeWidth="6"
+          />
+          {/* Track line */}
+          <ellipse
+            cx="50"
+            cy="50"
+            rx="40"
+            ry="30"
+            fill="none"
+            stroke="#00ff88"
             strokeWidth="2"
+            strokeDasharray="4 2"
           />
           
           {/* Current positions */}
@@ -285,21 +308,21 @@ export const SpectatorReplay: React.FC<SpectatorReplayProps> = ({
               <g key={`${pos.participantId}-${index}`}>
                 {/* Car marker */}
                 <circle
-                  cx={`${x}%`}
-                  cy={`${y}%`}
-                  r="8"
-                  fill={participant.color}
-                  stroke="white"
-                  strokeWidth="2"
+                  cx={`${x}`}
+                  cy={`${y}`}
+                  r="3.5"
+                  fill={participant.color || '#00d4ff'}
+                  stroke="#ffffff"
+                  strokeWidth="0.8"
                 />
                 {/* Car number */}
                 <text
-                  x={`${x}%`}
-                  y={`${y}%`}
+                  x={`${x}`}
+                  y={`${y}`}
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill="white"
-                  fontSize="10"
+                  fontSize="2.5"
                   fontWeight="bold"
                 >
                   {participant.carNumber}
@@ -316,20 +339,19 @@ export const SpectatorReplay: React.FC<SpectatorReplayProps> = ({
             return (
               <g key={`incident-${index}`}>
                 <circle
-                  cx={`${x}%`}
-                  cy={`${y}%`}
-                  r="12"
-                  fill="rgba(255, 0, 0, 0.3)"
-                  stroke="red"
-                  strokeWidth="2"
+                  cx={`${x}`}
+                  cy={`${y}`}
+                  r="4"
+                  fill="rgba(255, 51, 102, 0.4)"
+                  stroke="#ff3366"
+                  strokeWidth="0.8"
                 />
                 <text
-                  x={`${x}%`}
-                  y={`${y}%`}
+                  x={`${x}`}
+                  y={`${y}`}
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  fill="red"
-                  fontSize="16"
+                  fontSize="3"
                 >
                   ⚠️
                 </text>
@@ -343,60 +365,59 @@ export const SpectatorReplay: React.FC<SpectatorReplayProps> = ({
           {currentFlags.map((flag, index) => (
             <div
               key={index}
-              className={`px-3 py-1 rounded text-white text-sm ${
-                flag.flag === 'yellow' ? 'bg-yellow-500' :
-                flag.flag === 'red' ? 'bg-red-500' :
-                flag.flag === 'green' ? 'bg-green-500' :
-                'bg-gray-500'
+              className={`px-3 py-1 rounded-md text-xs font-bold font-orbitron flex items-center gap-2 border ${
+                flag.flag === 'yellow' ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' :
+                flag.flag === 'red' ? 'bg-red-500/20 text-red-400 border-red-500/50' :
+                flag.flag === 'green' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' :
+                'bg-gray-800 text-gray-300 border-gray-700'
               }`}
             >
-              Sector {flag.sector}: {flag.flag.toUpperCase()}
+              <span>{flag.flag === 'yellow' ? '🟡' : flag.flag === 'red' ? '🔴' : '🟢'}</span>
+              <span>SEC {flag.sector}: {flag.flag.toUpperCase()}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Playback Controls */}
-      <div className="mb-4">
-        <div className="flex items-center gap-4 mb-2">
+      <div className="bg-black/30 border border-white/10 rounded-xl p-4 mb-6">
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className={`cockpit-btn ${isPlaying ? 'cockpit-btn-amber' : 'cockpit-btn-green'}`}
           >
             {isPlaying ? '⏸ Pause' : '▶ Play'}
           </button>
           <button
             onClick={() => setCurrentTime(replayData.startTime)}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            className="cockpit-btn text-xs py-2 px-3"
           >
             ⏮ Start
           </button>
           <button
             onClick={() => setCurrentTime(replayData.endTime)}
-            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            className="cockpit-btn text-xs py-2 px-3"
           >
             ⏭ End
           </button>
           
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Speed:</span>
+          <div className="flex items-center gap-2 text-sm text-gray-300 ml-auto">
+            <span>Speed:</span>
             <select
               value={playbackSpeed}
               onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-              className="px-2 py-1 border rounded"
+              className="cockpit-input py-1 px-2 text-xs w-auto"
             >
               <option value={0.5}>0.5x</option>
-              <option value={1}>1x</option>
-              <option value={2}>2x</option>
-              <option value={4}>4x</option>
-              <option value={8}>8x</option>
+              <option value={1}>1.0x</option>
+              <option value={2}>2.0x</option>
+              <option value={4}>4.0x</option>
+              <option value={8}>8.0x</option>
             </select>
           </div>
 
-          <div className="flex-1 text-center">
-            <span className="text-sm font-mono">
-              {formatTime(currentTime)} / {formatTime(replayData.endTime)}
-            </span>
+          <div className="text-right text-xs font-mono-numbers text-cyan-400 font-bold ml-2">
+            {formatTime(currentTime)} / {formatTime(replayData.endTime)}
           </div>
         </div>
 
@@ -408,30 +429,32 @@ export const SpectatorReplay: React.FC<SpectatorReplayProps> = ({
           step={0.001}
           value={getProgress()}
           onChange={(e) => handleScrub(parseFloat(e.target.value))}
-          className="w-full"
+          className="w-full accent-[#00ff88] cursor-pointer"
           disabled={isPlaying}
         />
       </div>
 
       {/* Participant selection */}
-      <div className="mb-4">
-        <h3 className="font-semibold mb-2">Participants</h3>
+      <div className="mb-6">
+        <h3 className="font-orbitron text-sm font-bold text-gray-300 uppercase tracking-wider mb-3">
+          Tracked Competitors
+        </h3>
         <div className="flex flex-wrap gap-2">
           {replayData.participants.map((participant) => (
             <button
               key={participant.id}
               onClick={() => toggleParticipant(participant.id)}
-              className={`px-3 py-1 rounded flex items-center gap-2 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all border ${
                 selectedParticipants.has(participant.id)
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-700'
+                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500 shadow-[0_0_10px_rgba(0,212,255,0.2)]'
+                  : 'bg-gray-800/80 text-gray-400 border-white/10 hover:border-white/30'
               }`}
             >
               <span
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: participant.color }}
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: participant.color || '#00d4ff' }}
               />
-              <span>#{participant.carNumber}</span>
+              <span className="font-mono-numbers font-bold">#{participant.carNumber}</span>
               <span>{participant.name}</span>
             </button>
           ))}
@@ -439,36 +462,40 @@ export const SpectatorReplay: React.FC<SpectatorReplayProps> = ({
       </div>
 
       {/* Display options */}
-      <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2">
+      <div className="flex items-center gap-6 text-sm text-gray-300">
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             checked={showIncidents}
             onChange={(e) => setShowIncidents(e.target.checked)}
-            className="rounded"
+            className="accent-[#00d4ff] rounded cursor-pointer"
           />
-          <span className="text-sm">Show Incidents</span>
+          <span>Show Incidents</span>
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             checked={showFlags}
             onChange={(e) => setShowFlags(e.target.checked)}
-            className="rounded"
+            className="accent-[#00ff88] rounded cursor-pointer"
           />
-          <span className="text-sm">Show Flags</span>
+          <span>Show Flags</span>
         </label>
       </div>
 
       {/* Current incidents list */}
       {currentIncidents.length > 0 && (
-        <div className="mt-4 p-3 bg-red-50 rounded">
-          <h4 className="font-semibold text-red-800 mb-2">Current Incidents</h4>
-          {currentIncidents.map((incident, index) => (
-            <div key={index} className="text-sm text-red-700">
-              {incident.description}
-            </div>
-          ))}
+        <div className="mt-6 p-4 bg-red-950/30 border border-red-500/30 rounded-xl">
+          <h4 className="font-orbitron text-xs font-bold text-red-400 tracking-wider mb-2 flex items-center gap-2">
+            <span>🚨</span> Incident Reports Active
+          </h4>
+          <div className="space-y-1">
+            {currentIncidents.map((incident, index) => (
+              <div key={index} className="text-xs text-red-200">
+                • {incident.description}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

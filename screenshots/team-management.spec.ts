@@ -8,7 +8,8 @@ test.describe('Team Management Screenshots', () => {
     await page.waitForSelector('text=Race Wars App Showcase');
   });
 
-  test('desktop team management screenshot', async ({ page }) => {
+  test('desktop team management screenshot', async ({ page, isMobile }) => {
+    test.skip(isMobile);
     // Click on the desktop team dashboard button
     await page.click('[data-testid="mockup-button-3"]');
     
@@ -25,7 +26,8 @@ test.describe('Team Management Screenshots', () => {
     });
   });
 
-  test('mobile team management screenshot', async ({ page }) => {
+  test('mobile team management screenshot', async ({ page, isMobile }) => {
+    test.skip(!isMobile);
     // Click on the mobile team management button
     await page.click('[data-testid="mockup-button-0"]');
     

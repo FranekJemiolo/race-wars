@@ -94,3 +94,144 @@ html, body, #root {
   background: #1f2937 !important;
   color: #00ff88 !important;
 }
+
+/* Common Cockpit Component Classes */
+.cockpit-card {
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.9) 0%, rgba(10, 14, 24, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  color: #f3f4f6;
+}
+
+.cockpit-card-interactive {
+  background: linear-gradient(135deg, rgba(18, 24, 38, 0.85) 0%, rgba(10, 14, 24, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cockpit-card-interactive:hover {
+  border-color: rgba(0, 212, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 212, 255, 0.15);
+}
+
+.cockpit-input {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f3f4f6;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+.cockpit-input:focus {
+  outline: none;
+  border-color: var(--color-neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.25);
+}
+
+.cockpit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3f4f6;
+  text-decoration: none;
+  user-select: none;
+}
+
+.cockpit-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.cockpit-btn-green {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.18) 0%, rgba(0, 212, 255, 0.1) 100%);
+  border: 1px solid var(--color-neon-green);
+  color: var(--color-neon-green);
+}
+
+.cockpit-btn-green:hover {
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.3) 0%, rgba(0, 212, 255, 0.2) 100%);
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.35);
+}
+
+.cockpit-btn-cyan {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.18) 0%, rgba(0, 136, 255, 0.1) 100%);
+  border: 1px solid var(--color-neon-cyan);
+  color: var(--color-neon-cyan);
+}
+
+.cockpit-btn-cyan:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(0, 136, 255, 0.2) 100%);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.35);
+}
+
+.cockpit-btn-amber {
+  background: linear-gradient(135deg, rgba(255, 170, 0, 0.18) 0%, rgba(255, 100, 0, 0.1) 100%);
+  border: 1px solid var(--color-neon-amber);
+  color: var(--color-neon-amber);
+}
+
+.cockpit-btn-amber:hover {
+  background: linear-gradient(135deg, rgba(255, 170, 0, 0.3) 0%, rgba(255, 100, 0, 0.2) 100%);
+  box-shadow: 0 0 16px rgba(255, 170, 0, 0.35);
+}
+
+.cockpit-btn-red {
+  background: linear-gradient(135deg, rgba(255, 51, 102, 0.18) 0%, rgba(220, 38, 38, 0.1) 100%);
+  border: 1px solid var(--color-neon-red);
+  color: var(--color-neon-red);
+}
+
+.cockpit-btn-red:hover {
+  background: linear-gradient(135deg, rgba(255, 51, 102, 0.3) 0%, rgba(220, 38, 38, 0.2) 100%);
+  box-shadow: 0 0 16px rgba(255, 51, 102, 0.35);
+}
+
+.font-orbitron {
+  font-family: var(--font-display);
+}
+
+.font-mono-numbers {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mobile responsive helpers */
+@media (max-width: 640px) {
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  .mobile-grid-1 {
+    grid-template-columns: 1fr !important;
+  }
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .mobile-compact-p {
+    padding: 12px 8px !important;
+  }
+  .mobile-scroll-x {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mobile-scroll-x::-webkit-scrollbar {
+    display: none;
+  }
+}
+

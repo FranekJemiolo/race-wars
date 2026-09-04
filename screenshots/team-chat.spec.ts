@@ -8,7 +8,8 @@ test.describe('Team Chat Screenshots', () => {
     await page.waitForSelector('text=Race Wars App Showcase');
   });
 
-  test('desktop team chat screenshot', async ({ page }) => {
+  test('desktop team chat screenshot', async ({ page, isMobile }) => {
+    test.skip(isMobile);
     // Navigate to team chat interface
     await page.click('[data-testid="mockup-button-2"]');
     
@@ -25,7 +26,8 @@ test.describe('Team Chat Screenshots', () => {
     });
   });
 
-  test('mobile team chat screenshot', async ({ page }) => {
+  test('mobile team chat screenshot', async ({ page, isMobile }) => {
+    test.skip(!isMobile);
     // Click on mobile team chat
     await page.click('[data-testid="mockup-button-2"]');
     

@@ -43,17 +43,18 @@ export const ShowcasePage: React.FC = () => {
       minHeight: '100vh',
       background: 'radial-gradient(circle at 50% 10%, #111728 0%, #080c14 90%)',
       color: '#f3f4f6',
-      padding: '36px 24px',
+      padding: '20px 16px',
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      overflowX: 'hidden'
     }}>
-      <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1240px', margin: '0 auto', width: '100%' }}>
         {/* Title Header */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <span style={{ fontSize: '2rem' }}>🏁</span>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span style={{ fontSize: '1.6rem' }}>🏁</span>
             <h1 style={{
-              fontSize: '2.4rem',
+              fontSize: 'clamp(1.4rem, 4vw, 2.2rem)',
               fontWeight: 900,
               letterSpacing: '-0.02em',
               margin: 0,
@@ -65,48 +66,60 @@ export const ShowcasePage: React.FC = () => {
               Race Wars App Showcase
             </h1>
           </div>
-          <p style={{ color: '#94a3b8', fontSize: '1rem', maxWidth: '600px', margin: '0 auto' }}>
+          <p style={{ color: '#94a3b8', fontSize: '0.88rem', maxWidth: '560px', margin: '0 auto' }}>
             Next-generation real-time GPS telemetry, mobile cockpit HUD, and professional race control suite.
           </p>
         </div>
         
-        {/* Mockup Pill Selector */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '10px',
-          marginBottom: '36px',
-          flexWrap: 'wrap'
-        }}>
-          {mockups.map((mockup, index) => {
-            const isSelected = selectedMockup === index;
-            return (
-              <button
-                key={index}
-                onClick={() => setSelectedMockup(index)}
-                data-testid={`mockup-button-${index}`}
-                style={{
-                  padding: '10px 18px',
-                  borderRadius: '10px',
-                  fontWeight: 700,
-                  fontSize: '0.88rem',
-                  cursor: 'pointer',
-                  border: isSelected ? '1px solid #00ff88' : '1px solid rgba(255, 255, 255, 0.1)',
-                  background: isSelected 
-                    ? 'linear-gradient(135deg, rgba(0, 255, 136, 0.18) 0%, rgba(0, 212, 255, 0.12) 100%)' 
-                    : 'rgba(22, 27, 34, 0.7)',
-                  color: isSelected ? '#00ff88' : '#94a3b8',
-                  boxShadow: isSelected ? '0 0 16px rgba(0, 255, 136, 0.25)' : 'none',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                {mockup.title}
-              </button>
-            );
-          })}
+        {/* Mockup Pill Selector - Horizontally scrollable on mobile, centered on desktop */}
+        <div 
+          className="mobile-scroll-x"
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            gap: '8px',
+            marginBottom: '20px',
+            overflowX: 'auto',
+            paddingBottom: '8px',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            maxWidth: '100%',
+            boxSizing: 'border-box'
+          }}
+        >
+          <div style={{ display: 'flex', gap: '8px', margin: '0 auto', flexWrap: 'nowrap' }}>
+            {mockups.map((mockup, index) => {
+              const isSelected = selectedMockup === index;
+              return (
+                <button
+                  key={index}
+                  onClick={() => setSelectedMockup(index)}
+                  data-testid={`mockup-button-${index}`}
+                  style={{
+                    padding: '8px 14px',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    border: isSelected ? '1px solid #00ff88' : '1px solid rgba(255, 255, 255, 0.1)',
+                    background: isSelected 
+                      ? 'linear-gradient(135deg, rgba(0, 255, 136, 0.18) 0%, rgba(0, 212, 255, 0.12) 100%)' 
+                      : 'rgba(22, 27, 34, 0.7)',
+                    color: isSelected ? '#00ff88' : '#94a3b8',
+                    boxShadow: isSelected ? '0 0 16px rgba(0, 255, 136, 0.25)' : 'none',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  {mockup.title}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Hero Display Stage */}
@@ -114,20 +127,21 @@ export const ShowcasePage: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '24px'
+          gap: '16px',
+          width: '100%'
         }}>
           {/* Subtitle & Description */}
-          <div style={{ textAlign: 'center', maxWidth: '700px' }}>
+          <div style={{ textAlign: 'center', maxWidth: '640px', padding: '0 12px' }}>
             <h2 style={{
-              fontSize: '1.6rem',
+              fontSize: 'clamp(1.1rem, 3vw, 1.5rem)',
               fontWeight: 800,
               color: '#ffffff',
-              margin: '0 0 8px 0',
+              margin: '0 0 6px 0',
               fontFamily: "'Orbitron', sans-serif"
             }}>
               {currentMockup.title}
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: 0 }}>
+            <p style={{ color: '#94a3b8', fontSize: '0.86rem', margin: 0 }}>
               {currentMockup.description}
             </p>
           </div>
@@ -140,12 +154,13 @@ export const ShowcasePage: React.FC = () => {
                 className="mockup-mobile" 
                 data-testid="mobile-mockup"
                 style={{
-                  width: '380px',
+                  width: '100%',
+                  maxWidth: '380px',
                   background: '#0c101a',
                   border: '3px solid rgba(255, 255, 255, 0.15)',
-                  borderRadius: '36px',
-                  padding: '20px 16px',
-                  boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 255, 136, 0.1)',
+                  borderRadius: '32px',
+                  padding: '16px 14px',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 255, 136, 0.1)',
                   position: 'relative',
                   boxSizing: 'border-box'
                 }}
@@ -440,11 +455,12 @@ export const ShowcasePage: React.FC = () => {
                   width: '100%',
                   maxWidth: '960px',
                   background: 'linear-gradient(145deg, #111827 0%, #0a0e17 100%)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
                   borderRadius: '16px',
-                  padding: '24px',
+                  padding: '16px',
                   boxShadow: '0 20px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(0, 212, 255, 0.08)',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  overflow: 'hidden'
                 }}
               >
                 {/* Desktop Window Title Bar */}
@@ -452,22 +468,24 @@ export const ShowcasePage: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  paddingBottom: '16px',
-                  marginBottom: '20px',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+                  paddingBottom: '12px',
+                  marginBottom: '16px',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                  flexWrap: 'wrap',
+                  gap: '8px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ef4444' }} />
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b' }} />
-                      <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#22c55e' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '5px' }}>
+                      <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} />
+                      <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }} />
+                      <span style={{ width: '9px', height: '9px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
                     </div>
-                    <span style={{ fontWeight: 800, color: '#fff', fontSize: '1rem', fontFamily: "'Orbitron', sans-serif" }}>
+                    <span style={{ fontWeight: 800, color: '#fff', fontSize: '0.9rem', fontFamily: "'Orbitron', sans-serif" }}>
                       🏁 Race Wars — {currentMockup.title.split(' ')[2] || 'Command Console'}
                     </span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#94a3b8' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff88', boxShadow: '0 0 8px #00ff88' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#94a3b8' }}>
+                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#00ff88', boxShadow: '0 0 8px #00ff88' }} />
                     TELEMETRY ACTIVE
                   </div>
                 </div>
@@ -477,35 +495,35 @@ export const ShowcasePage: React.FC = () => {
                   {currentMockup.title.includes('Team Dashboard') && (
                     <div>
                       {/* Top Team Metrics */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', marginBottom: '20px' }}>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '12px', padding: '16px' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>CONSTRUCTOR RANK</span>
-                          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#00ff88', fontFamily: "'Orbitron', sans-serif" }}>1st</div>
-                          <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>Premier Division</span>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginBottom: '16px' }}>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '12px', padding: '12px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>CONSTRUCTOR RANK</span>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#00ff88', fontFamily: "'Orbitron', sans-serif" }}>1st</div>
+                          <span style={{ fontSize: '0.7rem', color: '#6b7280' }}>Premier Division</span>
                         </div>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '12px', padding: '16px' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>TOTAL SQUAD POINTS</span>
-                          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#00d4ff', fontFamily: "'Orbitron', sans-serif" }}>3,890</div>
-                          <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>+120 this weekend</span>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '12px', padding: '12px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>TOTAL SQUAD POINTS</span>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', fontFamily: "'Orbitron', sans-serif" }}>3,890</div>
+                          <span style={{ fontSize: '0.7rem', color: '#6b7280' }}>+120 this weekend</span>
                         </div>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '12px', padding: '16px' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>PODIUM RATE</span>
-                          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffaa00', fontFamily: "'Orbitron', sans-serif" }}>88%</div>
-                          <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>42 podiums / 48 starts</span>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '12px', padding: '12px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>PODIUM RATE</span>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ffaa00', fontFamily: "'Orbitron', sans-serif" }}>88%</div>
+                          <span style={{ fontSize: '0.7rem', color: '#6b7280' }}>42 / 48 starts</span>
                         </div>
-                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '12px', padding: '16px' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>FLEET READINESS</span>
-                          <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#22c55e', fontFamily: "'Orbitron', sans-serif" }}>100%</div>
-                          <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>8 race cars tuned</span>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '12px', padding: '12px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>FLEET READINESS</span>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#22c55e', fontFamily: "'Orbitron', sans-serif" }}>100%</div>
+                          <span style={{ fontSize: '0.7rem', color: '#6b7280' }}>8 race cars tuned</span>
                         </div>
                       </div>
 
                       {/* Standings Table */}
                       <div style={{ background: 'rgba(0, 0, 0, 0.3)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.06)', overflow: 'hidden' }}>
-                        <div style={{ padding: '12px 18px', background: 'rgba(255, 255, 255, 0.03)', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', fontWeight: 700, fontSize: '0.9rem', color: '#cbd5e1' }}>
+                        <div style={{ padding: '10px 14px', background: 'rgba(255, 255, 255, 0.03)', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', fontWeight: 700, fontSize: '0.85rem', color: '#cbd5e1' }}>
                           Constructor Championship Standings
                         </div>
-                        <div style={{ padding: '8px' }}>
+                        <div style={{ padding: '4px' }}>
                           {[
                             { rank: 1, team: 'Apex Predators Racing', tag: 'APR', points: 3890, wins: 28, form: '🥇🥇🥈' },
                             { rank: 2, team: 'Vortex Works Motorsport', tag: 'VWM', points: 3620, wins: 18, form: '🥈🥉🥇' },
@@ -515,17 +533,19 @@ export const ShowcasePage: React.FC = () => {
                               display: 'flex',
                               justifyContent: 'space-between',
                               alignItems: 'center',
-                              padding: '12px 16px',
+                              padding: '10px 12px',
                               borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                              fontSize: '0.9rem'
+                              fontSize: '0.82rem',
+                              flexWrap: 'wrap',
+                              gap: '8px'
                             }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <span style={{ fontWeight: 800, color: row.rank === 1 ? '#00ff88' : '#94a3b8', width: '20px' }}>#{row.rank}</span>
                                 <span style={{ fontWeight: 700, color: '#fff' }}>{row.team}</span>
-                                <span style={{ background: 'rgba(255, 255, 255, 0.08)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.72rem', color: '#94a3b8' }}>{row.tag}</span>
+                                <span style={{ background: 'rgba(255, 255, 255, 0.08)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', color: '#94a3b8' }}>{row.tag}</span>
                               </div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                <span style={{ color: '#cbd5e1' }}>{row.wins} Wins</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                <span style={{ color: '#cbd5e1' }}>{row.wins}W</span>
                                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: '#00d4ff' }}>{row.points} PTS</span>
                                 <span>{row.form}</span>
                               </div>
@@ -537,19 +557,22 @@ export const ShowcasePage: React.FC = () => {
                   )}
 
                   {currentMockup.title.includes('Race Replay') && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                       {/* Video / Map Replay Stage */}
                       <div style={{
-                        height: '240px',
+                        height: '180px',
                         background: 'radial-gradient(circle at 50% 50%, #151e30 0%, #090e18 100%)',
                         borderRadius: '12px',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
                         position: 'relative',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        width: '100%',
+                        boxSizing: 'border-box'
                       }}>
-                        <svg width="600" height="200" viewBox="0 0 600 200">
+                        <svg viewBox="0 0 600 200" preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%', maxWidth: '100%' }}>
                           <path
                             d="M 50 140 C 50 40, 160 30, 300 30 C 440 30, 550 50, 550 110 C 550 170, 440 170, 320 170 C 180 170, 100 150, 50 140 Z"
                             fill="none"
@@ -570,15 +593,19 @@ export const ShowcasePage: React.FC = () => {
 
                         <div style={{
                           position: 'absolute',
-                          bottom: '16px',
-                          left: '20px',
-                          background: 'rgba(0, 0, 0, 0.7)',
-                          padding: '6px 14px',
+                          bottom: '10px',
+                          left: '12px',
+                          right: '12px',
+                          background: 'rgba(0, 0, 0, 0.75)',
+                          padding: '6px 12px',
                           borderRadius: '8px',
                           border: '1px solid rgba(255, 255, 255, 0.1)',
                           display: 'flex',
-                          gap: '16px',
-                          alignItems: 'center'
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                          gap: '6px',
+                          fontSize: '0.78rem'
                         }}>
                           <span style={{ color: '#00ff88', fontWeight: 800 }}>P1 #77 Marcus Kane (278 KM/H)</span>
                           <span style={{ color: '#94a3b8' }}>GAP: -0.420s ahead</span>
@@ -590,19 +617,25 @@ export const ShowcasePage: React.FC = () => {
                         background: 'rgba(0, 0, 0, 0.4)',
                         border: '1px solid rgba(255, 255, 255, 0.08)',
                         borderRadius: '12px',
-                        padding: '16px',
+                        padding: '12px',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '12px'
+                        gap: '10px'
                       }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <button style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer' }}>⏮️ -10s</button>
-                            <button style={{ background: '#00ff88', border: 'none', color: '#000', padding: '6px 16px', borderRadius: '6px', fontWeight: 800, cursor: 'pointer' }}>▶ Play</button>
-                            <button style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer' }}>+10s ⏭️</button>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                          gap: '8px'
+                        }}>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem' }}>⏮️ -10s</button>
+                            <button style={{ background: '#00ff88', border: 'none', color: '#000', padding: '6px 14px', borderRadius: '6px', fontWeight: 800, cursor: 'pointer', fontSize: '0.78rem' }}>▶ Play</button>
+                            <button style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', padding: '6px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.78rem' }}>+10s ⏭️</button>
                           </div>
-                          <span style={{ fontFamily: "'JetBrains Mono', monospace", color: '#00d4ff', fontWeight: 700 }}>
-                            14:23.850 / 28:45.000 (1.0x Real-time)
+                          <span style={{ fontFamily: "'JetBrains Mono', monospace", color: '#00d4ff', fontWeight: 700, fontSize: '0.78rem' }}>
+                            14:23.850 / 28:45.000 (1.0x)
                           </span>
                         </div>
                         {/* Progress bar */}
@@ -614,43 +647,84 @@ export const ShowcasePage: React.FC = () => {
                   )}
 
                   {currentMockup.title.includes('Admin') && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                       {/* Marshall Actions */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-                        <button style={{ background: 'rgba(0, 255, 136, 0.15)', border: '1px solid #00ff88', color: '#00ff88', padding: '12px', borderRadius: '10px', fontWeight: 800 }}>
-                          🟢 Green Flag
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                        gap: '8px'
+                      }}>
+                        <button style={{ background: 'rgba(0, 255, 136, 0.15)', border: '1px solid #00ff88', color: '#00ff88', padding: '10px 8px', borderRadius: '8px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <span>🟢</span> Green Flag
                         </button>
-                        <button style={{ background: 'rgba(234, 179, 8, 0.15)', border: '1px solid #eab308', color: '#eab308', padding: '12px', borderRadius: '10px', fontWeight: 800 }}>
-                          🟡 Yellow Flag
+                        <button style={{ background: 'rgba(234, 179, 8, 0.15)', border: '1px solid #eab308', color: '#eab308', padding: '10px 8px', borderRadius: '8px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <span>🟡</span> Yellow Flag
                         </button>
-                        <button style={{ background: 'rgba(249, 115, 22, 0.15)', border: '1px solid #f97316', color: '#f97316', padding: '12px', borderRadius: '10px', fontWeight: 800 }}>
-                          ⚠️ Safety Car
+                        <button style={{ background: 'rgba(249, 115, 22, 0.15)', border: '1px solid #f97316', color: '#f97316', padding: '10px 8px', borderRadius: '8px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <span>⚠️</span> Safety Car
                         </button>
-                        <button style={{ background: 'rgba(239, 68, 68, 0.18)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px', borderRadius: '10px', fontWeight: 800 }}>
-                          🛑 Red Flag
+                        <button style={{ background: 'rgba(239, 68, 68, 0.18)', border: '1px solid #ef4444', color: '#ef4444', padding: '10px 8px', borderRadius: '8px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <span>🛑</span> Red Flag
                         </button>
-                        <button style={{ background: 'rgba(59, 130, 246, 0.15)', border: '1px solid #3b82f6', color: '#3b82f6', padding: '12px', borderRadius: '10px', fontWeight: 800 }}>
-                          🏁 Finish Race
+                        <button style={{ background: 'rgba(59, 130, 246, 0.15)', border: '1px solid #3b82f6', color: '#3b82f6', padding: '10px 8px', borderRadius: '8px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                          <span>🏁</span> Finish Race
                         </button>
                       </div>
 
                       {/* Steward Log */}
-                      <div style={{ background: 'rgba(0, 0, 0, 0.35)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '16px' }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '12px' }}>
-                          Live Incident & Stewards Log
+                      <div style={{
+                        background: 'rgba(0, 0, 0, 0.35)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '12px',
+                        padding: '14px',
+                        boxSizing: 'border-box'
+                      }}>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span>Live Incident & Stewards Log</span>
+                          <span style={{ fontSize: '0.72rem', color: '#00d4ff', fontFamily: "'JetBrains Mono', monospace" }}>SESSION ACTIVE</span>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '8px' }}>
-                            <span>⏱️ 14:18:22 • #44 Hamilton assigned +5.0s penalty (Track limits turn 4)</span>
-                            <span style={{ color: '#f59e0b', fontWeight: 700 }}>STEWARDS</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 10px',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            borderRadius: '6px',
+                            fontSize: '0.78rem',
+                            flexWrap: 'wrap',
+                            gap: '6px'
+                          }}>
+                            <span style={{ color: '#e2e8f0' }}>⏱️ 14:18:22 • #44 Hamilton assigned +5.0s penalty (Track limits turn 4)</span>
+                            <span style={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.72rem', background: 'rgba(245, 158, 11, 0.15)', padding: '2px 6px', borderRadius: '4px' }}>STEWARDS</span>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '8px' }}>
-                            <span>⏱️ 14:15:10 • Sector 2 Yellow flag cleared. All sectors green.</span>
-                            <span style={{ color: '#00ff88', fontWeight: 700 }}>MARSHAL</span>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 10px',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            borderRadius: '6px',
+                            fontSize: '0.78rem',
+                            flexWrap: 'wrap',
+                            gap: '6px'
+                          }}>
+                            <span style={{ color: '#e2e8f0' }}>⏱️ 14:15:10 • Sector 2 Yellow flag cleared. All sectors green.</span>
+                            <span style={{ color: '#00ff88', fontWeight: 700, fontSize: '0.72rem', background: 'rgba(0, 255, 136, 0.15)', padding: '2px 6px', borderRadius: '4px' }}>MARSHAL</span>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '8px' }}>
-                            <span>⏱️ 14:00:00 • Official Session 14 Started (Laguna Seca Grand Prix)</span>
-                            <span style={{ color: '#00d4ff', fontWeight: 700 }}>DIRECTOR</span>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 10px',
+                            background: 'rgba(255, 255, 255, 0.03)',
+                            borderRadius: '6px',
+                            fontSize: '0.78rem',
+                            flexWrap: 'wrap',
+                            gap: '6px'
+                          }}>
+                            <span style={{ color: '#e2e8f0' }}>⏱️ 14:00:00 • Official Session 14 Started (Laguna Seca Grand Prix)</span>
+                            <span style={{ color: '#00d4ff', fontWeight: 700, fontSize: '0.72rem', background: 'rgba(0, 212, 255, 0.15)', padding: '2px 6px', borderRadius: '4px' }}>DIRECTOR</span>
                           </div>
                         </div>
                       </div>

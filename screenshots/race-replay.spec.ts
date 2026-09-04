@@ -8,7 +8,8 @@ test.describe('Race Replay Screenshots', () => {
     await page.waitForSelector('text=Race Wars App Showcase');
   });
 
-  test('desktop race replay screenshot', async ({ page }) => {
+  test('desktop race replay screenshot', async ({ page, isMobile }) => {
+    test.skip(isMobile);
     // Navigate to race replay interface
     await page.click('[data-testid="mockup-button-4"]');
     
@@ -25,7 +26,8 @@ test.describe('Race Replay Screenshots', () => {
     });
   });
 
-  test('mobile race replay screenshot', async ({ page }) => {
+  test('mobile race replay screenshot', async ({ page, isMobile }) => {
+    test.skip(!isMobile);
     // Click on mobile race replay
     await page.click('[data-testid="mockup-button-4"]');
     
