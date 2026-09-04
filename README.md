@@ -97,6 +97,24 @@ Race Wars features a modern dark cockpit telemetry design system with high-contr
 
 ---
 
+### 🗺️ OpenStreetMap Route Builder & Circuit Designer
+*Interactive circuit and stage designer built on OpenStreetMap tiles. Create custom race tracks, place waypoints and checkpoints, define start/finish lines, and compute track distance, elevation profiles, and estimated lap times.*
+
+| OpenStreetMap Route Builder |
+| :---: |
+| ![OpenStreetMap Route Builder](docs/assets/route-builder.png) |
+
+---
+
+### 📍 OpenStreetMap Live Circuit & Spectator Tracking
+*Full-track GPS telemetry tracking rendered over OpenStreetMap tiles using Leaflet and Turf.js geometry projection. Displays real-time driver coordinates, course progress, waypoint status, and gap leaderboards.*
+
+| Live Race GPS Tracking on OpenStreetMap | Spectator Circuit Overview |
+| :---: | :---: |
+| ![Live Race Map](docs/assets/racing-view-with-map.png) | ![Spectating View](docs/assets/spectating-view.png) |
+
+---
+
 ### 🎯 Key Interface Features
 
 - **📱 Mobile-First Responsive Design**: Touch-optimized telemetry HUD and cockpit controls built for on-track mounting
