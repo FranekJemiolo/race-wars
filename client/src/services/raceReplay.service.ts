@@ -355,7 +355,7 @@ export class RaceReplayService {
    */
   clearFocus(): void {
     this.playbackState.focusedParticipant = null;
-    this.emit('participant_focus_cleared');
+    this.emit('participant_focus_cleared', {});
   }
 
   /**
@@ -670,13 +670,14 @@ export class RaceReplayService {
     for (let i = 0; i < dataPoints.length; i++) {
       const point = dataPoints[i];
       const oldPosition = positions.get(point.participantId);
+      const rank = (point as any).rank ?? (point as any).currentPosition ?? 0;
       
       // Simplified overtake detection (would need more sophisticated logic in production)
-      if (oldPosition && oldPosition > point.position) {
+      if (oldPosition && oldPosition > rank) {
         overtakes++;
       }
       
-      positions.set(point.participantId, point.position);
+      positions.set(point.participantId, rank);
     }
 
     return overtakes;

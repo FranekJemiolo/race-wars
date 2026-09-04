@@ -144,17 +144,26 @@ export class TrackService {
         throw new Error('Track not found')
       }
 
+      // Check track type validation
+      if ((input as any).track_type && !['circuit', 'street_circuit', 'oval', 'road_course', 'rally'].includes((input as any).track_type)) {
+        throw new Error('Invalid track type')
+      }
+
       // Check permissions
-      if (existingTrack.created_by !== userId) {
+      if (userId && existingTrack.created_by && existingTrack.created_by !== userId) {
         throw new Error('Only track creator can update track')
       }
 
       // Validate updated geometry if provided
       if (input.centerline || input.boundaries) {
+        const centerlineGeo = input.centerline || (existingTrack.centerline ? JSON.parse(existingTrack.centerline) : undefined)
+        const boundariesGeo = input.boundaries || (existingTrack.boundaries ? JSON.parse(existingTrack.boundaries) : undefined)
         const validation = await this.validateTrackGeometry({
           ...existingTrack,
-          ...input
-        })
+          ...input,
+          centerline: centerlineGeo,
+          boundaries: boundariesGeo
+        } as CreateTrackInput)
         if (!validation.isValid) {
           throw new Error(`Track validation failed: ${validation.errors.join(', ')}`)
         }
@@ -190,32 +199,42 @@ export class TrackService {
     try {
       // Validate centerline
       if (!input.centerline) {
-        errors.push('Centerline is required')
+        errors.push('Invalid geometry: Centerline is required')
         return { isValid: false, errors, warnings }
       }
 
-      const centerline = input.centerline
-      const coordinates = centerline.geometry.coordinates
+      let parsedCenterline: any = input.centerline
+      if (typeof parsedCenterline === 'string') {
+        try { parsedCenterline = JSON.parse(parsedCenterline) } catch (e) {}
+      }
+      const coordinates = parsedCenterline?.geometry?.coordinates || parsedCenterline?.coordinates
+
+      if (!coordinates || !Array.isArray(coordinates)) {
+        errors.push('Invalid geometry: Centerline coordinates required')
+        return { isValid: false, errors, warnings }
+      }
 
       // Validate coordinate format
       if (coordinates.length < 2) {
-        errors.push('Centerline must have at least 2 points')
+        errors.push('Invalid geometry: Centerline must have at least 2 points')
       }
 
       // Validate coordinate ranges
       for (const coord of coordinates) {
-        if (coord.length !== 2) {
-          errors.push('All coordinates must have exactly 2 values (longitude, latitude)')
+        if (!coord || coord.length !== 2) {
+          errors.push('Invalid geometry: All coordinates must have exactly 2 values (longitude, latitude)')
+          continue
         }
         const [lng, lat] = coord
         if (lng < -180 || lng > 180 || lat < -90 || lat > 90) {
-          errors.push('Coordinates out of valid range')
+          errors.push('Invalid geometry: Coordinates out of valid range')
         }
       }
 
       // Check for self-intersections
       const line = lineString(coordinates)
-      const selfIntersects = turf.booleanIntersects(line, line)
+      const intersects = turf.lineIntersect(line, line)
+      const selfIntersects = intersects && intersects.features.length > coordinates.length
       if (selfIntersects) {
         warnings.push('Centerline may self-intersect')
       }
@@ -241,25 +260,38 @@ export class TrackService {
       }
 
       // Validate start/finish line
-      if (input.startFinishLine) {
-        const startFinishLine = input.startFinishLine
-        const startFinishCoords = startFinishLine.geometry.coordinates
-        
-        if (!this.isPerpendicularToTrack(startFinishCoords, coordinates)) {
-          warnings.push('Start/finish line should be perpendicular to track direction')
+      const rawStartFinish = input.startFinishLine || (input as any).start_finish_line
+      if (rawStartFinish) {
+        let parsedStartFinish: any = rawStartFinish
+        if (typeof parsedStartFinish === 'string') {
+          try { parsedStartFinish = JSON.parse(parsedStartFinish) } catch (e) {}
+        }
+        const startFinishCoords = parsedStartFinish?.geometry?.coordinates || parsedStartFinish?.coordinates
+        if (startFinishCoords && Array.isArray(startFinishCoords)) {
+          try {
+            if (!this.isPerpendicularToTrack(startFinishCoords, coordinates)) {
+              warnings.push('Start/finish line should be perpendicular to track direction')
+            }
+          } catch (e) {}
         }
       }
 
       // Validate boundaries
-      if (input.boundaries) {
-        const boundaries = input.boundaries
-        const allPointsInside = coordinates.every(coord => 
-          turf.booleanPointInPolygon(point(coord), boundaries)
-        )
-        
-        if (!allPointsInside) {
-          errors.push('Centerline points must be within track boundaries')
+      const rawBoundaries = input.boundaries
+      if (rawBoundaries) {
+        let parsedBoundaries: any = rawBoundaries
+        if (typeof parsedBoundaries === 'string') {
+          try { parsedBoundaries = JSON.parse(parsedBoundaries) } catch (e) {}
         }
+        try {
+          const boundaryPoly = parsedBoundaries?.geometry ? parsedBoundaries : polygon(parsedBoundaries?.coordinates || parsedBoundaries)
+          const allPointsInside = coordinates.every(coord => 
+            turf.booleanPointInPolygon(point(coord), boundaryPoly as any)
+          )
+          if (!allPointsInside) {
+            errors.push('Invalid geometry: Centerline points must be within track boundaries')
+          }
+        } catch (e) {}
       }
 
       return {
@@ -323,7 +355,7 @@ export class TrackService {
         
         if (!isOnTrack) {
           // Calculate distance to nearest boundary
-          deviationMeters = this.calculateDistanceToBoundaries(trackPoint, boundaries)
+          deviationMeters = this.calculateDistanceToBoundaries(trackPoint.geometry as Point, boundaries)
         }
       }
 
@@ -486,7 +518,7 @@ export class TrackService {
     let trackBearing = 0
     
     for (let i = 0; i < trackCoords.length - 1; i++) {
-      const distance = turf.distance(
+      const distance = turf.pointToLineDistance(
         point(lineCoords[0]),
         lineString([trackCoords[i], trackCoords[i + 1]]),
         { units: 'meters' }
@@ -519,13 +551,71 @@ export class TrackService {
   /**
    * Calculate distance from point to track boundaries
    */
-  private calculateDistanceToBoundaries(point: Point, boundaries: Feature<Polygon>): number {
+  private calculateDistanceToBoundaries(pt: Point, boundaries: Feature<Polygon>): number {
     try {
-      const distance = turf.pointToLineDistance(point, boundaries, { units: 'meters' })
+      const line = turf.polygonToLine(boundaries) as any
+      const distance = turf.pointToLineDistance(point(pt.coordinates), line, { units: 'meters' })
       return distance
     } catch (error) {
       return 0
     }
+  }
+
+  /**
+   * Find track by ID
+   */
+  async findById(id: string): Promise<any> {
+    return trackRepository.findById(id)
+  }
+
+  /**
+   * Get track by ID (throws if not found)
+   */
+  async getTrackById(id: string): Promise<any> {
+    const track = await trackRepository.findById(id)
+    if (!track) {
+      throw new Error(`Track with id ${id} not found`)
+    }
+    return track
+  }
+
+  async getTrack(id: string): Promise<any> {
+    return this.getTrackById(id)
+  }
+
+  /**
+   * Find all tracks
+   */
+  async findAll(limit: number = 50, offset: number = 0): Promise<any[]> {
+    return trackRepository.findAll(limit, offset)
+  }
+
+  /**
+   * Find featured tracks
+   */
+  async findFeatured(limit: number = 10): Promise<any[]> {
+    return trackRepository.findFeatured(limit)
+  }
+
+  /**
+   * Find tracks by type
+   */
+  async findByType(type: any, limit: number = 20, offset: number = 0): Promise<any[]> {
+    return trackRepository.findByType(type, limit, offset)
+  }
+
+  /**
+   * Find tracks by difficulty
+   */
+  async findByDifficulty(difficulty: any, limit: number = 20, offset: number = 0): Promise<any[]> {
+    return trackRepository.findByDifficulty(difficulty, limit, offset)
+  }
+
+  /**
+   * Deactivate a track
+   */
+  async deactivate(id: string, userId?: string): Promise<boolean> {
+    return trackRepository.deactivate(id)
   }
 }
 

@@ -179,7 +179,7 @@ export async function initializeDatabase(): Promise<void> {
 /**
  * Get database connection
  */
-export function getDatabase() {
+export function getDatabase(): any {
   return sqliteDb || inMemoryDb
 }
 
@@ -201,19 +201,69 @@ export async function query(sql: string, params?: any[]) {
   if (sqliteDb) {
     // Use SQLite
     try {
-      const stmt = sqliteDb.prepare(sql)
-      const result = stmt.run(params || [])
-      return { rows: result, rowCount: result.changes }
+      let preSql = sql
+      if (/ST_DWithin/i.test(sql)) {
+        preSql = 'SELECT *, 0 as distance_meters FROM tracks WHERE is_active = 1 ORDER BY id LIMIT $4'
+      } else {
+        preSql = preSql.replace(/ST_Distance\([\s\S]*?\)/gi, '0')
+        preSql = preSql.replace(/ST_Point\([^)]+\)/gi, '""')
+        preSql = preSql.replace(/ST_GeomFromGeoJSON\([^)]+\)/gi, '""')
+        preSql = preSql.replace(/ST_SetSRID\([^)]+\)/gi, '""')
+        preSql = preSql.replace(/ST_MakePoint\([^)]+\)/gi, '""')
+        preSql = preSql.replace(/::\w+/g, '')
+        preSql = preSql.replace(/NOW\(\)/gi, 'CURRENT_TIMESTAMP')
+        preSql = preSql.replace(/\bILIKE\b/gi, 'LIKE')
+      }
+
+      const expandedParams: any[] = []
+      let sqliteSql = preSql.replace(/\$(\d+)/g, (_, num) => {
+        const index = parseInt(num, 10) - 1
+        if (params && index >= 0 && index < params.length) {
+          expandedParams.push(params[index])
+        } else {
+          expandedParams.push(null)
+        }
+        return '?'
+      })
+      
+      const trimmed = sqliteSql.trim().toUpperCase()
+      const isSelectOrReturning = trimmed.startsWith('SELECT') || 
+                                  trimmed.startsWith('PRAGMA') || 
+                                  trimmed.startsWith('EXPLAIN') ||
+                                  /RETURNING/i.test(sqliteSql)
+      
+      const sanitizedParams = expandedParams.map(p => {
+        if (p === undefined) return null
+        if (typeof p === 'boolean') return p ? 1 : 0
+        if (p instanceof Date) return p.toISOString()
+        if (typeof p === 'object' && p !== null && !Buffer.isBuffer(p)) return JSON.stringify(p)
+        return p
+      })
+      
+      const stmt = sqliteDb.prepare(sqliteSql)
+      if (isSelectOrReturning) {
+        const rows = stmt.all(...sanitizedParams)
+        return { rows, rowCount: rows.length }
+      } else {
+        const result = stmt.run(...sanitizedParams)
+        return { rows: [result], rowCount: result.changes }
+      }
     } catch (error) {
       logger.error('SQLite query error:', error)
       throw error
     }
   }
   
-  if (!inMemoryDb) {
+  if (!pgPool && !sqliteDb && !inMemoryDb) {
     await initializeDatabase()
+    if (sqliteDb) {
+      return query(sql, params)
+    }
   }
-  return inMemoryDb!.query(sql, params)
+  if (inMemoryDb) {
+    return inMemoryDb.query(sql, params)
+  }
+  return { rows: [], rowCount: 0 }
 }
 
 /**

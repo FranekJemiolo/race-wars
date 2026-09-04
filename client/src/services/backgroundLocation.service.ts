@@ -180,6 +180,9 @@ export class BackgroundLocationService {
         altitude: location.altitude,
         altitudeAccuracy: location.altitudeAccuracy,
         timestamp: location.time || Date.now(),
+        sessionId: '',
+        source: 'gps',
+        quality: 'high',
       };
 
       this.handlePositionUpdate(positionData);
@@ -235,6 +238,9 @@ export class BackgroundLocationService {
       altitude: position.coords.altitude ?? undefined,
       altitudeAccuracy: position.coords.altitudeAccuracy ?? undefined,
       timestamp: position.timestamp,
+      sessionId: '',
+      source: 'gps',
+      quality: 'high',
     };
 
     this.handlePositionUpdate(positionData);

@@ -45,10 +45,10 @@ export class MetricsService {
   private dbQueryErrors: Counter<string>;
 
   // Business metrics
-  private activeSessions: Gauge<string>;
-  private activeParticipants: Gauge<string>;
-  private incidentsDetected: Counter<string>;
-  private penaltiesIssued: Counter<string>;
+  private activeSessions!: Gauge<string>;
+  private activeParticipants!: Gauge<string>;
+  private incidentsDetected!: Counter<string>;
+  private penaltiesIssued!: Counter<string>;
 
   constructor(config?: MetricsConfig) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -264,7 +264,11 @@ export class MetricsService {
    * Clear default labels
    */
   clearDefaultLabels(): void {
-    this.registry.clearDefaultLabels();
+    if (typeof (this.registry as any).clearDefaultLabels === 'function') {
+      (this.registry as any).clearDefaultLabels();
+    } else {
+      this.registry.setDefaultLabels({});
+    }
   }
 
   /**

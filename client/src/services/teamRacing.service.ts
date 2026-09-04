@@ -1153,7 +1153,7 @@ class TeamRacingServiceImpl implements TeamRacingService {
 
     // Notify event
     this.notifyTeamEvent(invitation.teamId, {
-      type: 'invitation_cancelled',
+      type: 'invitation_declined',
       teamId: invitation.teamId,
       userId,
       data: { invitation },
@@ -1185,7 +1185,7 @@ class TeamRacingServiceImpl implements TeamRacingService {
         case 'tournament':
           return b.wins - a.wins;
         case 'championship':
-          return (b.winRate * 100) - (a.winRate * 100);
+          return ((b.stats?.winRate || 0) * 100) - ((a.stats?.winRate || 0) * 100);
         default:
           return b.points - a.points;
       }
@@ -1198,7 +1198,7 @@ class TeamRacingServiceImpl implements TeamRacingService {
       races: team.totalRaces,
       wins: team.wins,
       losses: team.losses,
-      winRate: team.winRate,
+      winRate: team.stats?.winRate || 0,
       averagePosition: team.stats.averagePosition,
       form: team.stats.performance.momentum,
       change: 0, // Would calculate from previous ranking

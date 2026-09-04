@@ -1026,7 +1026,7 @@ class RaceAdminEventsServiceImpl implements RaceAdminEventsService {
     if (event.title.length > 200) errors.push('Title too long (max 200 characters)');
     if (event.message.length > 2000) errors.push('Message too long (max 2000 characters)');
     if (event.ackDeadline && event.ackDeadline <= Date.now()) {
-      errors.push('Acknowledgment deadline must be in the future';
+      errors.push('Acknowledgment deadline must be in the future');
     }
 
     // Warnings

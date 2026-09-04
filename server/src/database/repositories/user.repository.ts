@@ -68,6 +68,10 @@ export class UserRepository {
   async create(input: CreateUserInput): Promise<User> {
     logger.info('Creating new user', { email: input.email })
 
+    if (!input.first_name || !input.last_name || !input.email || !input.password) {
+      throw new Error('Required fields missing')
+    }
+
     try {
       // Hash the password
       const saltRounds = 10

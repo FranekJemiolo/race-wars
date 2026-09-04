@@ -15,9 +15,28 @@ import AuthScreen from "./AuthScreen"
 import { TeamManager } from "../components/TeamManager"
 import RouteBuilder from "../components/RouteBuilder"
 import { RaceReplayPlayer } from "../components/RaceReplayPlayer"
+import { GarageManager } from "../components/GarageManager"
+import { AnalyticsDashboard } from "../components/AnalyticsDashboard"
+import { MultiCameraView } from "../components/MultiCameraView"
+import { RealTimeLeaderboard } from "../components/RealTimeLeaderboard"
+import { ShowcasePage } from "../pages/ShowcasePage"
 import { authService, User } from "../network/authService"
 
-type ViewState = 'connection' | 'race-selection' | 'race-creation' | 'racing' | 'spectating' | 'admin' | 'auth' | 'leaderboard' | 'team-management' | 'route-builder' | 'race-replay'
+type ViewState = 
+  | 'connection' 
+  | 'race-selection' 
+  | 'race-creation' 
+  | 'racing' 
+  | 'spectating' 
+  | 'admin' 
+  | 'auth' 
+  | 'leaderboard' 
+  | 'team-management' 
+  | 'route-builder' 
+  | 'race-replay'
+  | 'garage'
+  | 'analytics'
+  | 'multicam'
 
 export default function EnhancedApp() {
   const [viewState, setViewState] = useState<ViewState>('connection')
@@ -27,7 +46,18 @@ export default function EnhancedApp() {
   const [serverUrl, setServerUrl] = useState<string>('')
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [isSpectator, setIsSpectator] = useState(false)
+  const [showShowcase, setShowShowcase] = useState(false)
   const mapRef = useRef<HTMLDivElement>(null)
+
+  // Check URL hash for showcase mode
+  useEffect(() => {
+    const handleHash = () => {
+      setShowShowcase(window.location.hash === '#showcase')
+    }
+    handleHash()
+    window.addEventListener('hashchange', handleHash)
+    return () => window.removeEventListener('hashchange', handleHash)
+  }, [])
 
   // Check authentication state on mount
   useEffect(() => {
@@ -35,14 +65,11 @@ export default function EnhancedApp() {
       const user = authService.getCurrentUser()
       if (user) {
         setCurrentUser(user)
-        // User is authenticated, proceed to connection
         setViewState('connection')
       } else {
-        // User not authenticated, show auth screen
         setViewState('auth')
       }
     }
-
     checkAuth()
   }, [])
 
@@ -72,13 +99,10 @@ export default function EnhancedApp() {
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
       const state = store.getState()
-      
-      // Update player markers on map
       if (mapInitialized && (viewState === 'racing' || viewState === 'spectating')) {
         updatePlayerMarkers(Array.from(state.players.values()), state.selfPlayerId)
       }
     })
-
     return () => unsubscribe()
   }, [mapInitialized, viewState])
 
@@ -101,17 +125,12 @@ export default function EnhancedApp() {
   const handleRaceJoined = (raceId: string) => {
     setCurrentRace(raceId)
     setViewState('racing')
-    
-    // Send join race message to server
-    // This would be implemented in the network handlers
     console.log('Joining race:', raceId)
   }
 
   const handleSpectate = (raceId: string) => {
     setCurrentRace(raceId)
     setViewState('spectating')
-    
-    // Send spectate message to server
     console.log('Spectating race:', raceId)
   }
 
@@ -148,31 +167,14 @@ export default function EnhancedApp() {
     setViewState('auth')
   }
 
-  const handleDisconnect = () => {
-    disconnect()
-    setViewState('connection')
-    setCurrentRace(null)
-  }
-
   const handleBackToSelection = () => {
     setViewState('race-selection')
     setCurrentRace(null)
   }
 
-  const handleLeaderboardView = () => {
-    setViewState('leaderboard')
-  }
-
-  const handleTeamManagementView = () => {
-    setViewState('team-management')
-  }
-
-  const handleRouteBuilderView = () => {
-    setViewState('route-builder')
-  }
-
-  const handleRaceReplayView = () => {
-    setViewState('race-replay')
+  // Showcase Screen for Automated Playwright Screenshots
+  if (showShowcase) {
+    return <ShowcasePage />
   }
 
   // Authentication Screen
@@ -185,330 +187,419 @@ export default function EnhancedApp() {
     )
   }
 
+  // Global Navigation Bar Component for authenticated / spectator view
+  const renderNavBar = () => (
+    <nav style={{
+      height: '56px',
+      background: 'rgba(9, 13, 22, 0.95)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+      backdropFilter: 'blur(16px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0 20px',
+      zIndex: 10000,
+      position: 'relative',
+      flexShrink: 0
+    }}>
+      {/* Brand & Connection */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div 
+          onClick={() => setViewState('race-selection')}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            cursor: 'pointer',
+            userSelect: 'none'
+          }}
+        >
+          <span style={{ fontSize: '1.4rem' }}>⚡</span>
+          <span style={{
+            fontSize: '1.15rem',
+            fontWeight: 900,
+            letterSpacing: '0.08em',
+            fontFamily: "'Orbitron', sans-serif",
+            background: 'linear-gradient(135deg, #00ff88 0%, #00d4ff 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            RACE WARS
+          </span>
+        </div>
+
+        {/* Live Status indicator */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '4px 10px',
+          background: connectionState === 'connected' 
+            ? 'rgba(0, 255, 136, 0.12)' 
+            : 'rgba(234, 179, 8, 0.12)',
+          border: `1px solid ${connectionState === 'connected' ? 'rgba(0, 255, 136, 0.3)' : 'rgba(234, 179, 8, 0.3)'}`,
+          borderRadius: '999px',
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          color: connectionState === 'connected' ? '#00ff88' : '#eab308'
+        }}>
+          <span style={{
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            background: connectionState === 'connected' ? '#00ff88' : '#eab308',
+            boxShadow: connectionState === 'connected' ? '0 0 6px #00ff88' : 'none'
+          }} />
+          <span>{connectionState.toUpperCase()}</span>
+        </div>
+      </div>
+
+      {/* Center Nav Links */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        overflowX: 'auto'
+      }}>
+        {[
+          { id: 'race-selection', label: 'Lobby', icon: '🏁' },
+          { id: 'garage', label: 'Garage', icon: '🏎️' },
+          { id: 'leaderboard', label: 'Leaderboard', icon: '🏆' },
+          { id: 'admin', label: 'Race Control', icon: '🛡️' },
+          { id: 'team-management', label: 'Teams', icon: '👥' },
+          { id: 'route-builder', label: 'Track Studio', icon: '🗺️' },
+          { id: 'analytics', label: 'Telemetry', icon: '📊' },
+          { id: 'race-replay', label: 'Replay', icon: '🎬' }
+        ].map(item => {
+          const isActive = viewState === item.id || 
+            (item.id === 'race-selection' && (viewState === 'racing' || viewState === 'spectating'))
+          return (
+            <button
+              key={item.id}
+              onClick={() => {
+                if (item.id === 'race-selection' && currentRace) {
+                  setViewState('racing')
+                } else {
+                  setViewState(item.id as ViewState)
+                }
+              }}
+              style={{
+                background: isActive ? 'rgba(0, 255, 136, 0.12)' : 'transparent',
+                border: 'none',
+                borderBottom: isActive ? '2px solid #00ff88' : '2px solid transparent',
+                color: isActive ? '#00ff88' : '#9ca3af',
+                padding: '6px 12px',
+                borderRadius: '6px 6px 0 0',
+                fontWeight: 600,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Right User & Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {currentUser ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>
+                {currentUser.displayName || currentUser.email}
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#00d4ff', textTransform: 'capitalize' }}>
+                {(currentUser as any).experienceLevel || currentUser.role || 'Driver'}
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                color: '#cbd5e1',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setViewState('auth')}
+            style={{
+              background: '#00ff88',
+              color: '#000',
+              border: 'none',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            Sign In
+          </button>
+        )}
+      </div>
+    </nav>
+  )
+
+  // Layout wrapper for all non-racing screens
+  const renderLayout = (content: React.ReactNode) => (
+    <div style={{
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      background: '#090d16',
+      overflow: 'hidden'
+    }}>
+      {renderNavBar()}
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative' }}>
+        {content}
+      </div>
+    </div>
+  )
+
   // Connection Screen
   if (viewState === 'connection') {
-    return (
-      <div style={{ 
-        width: '100vw',
-        height: '100vh',
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-        color: '#ffffff',
-        fontFamily: 'sans-serif',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <ConnectionManager 
-          onConnected={handleConnected}
-          onRaceJoined={handleRaceJoined}
-          onAdminAccess={() => setViewState('admin')}
-          currentUser={currentUser}
-          isSpectator={isSpectator}
-          onLogout={handleLogout}
-        />
-      </div>
+    return renderLayout(
+      <ConnectionManager 
+        onConnected={handleConnected}
+        onRaceJoined={handleRaceJoined}
+        onAdminAccess={() => setViewState('admin')}
+        currentUser={currentUser}
+        isSpectator={isSpectator}
+        onLogout={handleLogout}
+      />
     )
   }
 
   // Admin Console Screen
   if (viewState === 'admin') {
-    return (
-      <div style={{ 
-        width: '100vw',
-        height: '100vh',
-        background: '#f3f4f6',
-        color: '#1f2937',
-        fontFamily: 'sans-serif',
-        position: 'relative',
-        overflow: 'auto'
-      }}>
-        <AdminConsole 
-          onBack={() => setViewState('connection')}
-        />
+    return renderLayout(
+      <AdminConsole onBack={() => setViewState('race-selection')} />
+    )
+  }
+
+  // Garage Screen
+  if (viewState === 'garage') {
+    return renderLayout(<GarageManager />)
+  }
+
+  // Analytics Screen
+  if (viewState === 'analytics') {
+    return renderLayout(
+      <div style={{ padding: '24px' }}>
+        <AnalyticsDashboard sessionId={currentRace || 'session-telemetry-live'} />
       </div>
+    )
+  }
+
+  // MultiCamera View Screen
+  if (viewState === 'multicam') {
+    return renderLayout(
+      <MultiCameraView 
+        sessionId={currentRace || 'session-multicam-live'} 
+        onExit={() => setViewState('racing')} 
+      />
     )
   }
 
   // Race Creation Screen
   if (viewState === 'race-creation') {
-    return (
-      <div style={{ 
-        width: '100vw',
-        height: '100vh',
-        background: '#1a1a2e',
-        color: '#ffffff',
-        fontFamily: 'sans-serif',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <RaceCreator 
-          onRaceCreated={handleRaceCreated}
-          onCancel={() => setViewState('race-selection')}
-        />
-      </div>
+    return renderLayout(
+      <RaceCreator 
+        onRaceCreated={handleRaceCreated}
+        onCancel={() => setViewState('race-selection')}
+      />
     )
   }
 
   // Race Selection Screen
   if (viewState === 'race-selection') {
-    return (
-      <div style={{ 
-        width: '100vw',
-        height: '100vh',
-        background: '#1a1a2e',
-        color: '#ffffff',
-        fontFamily: 'sans-serif',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <RaceSelector 
-          onRaceJoined={handleRaceJoined}
-          onSpectate={handleSpectate}
-          onCreateRace={handleCreateRace}
-          onBackToConnection={handleBackToConnection}
-          onAdminAccess={() => setViewState('admin')}
-          onLeaderboardView={handleLeaderboardView}
-          onTeamManagementView={handleTeamManagementView}
-          onRouteBuilderView={handleRouteBuilderView}
-          onRaceReplayView={handleRaceReplayView}
-        />
-      </div>
+    return renderLayout(
+      <RaceSelector 
+        onRaceJoined={handleRaceJoined}
+        onSpectate={handleSpectate}
+        onCreateRace={handleCreateRace}
+        onBackToConnection={handleBackToConnection}
+        onAdminAccess={() => setViewState('admin')}
+        onLeaderboardView={() => setViewState('leaderboard')}
+        onTeamManagementView={() => setViewState('team-management')}
+        onRouteBuilderView={() => setViewState('route-builder')}
+        onRaceReplayView={() => setViewState('race-replay')}
+      />
     )
   }
 
   // Leaderboard Screen
   if (viewState === 'leaderboard') {
-    return (
-      <div style={{ 
-        width: '100vw',
-        height: '100vh',
-        background: '#1a1a2e',
-        color: '#ffffff',
-        fontFamily: 'sans-serif',
-        position: 'relative',
-        overflow: 'auto'
-      }}>
-        <div style={{ padding: '20px' }}>
-          <button
-            onClick={handleBackToSelection}
-            style={{
-              padding: '8px 16px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              marginBottom: '20px'
-            }}
-          >
-            ← Back
-          </button>
-          <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '20px' }}>🏆 Live Leaderboard</h1>
-          <Leaderboard />
+    return renderLayout(
+      <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <h1 style={{
+            fontSize: '1.8rem',
+            fontWeight: 800,
+            fontFamily: "'Orbitron', sans-serif",
+            color: '#fff',
+            margin: '0 0 6px 0'
+          }}>
+            🏆 REAL-TIME TIMING & LEADERBOARDS
+          </h1>
+          <p style={{ color: '#9ca3af', margin: 0, fontSize: '0.9rem' }}>
+            Live sector splits, delta pacing, speed trap analysis, and anti-cheat validation.
+          </p>
         </div>
+        <RealTimeLeaderboard raceId={currentRace || 'global-live-standings'} />
       </div>
     )
   }
 
   // Team Management Screen
   if (viewState === 'team-management') {
-    return (
-      <div style={{ 
-        width: '100vw',
-        height: '100vh',
-        background: '#1a1a2e',
-        color: '#ffffff',
-        fontFamily: 'sans-serif',
-        position: 'relative',
-        overflow: 'auto'
-      }}>
-        <div style={{ padding: '20px' }}>
-          <button
-            onClick={handleBackToSelection}
-            style={{
-              padding: '8px 16px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              marginBottom: '20px'
-            }}
-          >
-            ← Back
-          </button>
-          <TeamManager userId={currentUser?.id || 'demo-user'} />
-        </div>
+    return renderLayout(
+      <div style={{ padding: '24px' }}>
+        <TeamManager userId={currentUser?.id || 'demo-user'} />
       </div>
     )
   }
 
   // Route Builder Screen
   if (viewState === 'route-builder') {
-    return (
-      <div style={{ 
-        width: '100vw',
-        height: '100vh',
-        background: '#1a1a2e',
-        color: '#ffffff',
-        fontFamily: 'sans-serif',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        <div style={{ padding: '20px' }}>
-          <button
-            onClick={handleBackToSelection}
-            style={{
-              padding: '8px 16px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              marginBottom: '20px'
-            }}
-          >
-            ← Back
-          </button>
-          <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '20px' }}>🗺️ Route Builder</h1>
-          <RouteBuilder 
-            onRouteCreated={(route) => {
-              console.log('Route created:', route)
-              handleBackToSelection()
-            }}
-            onCancel={handleBackToSelection}
-          />
-        </div>
+    return renderLayout(
+      <div style={{ padding: '24px', height: 'calc(100vh - 56px)' }}>
+        <RouteBuilder 
+          onRouteCreated={(route) => {
+            console.log('Route created:', route)
+            handleBackToSelection()
+          }}
+          onCancel={handleBackToSelection}
+        />
       </div>
     )
   }
 
   // Race Replay Screen
   if (viewState === 'race-replay') {
-    return (
-      <div style={{ 
-        width: '100vw',
-        height: '100vh',
-        background: '#1a1a2e',
-        color: '#ffffff',
-        fontFamily: 'sans-serif',
-        position: 'relative',
-        overflow: 'auto'
-      }}>
-        <div style={{ padding: '20px' }}>
-          <button
-            onClick={handleBackToSelection}
-            style={{
-              padding: '8px 16px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              marginBottom: '20px'
-            }}
-          >
-            ← Back
-          </button>
-          <h1 style={{ color: '#fff', fontSize: '2rem', marginBottom: '20px' }}>🎬 Race Replay</h1>
-          <RaceReplayPlayer showMap={true} showAnalysis={true} />
-        </div>
+    return renderLayout(
+      <div style={{ padding: '24px' }}>
+        <RaceReplayPlayer showMap={true} showAnalysis={true} />
       </div>
     )
   }
 
-  // Racing/Spectating Screen
+  // Racing / Spectating Screen (Full Cockpit Map HUD)
   return (
     <div style={{ 
       width: '100vw',
       height: '100vh',
-      background: '#1a1a2e',
+      background: '#090d16',
       color: '#ffffff',
-      fontFamily: 'sans-serif',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column'
     }}>
+      {renderNavBar()}
+
       {/* Map container */}
       <div 
         ref={mapRef}
         id="map" 
         style={{ 
           width: '100%', 
-          height: '100%',
+          height: 'calc(100% - 56px)',
           position: 'absolute',
-          top: 0,
+          top: '56px',
           left: 0,
           zIndex: 1
         }} 
       />
 
-      {/* Race Info Header */}
+      {/* Cockpit Overlay Quick Bar */}
       <div style={{
         position: 'absolute',
-        top: '20px',
+        top: '72px',
         left: '20px',
         right: '20px',
-        background: 'rgba(26, 26, 46, 0.95)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
+        background: 'rgba(9, 13, 22, 0.88)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
         borderRadius: '12px',
-        padding: '16px',
-        backdropFilter: 'blur(10px)',
+        padding: '12px 18px',
+        backdropFilter: 'blur(12px)',
         zIndex: 1000,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <div>
-          <h2 style={{ color: '#fff', margin: 0, fontSize: '1.2rem' }}>
-            {viewState === 'spectating' ? '👁️ Spectating' : '🏁 Racing'} - {currentRace || 'Unknown Race'}
-          </h2>
-          <p style={{ color: '#888', margin: '4px 0 0 0', fontSize: '0.9rem' }}>
-            Server: {serverUrl || 'Local'}
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '1.4rem' }}>
+            {viewState === 'spectating' ? '👁️' : '🏁'}
+          </span>
+          <div>
+            <h2 style={{
+              color: '#fff',
+              margin: 0,
+              fontSize: '1.1rem',
+              fontWeight: 800,
+              fontFamily: "'Orbitron', sans-serif"
+            }}>
+              {viewState === 'spectating' ? 'SPECTATING' : 'COCKPIT HUD'} — {currentRace || 'Laguna Seca Grand Prix'}
+            </h2>
+            <p style={{ color: '#9ca3af', margin: '2px 0 0 0', fontSize: '0.8rem' }}>
+              Telemetry Server: {serverUrl || 'Connected'} • 60 FPS GPS Stream
+            </p>
+          </div>
         </div>
         
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px 12px',
-            background: 'rgba(46, 204, 113, 0.2)',
-            border: '1px solid rgba(46, 204, 113, 0.5)',
-            borderRadius: '8px'
-          }}>
-            <div style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: '#2ecc71'
-            }} />
-            <span style={{ color: '#2ecc71', fontSize: '0.9rem' }}>
-              {connectionState === 'connected' ? 'Connected' : 'Disconnected'}
-            </span>
-          </div>
-          
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button
+            onClick={() => setViewState('multicam')}
+            style={{
+              padding: '8px 14px',
+              background: 'rgba(0, 212, 255, 0.15)',
+              border: '1px solid rgba(0, 212, 255, 0.4)',
+              borderRadius: '8px',
+              color: '#00d4ff',
+              cursor: 'pointer',
+              fontSize: '0.85rem',
+              fontWeight: 700
+            }}
+          >
+            🎥 Multi-Cam
+          </button>
           <button
             onClick={handleBackToSelection}
             style={{
-              padding: '8px 16px',
-              background: 'rgba(52, 152, 219, 0.8)',
-              border: 'none',
+              padding: '8px 14px',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
               borderRadius: '8px',
               color: '#fff',
               cursor: 'pointer',
-              fontSize: '0.9rem'
+              fontSize: '0.85rem',
+              fontWeight: 600
             }}
           >
-            ← Back to Races
+            ← Exit Cockpit
           </button>
         </div>
       </div>
 
-      {/* UI Components */}
+      {/* UI Cockpit Overlays */}
       {connectionState === 'connected' && (
         <>
           <HUD />
@@ -521,25 +612,29 @@ export default function EnhancedApp() {
       {!mapInitialized && (
         <div style={{
           position: 'absolute',
-          top: 0,
+          top: '56px',
           left: 0,
           width: '100%',
-          height: '100%',
-          background: 'rgba(26, 26, 46, 0.9)',
+          height: 'calc(100% - 56px)',
+          background: 'rgba(9, 13, 22, 0.95)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 2000
         }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-            {viewState === 'spectating' ? '👁️' : '🏁'}
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', animation: 'bounce 1s infinite' }}>
+            {viewState === 'spectating' ? '👁️' : '🏎️'}
           </div>
-          <h2 style={{ color: '#fff', marginBottom: '1rem' }}>
-            {viewState === 'spectating' ? 'Loading Spectator View...' : 'Loading Race Track...'}
+          <h2 style={{
+            color: '#fff',
+            marginBottom: '0.5rem',
+            fontFamily: "'Orbitron', sans-serif"
+          }}>
+            {viewState === 'spectating' ? 'Loading Spectator Stream...' : 'Calibrating GPS & Track Sensors...'}
           </h2>
-          <p style={{ color: '#888' }}>
-            Initializing map and connecting to race server
+          <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>
+            Initializing vector map and synchronizing telemetry
           </p>
         </div>
       )}

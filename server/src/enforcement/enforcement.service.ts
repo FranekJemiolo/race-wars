@@ -10,7 +10,7 @@ import { enforcementZoneRepository, sessionParticipantRepository, lapRecordRepos
 import { logger } from '../utils/logger'
 import { EventEmitter } from 'events'
 import * as turf from '@turf/turf'
-import { point, distance } from '@turf/helpers'
+import { point } from '@turf/helpers'
 
 export interface SpeedViolation {
   id: string

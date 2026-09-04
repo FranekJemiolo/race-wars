@@ -8,10 +8,12 @@
 import * as jwt from 'jsonwebtoken'
 import { logger } from '../utils/logger'
 
+export type UserRole = 'user' | 'admin' | 'organizer' | 'USER' | 'ADMIN' | 'ORGANIZER'
+
 export interface JwtPayload {
   userId: string
   email: string
-  role: 'user' | 'admin' | 'organizer'
+  role: UserRole
   iat?: number
   exp?: number
 }
@@ -43,15 +45,35 @@ export class JwtService {
    */
   generateAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
     try {
-      return jwt.sign(payload, this.accessTokenSecret, {
-        expiresIn: this.accessTokenExpiry,
-        issuer: 'race-wars',
-        audience: 'race-wars-users'
-      } as jwt.SignOptions)
+      return jwt.sign(
+        { ...payload, issuedAtMs: Date.now() },
+        this.accessTokenSecret,
+        {
+          expiresIn: this.accessTokenExpiry,
+          issuer: 'race-wars',
+          audience: 'race-wars-users'
+        } as jwt.SignOptions
+      )
     } catch (error) {
       logger.error('Failed to generate access token', { payload, error })
       throw new Error('Token generation failed')
     }
+  }
+
+  private revokedTokens: Set<string> = new Set()
+  private revokedUsers: Map<string, number> = new Map()
+
+  revokeToken(token: string): void {
+    this.revokedTokens.add(token)
+  }
+
+  revokeAllForUser(userId: string): void {
+    this.revokedUsers.set(userId, Date.now())
+  }
+
+  clearRevocations(): void {
+    this.revokedTokens.clear()
+    this.revokedUsers.clear()
   }
 
   /**
@@ -59,11 +81,15 @@ export class JwtService {
    */
   generateRefreshToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
     try {
-      return jwt.sign(payload, this.refreshTokenSecret, {
-        expiresIn: this.refreshTokenExpiry,
-        issuer: 'race-wars',
-        audience: 'race-wars-users'
-      } as jwt.SignOptions)
+      return jwt.sign(
+        { ...payload, issuedAtMs: Date.now(), jti: Math.random().toString(36).substring(2) + Date.now().toString(36) },
+        this.refreshTokenSecret,
+        {
+          expiresIn: this.refreshTokenExpiry as any,
+          issuer: 'race-wars',
+          audience: 'race-wars-users'
+        }
+      )
     } catch (error) {
       logger.error('Failed to generate refresh token', { payload, error })
       throw new Error('Token generation failed')
@@ -71,7 +97,7 @@ export class JwtService {
   }
 
   /**
-   * Generate both access and refresh tokens
+   * Generate a token pair
    */
   generateTokenPair(payload: Omit<JwtPayload, 'iat' | 'exp'>): TokenPair {
     return {
@@ -85,13 +111,25 @@ export class JwtService {
    */
   verifyAccessToken(token: string): JwtPayload {
     try {
+      if (this.revokedTokens.has(token)) {
+        throw new Error('Invalid access token')
+      }
       const decoded = jwt.verify(token, this.accessTokenSecret, {
         issuer: 'race-wars',
         audience: 'race-wars-users'
       }) as JwtPayload
 
+      const revokedAt = this.revokedUsers.get(decoded.userId)
+      const tokenTime = (decoded as any).issuedAtMs || ((decoded.iat || 0) * 1000)
+      if (revokedAt && tokenTime < revokedAt) {
+        throw new Error('Invalid access token')
+      }
+
       return decoded
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.name === 'TokenExpiredError' || error?.message?.includes('expired')) {
+        throw new Error('Token has expired')
+      }
       logger.error('Failed to verify access token', { error })
       throw new Error('Invalid access token')
     }
@@ -102,13 +140,25 @@ export class JwtService {
    */
   verifyRefreshToken(token: string): JwtPayload {
     try {
+      if (this.revokedTokens.has(token)) {
+        throw new Error('Invalid refresh token')
+      }
       const decoded = jwt.verify(token, this.refreshTokenSecret, {
         issuer: 'race-wars',
         audience: 'race-wars-users'
       }) as JwtPayload
 
+      const revokedAt = this.revokedUsers.get(decoded.userId)
+      const tokenTime = (decoded as any).issuedAtMs || ((decoded.iat || 0) * 1000)
+      if (revokedAt && tokenTime < revokedAt) {
+        throw new Error('Invalid refresh token')
+      }
+
       return decoded
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.name === 'TokenExpiredError' || error?.message?.includes('expired')) {
+        throw new Error('Token has expired')
+      }
       logger.error('Failed to verify refresh token', { error })
       throw new Error('Invalid refresh token')
     }

@@ -47,8 +47,9 @@ export class MigrationRunner {
    */
   async getExecutedMigrations(): Promise<string[]> {
     try {
-      const result = await query('SELECT id FROM schema_migrations ORDER BY id');
-      return result.map((row: any) => row.id);
+      const result: any = await query('SELECT id FROM schema_migrations ORDER BY id');
+      const rows = result?.rows || (Array.isArray(result) ? result : []);
+      return rows.map((row: any) => row.id);
     } catch (error) {
       logger.error('Failed to get executed migrations', error);
       return [];

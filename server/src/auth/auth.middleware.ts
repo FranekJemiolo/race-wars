@@ -6,7 +6,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import { jwtService } from './jwt.service'
+import { jwtService, UserRole } from './jwt.service'
 import { authService } from './auth.service'
 import { logger } from '../utils/logger'
 
@@ -23,7 +23,7 @@ declare global {
 
 export interface AuthOptions {
   required?: boolean
-  roles?: ('user' | 'admin' | 'organizer')[]
+  roles?: UserRole[]
   allowInactive?: boolean
 }
 

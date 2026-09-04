@@ -90,7 +90,7 @@ export const MobileTeamManager: React.FC<MobileTeamManagerProps> = ({ userId, cl
         emblemStyle: 'modern'
       };
 
-      await teamsService.createTeam({
+      await (teamsService as any).createTeam({
         name: formData.name,
         tag: formData.tag.toUpperCase(),
         description: formData.description,
@@ -297,7 +297,7 @@ export const MobileTeamManager: React.FC<MobileTeamManagerProps> = ({ userId, cl
           <div className="text-gray-400">Rating</div>
         </div>
         <div className="text-center">
-          <div className="font-semibold">{(team.winRate * 100).toFixed(0)}%</div>
+          <div className="font-semibold">{((team.stats?.winRate ?? 0) * 100).toFixed(0)}%</div>
           <div className="text-gray-400">Win Rate</div>
         </div>
       </div>
@@ -637,7 +637,7 @@ export const MobileTeamManager: React.FC<MobileTeamManagerProps> = ({ userId, cl
                   <div className="text-xs text-gray-400">Rating</div>
                 </div>
                 <div className="bg-gray-700 rounded p-2 text-center">
-                  <div className="font-bold">{(selectedTeam.winRate * 100).toFixed(0)}%</div>
+                  <div className="font-bold">{((selectedTeam.stats?.winRate ?? 0) * 100).toFixed(0)}%</div>
                   <div className="text-xs text-gray-400">Win Rate</div>
                 </div>
                 <div className="bg-gray-700 rounded p-2 text-center">

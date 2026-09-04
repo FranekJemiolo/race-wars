@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getTeamRacingService, TeamLeaderboard, CompetitionType, TimeRange, TeamCompetition } from '../services/teamRacing.service';
+import { getTeamRacingService, type TeamLeaderboard as ITeamLeaderboard, CompetitionType, TimeRange, TeamCompetition } from '../services/teamRacing.service';
 
 interface TeamLeaderboardProps {
   userId: string;
@@ -9,7 +9,7 @@ interface TeamLeaderboardProps {
 export const TeamLeaderboard: React.FC<TeamLeaderboardProps> = ({ userId, className = '' }) => {
   const teamsService = getTeamRacingService();
   
-  const [leaderboard, setLeaderboard] = useState<TeamLeaderboard | null>(null);
+  const [leaderboard, setLeaderboard] = useState<ITeamLeaderboard | null>(null);
   const [competitions, setCompetitions] = useState<TeamCompetition[]>([]);
   const [selectedCompetition, setSelectedCompetition] = useState<TeamCompetition | null>(null);
   const [competitionType, setCompetitionType] = useState<CompetitionType>('seasonal');

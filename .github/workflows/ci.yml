@@ -56,10 +56,10 @@ jobs:
         run: npm ci
 
       - name: Run linting
-        run: npm run ci:lint || echo "Linting completed with warnings"
+        run: npm run ci:lint
 
       - name: Run type checking
-        run: npm run ci:type-check || echo "Type checking completed with warnings"
+        run: npm run ci:type-check
 
       - name: Run core server tests
         run: |
@@ -80,7 +80,7 @@ jobs:
           npm test -- --passWithNoTests --maxWorkers=1 || echo "Mobile tests completed"
 
       - name: Run behavioral tests
-        run: npm run test:behavioral || echo "Behavioral tests completed"
+        run: npm run test:behavioral
 
   build:
     name: Build Applications
@@ -103,7 +103,7 @@ jobs:
         run: npm ci
 
       - name: Build applications
-        run: npm run ci:build || echo "Build completed with warnings"
+        run: npm run ci:build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

@@ -93,7 +93,7 @@ export class SimulationClient {
 
     this.isRunning = true;
     this.currentTime = 0;
-    this.currentAngle = this.config.startingPosition ? this.config.startingPosition * Math.PI * 2 : 0;
+    this.currentAngle = (this.config as any).startingPosition ? (this.config as any).startingPosition * Math.PI * 2 : 0;
     this.positionCount = 0;
     this.lastUpdateTime = Date.now();
 
@@ -139,7 +139,7 @@ export class SimulationClient {
       1 + (Math.random() - 0.5) * (speedVariation / 100) : 1;
     const actualSpeed = speed * speedMultiplier;
 
-    let newLat: number, newLng: number, newHeading: number;
+    let newLat: number = this.currentLat, newLng: number = this.currentLng, newHeading: number = this.currentHeading;
 
     switch (routeType) {
       case 'circular':
@@ -383,7 +383,7 @@ export class RaceSimulationManager {
     };
 
     const baseSpeed = 80; // km/h
-    return baseSpeed * (vehicleMultipliers[vehicle] || 1.0) * (skillMultipliers[skill] || 1.0);
+    return baseSpeed * ((vehicleMultipliers as any)[vehicle] || 1.0) * ((skillMultipliers as any)[skill] || 1.0);
   }
 }
 

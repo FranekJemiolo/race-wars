@@ -121,8 +121,7 @@ export class LeaderboardService {
 
       // Request initial state
       this.sendMessage({
-        type: 'FULL_RESYNC',
-        version: '1.0'
+        type: 'FULL_RESYNC'
       });
 
     } catch (error) {
@@ -187,7 +186,7 @@ export class LeaderboardService {
     this.lastUpdateTime = Date.now();
     this.lastHeartbeat = this.lastUpdateTime;
 
-    switch (message.type) {
+    switch ((message as any).type) {
       case 'STATE_SNAPSHOT':
         this.handleStateSnapshot(message);
         break;
@@ -515,7 +514,7 @@ export class LeaderboardService {
   /**
    * Emit event to listeners
    */
-  private emit(eventType: string, event: LeaderboardEvent): void {
+  private emit(eventType: string, event: any): void {
     const listeners = this.eventListeners.get(eventType);
     if (listeners) {
       listeners.forEach(listener => {

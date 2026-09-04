@@ -483,6 +483,9 @@ export class GPSTrackingService {
             altitude: position.coords.altitude ?? undefined,
             altitudeAccuracy: position.coords.altitudeAccuracy ?? undefined,
             timestamp: position.timestamp,
+            sessionId: '',
+            source: 'gps',
+            quality: 'high',
           });
         },
         (error) => {

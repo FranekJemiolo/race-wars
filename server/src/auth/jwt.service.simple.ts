@@ -11,7 +11,7 @@ import { logger } from '../utils/logger'
 export interface JwtPayload {
   userId: string
   email: string
-  role: 'user' | 'admin' | 'organizer'
+  role: 'user' | 'admin' | 'organizer' | 'USER' | 'ADMIN' | 'ORGANIZER' | string
   iat?: number
   exp?: number
 }
@@ -44,7 +44,7 @@ export class JwtService {
   generateAccessToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
     try {
       return jwt.sign(payload, this.accessTokenSecret, {
-        expiresIn: this.accessTokenExpiry
+        expiresIn: this.accessTokenExpiry as any
       })
     } catch (error) {
       logger.error('Failed to generate access token', { payload, error })
@@ -58,7 +58,7 @@ export class JwtService {
   generateRefreshToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
     try {
       return jwt.sign(payload, this.refreshTokenSecret, {
-        expiresIn: this.refreshTokenExpiry
+        expiresIn: this.refreshTokenExpiry as any
       })
     } catch (error) {
       logger.error('Failed to generate refresh token', { payload, error })
@@ -76,12 +76,30 @@ export class JwtService {
     }
   }
 
+  private revokedTokens: Set<string> = new Set()
+  private revokedUsers: Map<string, number> = new Map()
+
+  revokeToken(token: string): void {
+    this.revokedTokens.add(token)
+  }
+
+  revokeAllForUser(userId: string): void {
+    this.revokedUsers.set(userId, Date.now())
+  }
+
   /**
    * Verify an access token
    */
   verifyAccessToken(token: string): JwtPayload {
     try {
+      if (this.revokedTokens.has(token)) {
+        throw new Error('Invalid token')
+      }
       const decoded = jwt.verify(token, this.accessTokenSecret) as JwtPayload
+      const revokedAt = this.revokedUsers.get(decoded.userId)
+      if (revokedAt && decoded.iat && decoded.iat * 1000 <= revokedAt) {
+        throw new Error('Invalid token')
+      }
       return decoded
     } catch (error) {
       logger.error('Failed to verify access token', { token, error })
@@ -94,7 +112,14 @@ export class JwtService {
    */
   verifyRefreshToken(token: string): JwtPayload {
     try {
+      if (this.revokedTokens.has(token)) {
+        throw new Error('Invalid token')
+      }
       const decoded = jwt.verify(token, this.refreshTokenSecret) as JwtPayload
+      const revokedAt = this.revokedUsers.get(decoded.userId)
+      if (revokedAt && decoded.iat && decoded.iat * 1000 <= revokedAt) {
+        throw new Error('Invalid token')
+      }
       return decoded
     } catch (error) {
       logger.error('Failed to verify refresh token', { token, error })

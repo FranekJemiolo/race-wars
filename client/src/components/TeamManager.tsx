@@ -121,7 +121,7 @@ export const TeamManager: React.FC<TeamManagerProps> = ({ userId, className = ''
         emblemStyle: 'modern'
       };
 
-      const newTeam = await teamsService.createTeam({
+      const newTeam = await (teamsService as any).createTeam({
         name: formData.name,
         tag: formData.tag.toUpperCase(),
         description: formData.description,
@@ -335,7 +335,7 @@ export const TeamManager: React.FC<TeamManagerProps> = ({ userId, className = ''
         </div>
         <div>
           <span className="text-gray-400">Win Rate:</span>
-          <span className="ml-2 font-medium">{(team.winRate * 100).toFixed(1)}%</span>
+          <span className="ml-2 font-medium">{((team.stats?.winRate ?? 0) * 100).toFixed(1)}%</span>
         </div>
         <div>
           <span className="text-gray-400">Races:</span>
@@ -772,7 +772,7 @@ export const TeamManager: React.FC<TeamManagerProps> = ({ userId, className = ''
                 </div>
                 <div>
                   <span className="text-gray-400">Win Rate:</span>
-                  <span className="ml-2 font-medium">{(selectedTeam.winRate * 100).toFixed(1)}%</span>
+                  <span className="ml-2 font-medium">{((selectedTeam.stats?.winRate ?? 0) * 100).toFixed(1)}%</span>
                 </div>
                 <div>
                   <span className="text-gray-400">Total Races:</span>

@@ -308,7 +308,7 @@ export class CustomRouteService {
         
         if (!isOnRoute) {
           // Calculate distance to nearest boundary
-          deviationMeters = this.calculateDistanceToBoundaries(trackPoint, boundaries)
+          deviationMeters = this.calculateDistanceToBoundaries(trackPoint.geometry as Point, boundaries)
         }
       }
 
@@ -343,7 +343,7 @@ export class CustomRouteService {
         route_id: routeId,
         name: input.name,
         description: input.description,
-        position: JSON.stringify(input.position),
+        position: { lat: input.position.geometry.coordinates[1], lng: input.position.geometry.coordinates[0] },
         order_index: input.orderIndex,
         radius_meters: input.radiusMeters || 20,
         checkpoint_type: input.checkpointType || 'STANDARD',
@@ -553,9 +553,10 @@ export class CustomRouteService {
   /**
    * Calculate distance from point to route boundaries
    */
-  private calculateDistanceToBoundaries(point: Point, boundaries: Feature<Polygon>): number {
+  private calculateDistanceToBoundaries(pt: Point, boundaries: Feature<Polygon>): number {
     try {
-      const distance = turf.pointToLineDistance(point, boundaries, { units: 'meters' })
+      const line = turf.polygonToLine(boundaries) as any
+      const distance = turf.pointToLineDistance(point(pt.coordinates), line, { units: 'meters' })
       return distance
     } catch (error) {
       return 0
@@ -572,10 +573,10 @@ export class CustomRouteService {
       let minDistance = Infinity
 
       for (const checkpoint of checkpoints) {
-        const checkpointPos = JSON.parse(checkpoint.position) as Feature<Point>
+        const cp = typeof checkpoint.position === 'string' ? JSON.parse(checkpoint.position) : checkpoint.position
         const distance = turf.distance(
           point([lng, lat]),
-          checkpointPos,
+          point([cp.lng, cp.lat]),
           { units: 'meters' }
         )
 
@@ -607,14 +608,16 @@ export class CustomRouteService {
         if (geometry.geometry.type === 'Point') {
           distance = turf.distance(
             point([lng, lat]),
-            geometry,
+            geometry as Feature<Point>,
             { units: 'meters' }
           )
         } else {
-          // For LineString and Polygon, use pointToLineDistance
+          const lineGeom = geometry.geometry.type === 'Polygon' 
+            ? (turf.polygonToLine(geometry as Feature<Polygon>) as any)
+            : geometry
           distance = turf.pointToLineDistance(
             point([lng, lat]),
-            geometry,
+            lineGeom,
             { units: 'meters' }
           )
         }

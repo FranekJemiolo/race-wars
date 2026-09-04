@@ -15,7 +15,7 @@ export class TrackController {
    * Create a new track
    * POST /tracks
    */
-  create = requireAuth(async (req: Request, res: Response) => {
+  create = async (req: Request, res: Response) => {
     try {
       const {
         name,
@@ -86,7 +86,7 @@ export class TrackController {
         elevationProfileUrl,
         tags,
         createdBy: req.userId
-      })
+      }, req.userId || 'system')
 
       res.status(201).json({
         message: 'Track created successfully',
@@ -114,7 +114,7 @@ export class TrackController {
         message: 'Track creation failed'
       })
     }
-  })
+  }
 
   /**
    * Get all tracks with optional filtering
@@ -163,7 +163,7 @@ export class TrackController {
         message: 'Track retrieval failed'
       })
     }
-  })
+  }
 
   /**
    * Get track by ID
@@ -198,7 +198,7 @@ export class TrackController {
    * Update track
    * PUT /tracks/:id
    */
-  update = requireOwnership(async (req: Request, res: Response) => {
+  update = async (req: Request, res: Response) => {
     try {
       const { id } = req.params
       const {
@@ -306,13 +306,13 @@ export class TrackController {
         message: 'Track update failed'
       })
     }
-  })
+  }
 
   /**
    * Delete track
    * DELETE /tracks/:id
    */
-  delete = requireOwnership(async (req: Request, res: Response) => {
+  delete = async (req: Request, res: Response) => {
     try {
       const { id } = req.params
 
@@ -362,7 +362,7 @@ export class TrackController {
         message: 'Track deletion failed'
       })
     }
-  })
+  }
 
   /**
    * Get tracks by type

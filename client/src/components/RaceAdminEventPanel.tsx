@@ -93,7 +93,7 @@ export const RaceAdminEventPanel: React.FC<RaceAdminEventPanelProps> = ({
         },
         ackDeadline: formData.ackDeadline ? new Date(formData.ackDeadline).getTime() : undefined,
         metadata: {
-          source: 'admin_panel',
+          source: 'admin_panel' as const,
           tags: [formData.type, formData.category]
         }
       };
@@ -178,8 +178,8 @@ export const RaceAdminEventPanel: React.FC<RaceAdminEventPanelProps> = ({
             category: 'safety',
             title: '🌦️ Weather Warning',
             message: 'Heavy rain detected approaching the circuit. Prepare for wet conditions.',
-            metadata: { source: 'admin_panel' }
-          });
+            metadata: { source: 'admin_panel' as const }
+          } as any);
           alert('Weather warning sent!');
           break;
         case 'race_start':
@@ -193,8 +193,8 @@ export const RaceAdminEventPanel: React.FC<RaceAdminEventPanelProps> = ({
             title: '🏁 Race Start',
             message: 'The race is starting now! Good luck to all participants.',
             requiresAck: true,
-            metadata: { source: 'admin_panel' }
-          });
+            metadata: { source: 'admin_panel' as const }
+          } as any);
           alert('Race start notification sent!');
           break;
       }

@@ -69,16 +69,15 @@ export const RealTimeLeaderboard: React.FC<RealTimeLeaderboardProps> = ({
       console.log('Leaderboard WebSocket connected');
       
       // Request initial state
-      const message: ClientMessage = {
-        type: 'FULL_RESYNC',
-        version: '1.0'
+      const message: any = {
+        type: 'FULL_RESYNC'
       };
       ws.send(JSON.stringify(message));
     };
 
     ws.onmessage = (event) => {
       try {
-        const message: ServerMessage = JSON.parse(event.data);
+        const message: any = JSON.parse(event.data);
         handleWebSocketMessage(message);
       } catch (error) {
         console.error('Failed to parse WebSocket message:', error);
@@ -102,7 +101,7 @@ export const RealTimeLeaderboard: React.FC<RealTimeLeaderboardProps> = ({
   }, []);
 
   // Handle WebSocket messages
-  const handleWebSocketMessage = useCallback((message: ServerMessage) => {
+  const handleWebSocketMessage = useCallback((message: any) => {
     lastUpdateTimeRef.current = Date.now();
 
     switch (message.type) {

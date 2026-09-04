@@ -127,7 +127,7 @@ export const MobileSpectatorView: React.FC<MobileSpectatorViewProps> = ({
         lapTime: newLapTime,
         totalTime: elapsed,
         speed: Math.max(100, Math.min(220, newSpeed)),
-        status: newLap > currentData.trackInfo.totalLaps ? 'finished' : 'active',
+        status: (newLap > currentData.trackInfo.totalLaps ? 'finished' : 'active') as 'finished' | 'active',
         gap: index === 0 ? 0 : index * 1500 + Math.random() * 500
       };
     });

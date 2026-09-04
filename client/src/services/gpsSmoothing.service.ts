@@ -243,6 +243,9 @@ export class GPSSmoothingService {
         ? pos1.altitudeAccuracy + (pos2.altitudeAccuracy - pos1.altitudeAccuracy) * fraction
         : undefined,
       timestamp: pos1.timestamp + (pos2.timestamp - pos1.timestamp) * fraction,
+      sessionId: pos1.sessionId,
+      source: pos1.source,
+      quality: pos1.quality,
     };
   }
 

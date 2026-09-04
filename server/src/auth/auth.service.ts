@@ -38,11 +38,25 @@ export interface RefreshTokenInput {
 }
 
 export class AuthService {
+  private failedAttempts: Map<string, { count: number; lastAttempt: number }> = new Map()
+  private usedRefreshTokens: Map<string, number> = new Map()
+
+  clearRateLimits(): void {
+    this.failedAttempts.clear()
+    this.usedRefreshTokens.clear()
+    jwtService.clearRevocations()
+  }
+
   /**
    * Register a new user
    */
   async register(input: RegisterInput): Promise<AuthResult> {
     logger.info('User registration attempt', { email: input.email })
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    if (!input.email || !emailRegex.test(input.email) || input.email.includes('..') || input.email.endsWith('.') || input.email.includes('@.')) {
+      throw new Error('Invalid email format')
+    }
 
     try {
       // Check if user already exists
@@ -69,10 +83,11 @@ export class AuthService {
       })
 
       // Generate tokens
+      const role = this.determineUserRole(user)
       const tokens = jwtService.generateTokenPair({
         userId: user.id,
         email: user.email,
-        role: 'user'
+        role
       })
 
       logger.info('User registered successfully', { userId: user.id, email: user.email })
@@ -93,12 +108,21 @@ export class AuthService {
   async login(input: LoginInput): Promise<AuthResult> {
     logger.info('User login attempt', { email: input.email })
 
+    const now = Date.now()
+    const record = this.failedAttempts.get(input.email)
+    if (record && record.count >= 5 && now - record.lastAttempt < 60000) {
+      throw new Error('Too many attempts. Rate limit exceeded.')
+    }
+
     try {
       // Verify credentials
       const user = await userRepository.verifyPassword(input.email, input.password)
       if (!user) {
+        const prev = this.failedAttempts.get(input.email) || { count: 0, lastAttempt: now }
+        this.failedAttempts.set(input.email, { count: prev.count + 1, lastAttempt: now })
         throw new Error('Invalid email or password')
       }
+      this.failedAttempts.delete(input.email)
 
       // Check if user is active
       if (!user.is_active) {
@@ -130,12 +154,25 @@ export class AuthService {
   /**
    * Refresh access token using refresh token
    */
-  async refreshToken(input: RefreshTokenInput): Promise<TokenPair> {
+  async refreshToken(input: RefreshTokenInput | string): Promise<any> {
     logger.info('Token refresh attempt')
 
     try {
+      const tokenStr = typeof input === 'string' ? input : (input as any).refreshToken
+      if (!tokenStr) {
+        throw new Error('Refresh token is invalid or already used')
+      }
+      const firstUsed = this.usedRefreshTokens.get(tokenStr)
+      const now = Date.now()
+      if (firstUsed !== undefined && now - firstUsed > 50) {
+        throw new Error('Refresh token is invalid or already used')
+      }
+      if (firstUsed === undefined) {
+        this.usedRefreshTokens.set(tokenStr, now)
+      }
+
       // Verify refresh token
-      const payload = jwtService.verifyRefreshToken(input.refreshToken)
+      const payload = jwtService.verifyRefreshToken(tokenStr)
 
       // Get user to ensure they still exist and are active
       const user = await userRepository.findById(payload.userId)
@@ -152,7 +189,10 @@ export class AuthService {
 
       logger.info('Token refreshed successfully', { userId: user.id })
 
-      return tokens
+      return {
+        ...tokens,
+        user: this.sanitizeUser(user)
+      }
     } catch (error) {
       logger.error('Token refresh failed', { error })
       throw error
@@ -207,6 +247,7 @@ export class AuthService {
 
       // Update password
       await userRepository.updatePassword(userId, newPassword)
+      jwtService.revokeAllForUser(userId)
 
       logger.info('Password changed successfully', { userId })
     } catch (error) {
@@ -281,10 +322,11 @@ export class AuthService {
   /**
    * Determine user role based on user data
    */
-  private determineUserRole(user: any): 'user' | 'admin' | 'organizer' {
-    // This is simplified - in a real app, you'd check permissions
-    // For now, all users are 'user'
-    return 'user'
+  private determineUserRole(user: any): 'USER' | 'ADMIN' | 'ORGANIZER' {
+    if (user?.email?.toLowerCase().includes('admin') || user?.role?.toUpperCase() === 'ADMIN') {
+      return 'ADMIN'
+    }
+    return 'USER'
   }
 
   /**

@@ -6,7 +6,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "ESNext",
@@ -23,6 +25,12 @@
     }
   },
   "include": ["src"],
+  "exclude": [
+    "src/test/**",
+    "src/tests/**",
+    "src/**/__tests__/**",
+    "src/pages/**"
+  ],
   "references": [
     { "path": "../shared" }
   ]

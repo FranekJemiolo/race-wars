@@ -83,8 +83,8 @@ export const MobileAdminEventPanel: React.FC<MobileAdminEventPanelProps> = ({
             category: 'safety',
             title: '🌦️ Weather Warning',
             message: 'Heavy rain detected approaching the circuit.',
-            metadata: { source: 'admin_panel' }
-          });
+            metadata: { source: 'admin_panel' as const }
+          } as any);
           alert('Weather warning sent!');
           break;
         case 'race_start':
@@ -98,8 +98,8 @@ export const MobileAdminEventPanel: React.FC<MobileAdminEventPanelProps> = ({
             title: '🏁 Race Start',
             message: 'The race is starting now! Good luck to all participants.',
             requiresAck: true,
-            metadata: { source: 'admin_panel' }
-          });
+            metadata: { source: 'admin_panel' as const }
+          } as any);
           alert('Race start notification sent!');
           break;
         case 'penalty_warning':
@@ -113,9 +113,9 @@ export const MobileAdminEventPanel: React.FC<MobileAdminEventPanelProps> = ({
             title: '⚠️ Track Limits Warning',
             message: 'Multiple drivers exceeding track limits. Please stay within track boundaries.',
             requiresAck: true,
-            metadata: { source: 'admin_panel' }
-          });
-          alert('Track limits warning sent!');
+            metadata: { source: 'admin_panel' as const }
+          } as any);
+          alert('Penalty warning sent!');
           break;
       }
       

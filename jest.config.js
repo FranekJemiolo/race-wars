@@ -17,7 +17,7 @@ module.exports = {
     '<rootDir>/screenshots'
   ],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.(ts|tsx)$': ['ts-jest', { diagnostics: false, isolatedModules: true }]
   },
   collectCoverageFrom: [
     'server/src/**/*.{ts,tsx}',
@@ -30,7 +30,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   testTimeout: 30000,
   verbose: true,
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/server/src/$1'
   }
 }

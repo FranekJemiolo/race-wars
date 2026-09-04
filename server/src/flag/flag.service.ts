@@ -91,7 +91,7 @@ export class FlagService extends EventEmitter {
         flag_type: flagData.flagType,
         flag_state: 'SHOWN',
         sector: flagData.sector,
-        location: flagData.location ? `POINT(${flagData.location.lng} ${flagData.location.lat})` : undefined,
+        location: flagData.location,
         location_description: flagData.locationDescription,
         reason: flagData.reason,
         incident_id: flagData.incidentId,
@@ -198,7 +198,7 @@ export class FlagService extends EventEmitter {
    * Show sector-specific yellow flag
    */
   async showSectorYellow(sessionId: string, sector: number, location?: { lat: number; lng: number }, reason?: string, initiatedBy?: string): Promise<void> {
-    await this.showFlag({
+    await this.showFlag(sessionId, {
       sessionId,
       flagType: 'YELLOW_SECTOR',
       flagState: 'SHOWN',
@@ -232,7 +232,7 @@ export class FlagService extends EventEmitter {
 
     try {
       // Show yellow flags
-      await this.showFlag({
+      await this.showFlag(sessionId, {
         sessionId,
         flagType: 'YELLOW',
         flagState: 'SHOWN',
@@ -301,7 +301,7 @@ export class FlagService extends EventEmitter {
    * Show blue flag to specific driver
    */
   async showBlueFlag(sessionId: string, userId: string, sessionParticipantId: string, reason?: string, initiatedBy?: string): Promise<void> {
-    await this.showFlag({
+    await this.showFlag(sessionId, {
       sessionId,
       flagType: 'BLUE',
       flagState: 'SHOWN',
@@ -315,7 +315,7 @@ export class FlagService extends EventEmitter {
    * Show black flag to specific driver
    */
   async showBlackFlag(sessionId: string, userId: string, sessionParticipantId: string, reason: string, initiatedBy?: string): Promise<void> {
-    await this.showFlag({
+    await this.showFlag(sessionId, {
       sessionId,
       flagType: 'BLACK',
       flagState: 'SHOWN',
@@ -333,7 +333,7 @@ export class FlagService extends EventEmitter {
    * Start race (show green flag)
    */
   async startRace(sessionId: string, initiatedBy?: string): Promise<void> {
-    await this.showFlag({
+    await this.showFlag(sessionId, {
       sessionId,
       flagType: 'GREEN',
       flagState: 'SHOWN',
@@ -348,7 +348,7 @@ export class FlagService extends EventEmitter {
    * End race (show checkered flag)
    */
   async endRace(sessionId: string, initiatedBy?: string): Promise<void> {
-    await this.showFlag({
+    await this.showFlag(sessionId, {
       sessionId,
       flagType: 'CHECKERED',
       flagState: 'SHOWN',
@@ -364,7 +364,7 @@ export class FlagService extends EventEmitter {
    * Red flag session (stop race)
    */
   async redFlagSession(sessionId: string, reason: string, initiatedBy?: string): Promise<void> {
-    await this.showFlag({
+    await this.showFlag(sessionId, {
       sessionId,
       flagType: 'RED',
       flagState: 'SHOWN',
@@ -428,7 +428,7 @@ export class FlagService extends EventEmitter {
           flagType: flag.flag_type,
           flagState: flag.flag_state,
           sector: flag.sector,
-          location: flag.location ? { lat: flag.location_lat!, lng: flag.location_lng! } : undefined,
+          location: flag.location ? (typeof flag.location === 'string' ? JSON.parse(flag.location) : flag.location) : undefined,
           locationDescription: flag.location_description,
           reason: flag.reason,
           incidentId: flag.incident_id,

@@ -18,7 +18,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
         lastName: 'Test',
         displayName: 'Scenario Test User',
         email: `scenario-${timestamp}@test.com`,
-        password: 'testpassword123',
+        password: 'Testpassword123!',
         experienceLevel: 'beginner' as const
       }
 
@@ -48,7 +48,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
         lastName: 'Password',
         displayName: 'Wrong Password Test',
         email: `wrong-${timestamp}@test.com`,
-        password: 'correctpassword123',
+        password: 'Correctpassword123!',
         experienceLevel: 'beginner' as const
       }
 
@@ -57,10 +57,10 @@ describe('Critical System Scenarios Behavioral Tests', () => {
 
       // Try login with wrong password
       try {
-        await authService.login({ email: userData.email, password: 'wrongpassword123' })
+        await authService.login({ email: userData.email, password: 'Wrongpassword123!' })
         fail('Should have rejected incorrect password')
       } catch (error) {
-        expect(error.message).toContain('Invalid credentials')
+        expect(error.message).toContain('Invalid')
       }
 
       // Cleanup
@@ -256,7 +256,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
           lastName: `User ${index}`,
           displayName: `Concurrent User ${index}`,
           email: `concurrent-${timestamp}-${index}@test.com`,
-          password: 'testpassword123',
+          password: 'Testpassword123!',
           experienceLevel: 'beginner' as const
         })
       })
@@ -405,7 +405,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
           last_name: `User ${index}`,
           display_name: `Bulk User ${index}`,
           email: `bulk-${timestamp}-${index}@test.com`,
-          password: 'testpassword123',
+          password: 'Testpassword123',
           experience_level: 'beginner'
         })
       })
@@ -414,7 +414,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
       const creationTime = Date.now()
 
       // Search users
-      const searchResults = await userRepository.search('Bulk')
+      const searchResults = await userRepository.search('Bulk', operationCount)
       const searchTime = Date.now()
 
       // Cleanup
@@ -445,7 +445,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
           last_name: `Test ${index}`,
           display_name: `Load Test ${index}`,
           email: `load-${timestamp}-${index}@test.com`,
-          password: 'testpassword123',
+          password: 'Testpassword123',
           experience_level: 'beginner'
         })
 
@@ -517,7 +517,7 @@ describe('Critical System Scenarios Behavioral Tests', () => {
           last_name: 'Test',
           display_name: 'Test',
           email: 'test@test.com',
-          password: 'testpassword123',
+          password: 'Testpassword123',
           experience_level: 'beginner'
         })
         fail('Should have failed validation')

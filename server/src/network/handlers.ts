@@ -136,11 +136,11 @@ function handlePositionUpdate(ws: WebSocket, msg: Extract<ClientMessage, { type:
     speed: msg.speed || 0,
     heading: msg.heading || 0,
     accuracy: msg.accuracy || 10,
-    source: msg.source || 'gps',
-    quality: msg.quality || 'medium',
-    satelliteCount: msg.satelliteCount,
-    hdop: msg.hdop,
-    vdop: msg.vdop
+    source: (msg as any).source || 'gps',
+    quality: (msg as any).quality || 'medium',
+    satelliteCount: (msg as any).satelliteCount,
+    hdop: (msg as any).hdop,
+    vdop: (msg as any).vdop
   }
   
   // Run anti-cheat detection
@@ -153,7 +153,7 @@ function handlePositionUpdate(ws: WebSocket, msg: Extract<ClientMessage, { type:
       })
       
       // Send warning to player
-      const warningMessage: ServerMessage = {
+      const warningMessage: any = {
         type: "ANTI_CHEAT_WARNING",
         riskScore: result.riskScore,
         anomalies: result.anomalies.map(a => ({
@@ -171,16 +171,13 @@ function handlePositionUpdate(ws: WebSocket, msg: Extract<ClientMessage, { type:
         // TODO: Implement disqualification logic
       }
     }
-  }).catch(error => {
-    error('Anti-cheat analysis failed:', error)
+  }).catch((err: any) => {
+    error('Anti-cheat analysis failed:', err)
   })
   
   // Update player position
-  playerManager.updatePosition({
-    lat: msg.lat,
-    lon: msg.lon,
-    timestamp: now
-  })
+  const pos = { lat: msg.lat, lon: msg.lon }
+  playerManager.updatePosition(pos, pos)
   
   log(`Position update from ${playerId}: ${msg.lat}, ${msg.lon} (source: ${gpsDataPoint.source})`)
 }

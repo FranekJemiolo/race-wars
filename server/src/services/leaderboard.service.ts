@@ -102,13 +102,14 @@ export class LeaderboardService {
       `, [raceId, raceName]);
 
       // Get race participants
-      const participants = await query(`
+      const participantsRes: any = await query(`
         SELECT sp.id, sp.user_id, u.username, sp.car_number
         FROM session_participants sp
         JOIN users u ON sp.user_id = u.id
         WHERE sp.session_id = $1
         ORDER BY sp.car_number
       `, [raceId]);
+      const participants = participantsRes.rows || [];
 
       // Create leaderboard entries for each participant
       for (const participant of participants) {
@@ -262,12 +263,13 @@ export class LeaderboardService {
       }
 
       // Get race leaderboard info
-      const raceInfo = await query(`
+      const raceInfoRes: any = await query(`
         SELECT race_id, race_name, status, start_time, end_time,
                total_participants, finished_participants, last_update
         FROM race_leaderboards 
         WHERE race_id = $1
       `, [raceId]);
+      const raceInfo = raceInfoRes.rows || [];
 
       if (raceInfo.length === 0) {
         throw new Error(`Race leaderboard not found: ${raceId}`);
@@ -276,7 +278,7 @@ export class LeaderboardService {
       const race = raceInfo[0];
 
       // Get leaderboard entries
-      const entries = await query(`
+      const entriesRes: any = await query(`
         SELECT 
           le.id, le.race_id, le.participant_id, le.user_id, u.username,
           le.current_position, le.previous_position, le.current_lap, le.total_laps,
@@ -287,6 +289,7 @@ export class LeaderboardService {
         WHERE le.race_id = $1
         ORDER BY le.current_position ASC
       `, [raceId]);
+      const entries = entriesRes.rows || [];
 
       const leaderboardEntries: LeaderboardEntry[] = (entries || []).map((entry: any) => ({
         id: entry.id,
@@ -337,7 +340,7 @@ export class LeaderboardService {
    */
   async getParticipantPosition(raceId: string, participantId: string): Promise<LeaderboardEntry | null> {
     try {
-      const result = await query(`
+      const resultRes = await query(`
         SELECT 
           le.id, le.race_id, le.participant_id, le.user_id, u.username,
           le.current_position, le.previous_position, le.current_lap, le.total_laps,
@@ -347,6 +350,7 @@ export class LeaderboardService {
         JOIN users u ON le.user_id = u.id
         WHERE le.race_id = $1 AND le.participant_id = $2
       `, [raceId, participantId]);
+      const result = (resultRes as any).rows || [];
 
       if (result.length === 0) {
         return null;
