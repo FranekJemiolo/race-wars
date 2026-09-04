@@ -18,7 +18,7 @@ global.console = {
 process.env.JWT_SECRET = 'test-jwt-secret-key-for-behavioral-tests'
 process.env.JWT_EXPIRES_IN = '1h'
 process.env.JWT_REFRESH_EXPIRES_IN = '7d'
-process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/race_wars_test'
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/race_wars_test'
 
 // Increase timeout for behavioral tests
 jest.setTimeout(30000)
