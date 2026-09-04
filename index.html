@@ -347,9 +347,70 @@
 
         .showcase-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 3rem;
-            margin-bottom: 3rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .showcase-card {
+            background: rgba(13, 19, 33, 0.7);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .showcase-card:hover {
+            transform: translateY(-6px);
+            border-color: #00d4ff;
+            box-shadow: 0 16px 40px rgba(0, 212, 255, 0.25);
+        }
+
+        .showcase-card h4 {
+            font-size: 1.3rem;
+            margin: 1.25rem 0 0.5rem;
+            color: #feca57;
+            font-weight: 700;
+        }
+
+        .showcase-card p {
+            color: #b0b0b0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .showcase-img-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mobile-frame img {
+            max-height: 440px;
+            width: auto;
+            max-width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: block;
+        }
+
+        .desktop-frame img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: block;
         }
 
         .showcase-item {
@@ -882,169 +943,70 @@
         </section>
 
         <section class="app-showcase">
-            <h2>🖼️ App Interface Showcase</h2>
-            
+            <h2>🏎️ Live Interfaces & Visual Telemetry</h2>
+            <p style="text-align: center; color: #a0a0a0; max-width: 760px; margin: -1.5rem auto 3rem; font-size: 1.1rem;">High-performance, dark cockpit telemetry interfaces engineered for mobile drivers and desktop race control.</p>
+
+            <h3 style="color: #00d2d3; font-size: 1.8rem; margin: 2.5rem 0 1.5rem; text-align: center;">📱 Mobile Cockpit Experience</h3>
             <div class="showcase-grid">
-                <div class="showcase-item">
-                    <h3>📱 Mobile Team Management</h3>
-                    <div class="mockup-mobile">
-                        <div class="mobile-header">
-                            <span>🏁 Teams</span>
-                            <span>(2) 📬</span>
-                        </div>
-                        <div class="mobile-content">
-                            <div class="team-card">
-                                <div class="team-header">
-                                    <span className="team-icon">🏢</span>
-                                    <div>
-                                        <div className="team-name">Speed Racers</div>
+                <div class="showcase-card">
+                    <div class="showcase-img-container mobile-frame">
+                        <img src="assets/mobile-racing.png" alt="Mobile Live Racing Interface" class="screenshot">
+                    </div>
+                    <h4>Live Racing Cockpit</h4>
+                    <p>Sub-second GPS telemetry, interactive track map, speed readouts, and live sector timings.</p>
                 </div>
-                
-                <div class="interface-card">
-                    <h3>Live Racing</h3>
-                    <img src="assets/main-app.png" alt="Live Racing Interface" class="screenshot">
-                    <p>Real-time GPS racing with live position tracking and leaderboard</p>
+                <div class="showcase-card">
+                    <div class="showcase-img-container mobile-frame">
+                        <img src="assets/mobile-admin-panel.png" alt="Mobile Admin Panel" class="screenshot">
+                    </div>
+                    <h4>Marshal & Event Control</h4>
+                    <p>Instant flag triggers (Green, Yellow, SC, Red), penalty assignment, and stewards incident feed.</p>
                 </div>
-                
-                <div class="interface-card">
-                    <h3>App Showcase</h3>
-                    <img src="assets/showcase-page.png" alt="App Showcase" class="screenshot">
-                    <p>Interactive demonstration of all app features and interfaces</p>
+                <div class="showcase-card">
+                    <div class="showcase-img-container mobile-frame">
+                        <img src="assets/mobile-race-replay.png" alt="Mobile Race Replay" class="screenshot">
+                    </div>
+                    <h4>Mobile Race Replay</h4>
+                    <p>Synchronized GPS playback, speed delta tracking, gap telemetry, and interactive timeline scrubber.</p>
+                </div>
+                <div class="showcase-card">
+                    <div class="showcase-img-container mobile-frame">
+                        <img src="assets/mobile-team-management.png" alt="Mobile Team Management" class="screenshot">
+                    </div>
+                    <h4>Team Management</h4>
+                    <p>Crew statistics, driver rosters, seasonal standings, win rates, and tactical setup management.</p>
                 </div>
             </div>
-            
-            <h2>💻 Desktop Interface</h2>
-            <div class="interface-grid">
-                <div class="interface-card">
-                    <h3>Team Dashboard</h3>
-                    <img src="assets/button-0.png" alt="Desktop Team Management" class="screenshot">
-                            <span>👤 Admin</span>
-                        </div>
-                        <div class="desktop-content">
-                            <div class="team-overview">
-                                <div class="team-info">
-                                    <h4>🏢 Speed Racers</h4>
-                                    <div class="team-stats-large">
-                                        <span>🏷️ SR</span>
-                                        <span>📍 12/12</span>
-                                        <span>📊 1850</span>
-                                        <span>🏆 #1</span>
-                                        <span>🥇 85%</span>
-                                        <span>🏁 45W</span>
-                                        <span>📈 +5</span>
-                                    </div>
-                                    <p>"The fastest team on the track!"</p>
-                                </div>
-                                <div class="team-members">
-                                    <h5>Team Members (12)</h5>
-                                    <div class="member-list">
-                                        <div class="member">
-                                            <span>👑 Alex (Leader)</span>
-                                            <span>📊 1920</span>
-                                            <span>🏁 15W</span>
-                                            <span>🥇 88%</span>
-                                        </div>
-                                        <div class="member">
-                                            <span>🎯 Sarah (Co-Leader)</span>
-                                            <span>📊 1880</span>
-                                            <span>🏁 12W</span>
-                                            <span>🥇 82%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="leaderboard-desktop">
-                                <h4>🏆 Seasonal Leaderboard - Top 10 Teams</h4>
-                                <div class="leaderboard-list">
-                                    <div class="leaderboard-item">
-                                        <span>#1 🏢 Speed Racers</span>
-                                        <span>📊 1850</span>
-                                        <span>🏁 45W</span>
-                                        <span>🥇 85%</span>
-                                        <span>⭐ 1125 pts</span>
-                                    </div>
-                                    <div class="leaderboard-item">
-                                        <span>#2 🏢 Lightning Team</span>
-                                        <span>📊 1820</span>
-                                        <span>🏁 42W</span>
-                                        <span>🥇 82%</span>
-                                        <span>⭐ 1050 pts</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <p>Comprehensive team management with analytics and member statistics</p>
-                </div>
 
-                <div class="showcase-item desktop">
-                    <h3>🎬 Race Replay System</h3>
-                    <div class="mockup-desktop">
-                        <div class="desktop-header">
-                            <span>🎬 Race Replay - Monaco Grand Prix 2024</span>
-                            <span>📅 June 15, 2024</span>
-                        </div>
-                        <div class="desktop-content">
-                            <div class="replay-controls">
-                                <div class="video-controls">
-                                    <span>⏮️ ⏸️ ⏯️ ⏹️</span>
-                                    <span>⏪ 0:45:23 ────────⏩ 1:23:45</span>
-                                    <span>🔊 📺 ⚙️</span>
-                                </div>
-                                <div class="replay-map">
-                                    <div class="route-line"></div>
-                                    <div class="car-positions">
-                                        <span>🏎️ You (2nd)</span>
-                                        <span>🏎️ Lightning (1st)</span>
-                                        <span>🏎️ Thunder (3rd)</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="race-analysis">
-                                <div class="analysis-section">
-                                    <h5>📊 Race Analysis</h5>
-                                    <div class="analysis-grid">
-                                        <div class="analysis-item">
-                                            <h6>Lap Times</h6>
-                                            <div class="lap-times">
-                                                <div>Lap 1: 1:23.456</div>
-                                                <div>Lap 2: 1:22.987</div>
-                                                <div>Lap 3: 1:23.234</div>
-                                                <div>Lap 4: 1:21.789</div>
-                                                <div>Lap 5: 1:22.456</div>
-                                            </div>
-                                        </div>
-                                        <div class="analysis-item">
-                                            <h6>Speed Profile</h6>
-                                            <div class="speed-stats">
-                                                <div>Max: 285 km/h</div>
-                                                <div>Avg: 245 km/h</div>
-                                                <div>Min: 180 km/h</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="race-results">
-                                    <h5>🏆 Race Results</h5>
-                                    <div class="results-list">
-                                        <div class="result-item">
-                                            <span>1️⃣ Lightning Team</span>
-                                            <span>1:21:234</span>
-                                            <span>⭐ +25 pts</span>
-                                            <span>🏆 Fastest Lap</span>
-                                        </div>
-                                        <div class="result-item">
-                                            <span>2️⃣ Your Team</span>
-                                            <span>1:21:456</span>
-                                            <span>⭐ +18 pts</span>
-                                            <span>📈 +2 positions</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <h3 style="color: #e94560; font-size: 1.8rem; margin: 4rem 0 1.5rem; text-align: center;">💻 Desktop Command Center</h3>
+            <div class="showcase-grid">
+                <div class="showcase-card">
+                    <div class="showcase-img-container desktop-frame">
+                        <img src="assets/desktop-racing.png" alt="Desktop Racing Interface" class="screenshot">
                     </div>
-                    <p>Advanced race replay with video controls and detailed analysis</p>
+                    <h4>Live Telemetry & Tracking</h4>
+                    <p>Full desktop telemetry HUD with real-time multi-car positional tracking, speed profiles, and splits.</p>
+                </div>
+                <div class="showcase-card">
+                    <div class="showcase-img-container desktop-frame">
+                        <img src="assets/desktop-admin-panel.png" alt="Desktop Race Admin Panel" class="screenshot">
+                    </div>
+                    <h4>Race Director Event Console</h4>
+                    <p>Comprehensive event dispatch, safety car deployment, incident adjudication, and broadcast notices.</p>
+                </div>
+                <div class="showcase-card">
+                    <div class="showcase-img-container desktop-frame">
+                        <img src="assets/desktop-race-replay.png" alt="Desktop Race Replay System" class="screenshot">
+                    </div>
+                    <h4>Race Replay & Analytics</h4>
+                    <p>Precision multi-angle replay with video scrubbers, lap-by-lap analytics, and sector speed maps.</p>
+                </div>
+                <div class="showcase-card">
+                    <div class="showcase-img-container desktop-frame">
+                        <img src="assets/desktop-team-management.png" alt="Desktop Team Management" class="screenshot">
+                    </div>
+                    <h4>Team Dashboard & Leaderboards</h4>
+                    <p>Team hierarchy, driver roster analytics, championship points, and detailed seasonal telemetry.</p>
                 </div>
             </div>
         </section>

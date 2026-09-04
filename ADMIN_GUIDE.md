@@ -38,6 +38,14 @@ The dashboard provides a high-level view of:
 - **Incidents Today**: Number of incidents detected
 - **System Status**: Health of all services
 
+### Admin Console Interface
+
+#### Desktop Race Director Console
+![Desktop Admin Panel](assets/desktop-admin-panel.png)
+
+#### Mobile Track Marshal Console
+![Mobile Admin Panel](assets/mobile-admin-panel.png)
+
 ## Session Management
 
 ### Creating a Session
