@@ -33,6 +33,11 @@ export const ShowcasePage: React.FC = () => {
       title: '📢 Admin Event Panel',
       type: 'desktop',
       description: 'Steward console featuring safety car deployment, live flag changes, penalty assignments, and incident timeline.'
+    },
+    {
+      title: '🗺️ OpenStreetMap Route Builder',
+      type: 'desktop',
+      description: 'Interactive track designer powered by OpenStreetMap: custom circuits, GPS waypoint projection, elevation profiles, and checkpoints.'
     }
   ];
 
@@ -726,6 +731,115 @@ export const ShowcasePage: React.FC = () => {
                             <span style={{ color: '#e2e8f0' }}>⏱️ 14:00:00 • Official Session 14 Started (Laguna Seca Grand Prix)</span>
                             <span style={{ color: '#00d4ff', fontWeight: 700, fontSize: '0.72rem', background: 'rgba(0, 212, 255, 0.15)', padding: '2px 6px', borderRadius: '4px' }}>DIRECTOR</span>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentMockup.title.includes('Route Builder') && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {/* Builder Toolbar */}
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        background: 'rgba(0, 0, 0, 0.4)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '10px',
+                        padding: '10px 14px',
+                        flexWrap: 'wrap',
+                        gap: '10px'
+                      }}>
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                          <span style={{ color: '#00d4ff', fontWeight: 800, fontFamily: "'Orbitron', sans-serif", fontSize: '0.85rem' }}>
+                            🗺️ OpenStreetMap Circuit Designer
+                          </span>
+                          <span style={{ background: 'rgba(0, 212, 255, 0.15)', color: '#00d4ff', border: '1px solid rgba(0, 212, 255, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 700 }}>
+                            LEAFLET + TURF.JS
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button style={{ background: '#00ff88', color: '#000', border: 'none', padding: '6px 12px', borderRadius: '6px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer' }}>
+                            ✏️ Draw Route
+                          </button>
+                          <button style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.15)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.78rem', cursor: 'pointer' }}>
+                            📍 Add Checkpoint
+                          </button>
+                          <button style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.78rem', cursor: 'pointer' }}>
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Map Canvas with OpenStreetMap Aesthetic */}
+                      <div style={{
+                        position: 'relative',
+                        height: '240px',
+                        background: '#131b26',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        border: '1px solid rgba(0, 212, 255, 0.2)'
+                      }}>
+                        {/* OpenStreetMap Tile Grid Simulation */}
+                        <div style={{
+                          position: 'absolute',
+                          inset: 0,
+                          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px)',
+                          backgroundSize: '20px 20px, 40px 40px, 40px 40px'
+                        }} />
+
+                        {/* Simulated Circuit Track Overlay */}
+                        <svg viewBox="0 0 800 240" style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+                          <path d="M 50 40 L 750 40 M 50 120 L 750 120 M 50 200 L 750 200 M 150 20 L 150 220 M 350 20 L 350 220 M 550 20 L 550 220" stroke="rgba(255,255,255,0.06)" strokeWidth="2" strokeDasharray="4,4" fill="none" />
+                          <path d="M 0 160 Q 200 130 400 170 T 800 140" stroke="rgba(0, 212, 255, 0.15)" strokeWidth="24" fill="none" />
+                          <path d="M 120 70 C 220 50, 280 110, 420 90 C 560 70, 680 110, 680 160 C 680 200, 520 200, 360 180 C 200 160, 120 130, 120 70 Z" stroke="#3b82f6" strokeWidth="6" fill="rgba(59, 130, 246, 0.08)" />
+                          <line x1="120" y1="55" x2="120" y2="85" stroke="#00ff88" strokeWidth="4" strokeDasharray="3,3" />
+                          <circle cx="120" cy="70" r="7" fill="#00ff88" stroke="#fff" strokeWidth="2" />
+                          <text x="135" y="65" fill="#00ff88" fontSize="11" fontWeight="800" fontFamily="Orbitron">START / FINISH</text>
+                          <circle cx="420" cy="90" r="5" fill="#f59e0b" stroke="#fff" strokeWidth="2" />
+                          <text x="430" y="85" fill="#f59e0b" fontSize="10" fontWeight="700">Sector 1 Gate</text>
+                          <circle cx="680" cy="160" r="5" fill="#00d4ff" stroke="#fff" strokeWidth="2" />
+                          <text x="690" y="165" fill="#00d4ff" fontSize="10" fontWeight="700">Sector 2 Gate</text>
+                          <circle cx="360" cy="180" r="5" fill="#bb44ff" stroke="#fff" strokeWidth="2" />
+                          <text x="310" y="200" fill="#bb44ff" fontSize="10" fontWeight="700">Speed Trap (285 km/h)</text>
+                        </svg>
+
+                        {/* OpenStreetMap Attribution & Scale */}
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '6px',
+                          right: '8px',
+                          background: 'rgba(0, 0, 0, 0.75)',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.68rem',
+                          color: '#94a3b8'
+                        }}>
+                          🗺️ Leaflet | © OpenStreetMap contributors
+                        </div>
+                      </div>
+
+                      {/* Route Geometry & Telemetry Stats */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                        gap: '8px'
+                      }}>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Total Distance</span>
+                          <span style={{ fontSize: '1rem', fontWeight: 800, color: '#00ff88', fontFamily: "'JetBrains Mono', monospace" }}>5.420 KM</span>
+                        </div>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Waypoints</span>
+                          <span style={{ fontSize: '1rem', fontWeight: 800, color: '#00d4ff', fontFamily: "'JetBrains Mono', monospace" }}>24 Points</span>
+                        </div>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Projection Accuracy</span>
+                          <span style={{ fontSize: '1rem', fontWeight: 800, color: '#f59e0b', fontFamily: "'JetBrains Mono', monospace" }}>±5m (Turf.js)</span>
+                        </div>
+                        <div style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                          <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Est. Lap Pace</span>
+                          <span style={{ fontSize: '1rem', fontWeight: 800, color: '#bb44ff', fontFamily: "'JetBrains Mono', monospace" }}>1:34.250</span>
                         </div>
                       </div>
                     </div>

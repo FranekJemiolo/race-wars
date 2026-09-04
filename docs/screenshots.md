@@ -102,6 +102,26 @@ Encrypted pitwall communication interface for real-time race engineering, pit st
 
 ---
 
+## 🗺️ OpenStreetMap Route Builder & Live GPS Tracking
+
+Race Wars is built on an OpenStreetMap geospatial core powered by Leaflet and Turf.js. Drivers, track designers, and race organizers can draw custom circuits or point-to-point stages, place checkpoints, and track real-time vehicle coordinates on live OpenStreetMap tiles.
+
+### OpenStreetMap Route Builder
+![Route Builder](assets/route-builder.png)
+
+### Live Circuit GPS Tracking on OpenStreetMap
+![Live Race Map](assets/racing-view-with-map.png)
+
+### Spectator Circuit Overview
+![Spectating View](assets/spectating-view.png)
+
+**Key Capabilities:**
+- **OpenStreetMap Polyline Drawing**: Draw custom circuits directly on OpenStreetMap tiles with automatic distance, lap, and elevation calculations.
+- **Turf.js Geometry Projection**: Projects noisy GPS coordinates onto track polylines with 5m precision.
+- **Live Multi-Vehicle Tracking**: Live driver markers, start/finish lines, sector gates, and split times on real-world street and track maps.
+
+---
+
 ## 🎨 Design System Specifications
 
 ### Cockpit Color Palette
